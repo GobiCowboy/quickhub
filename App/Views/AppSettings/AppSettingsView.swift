@@ -94,9 +94,10 @@ enum SettingsCategory: String, CaseIterable {
     }
 }
 
-// MARK: - 新建文件设置
-
-struct NewFileSettingsView: View {
+#Preview {
+    AppSettingsView()
+        .frame(width: 900, height: 700)
+}
     @Binding var config: AppConfig
     var onEdit: (EditableItem) -> Void
     @State private var customExt = ""
