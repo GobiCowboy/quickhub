@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 
 /// 命令执行器
-class CommandExecutor {
+class CommandExecutor: CommandExecutorProtocol {
     static let shared = CommandExecutor()
 
     private init() {}
@@ -206,56 +206,5 @@ class CommandExecutor {
         try await NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
 
         return ExecutionResult(success: true, output: "已打开应用")
-    }
-}
-
-// MARK: - 上下文
-
-struct ExecutionContext {
-    var filePath: String?   // 完整文件路径
-    var fileName: String?   // 文件名（不含路径）
-    var directory: String   // 所在目录
-
-    init(filePath: String? = nil, directory: String = "") {
-        self.filePath = filePath
-        self.fileName = filePath?.components(separatedBy: "/").last
-        self.directory = directory
-
-        // 如果没有提供目录，从文件路径推导
-        if self.directory.isEmpty, let path = filePath {
-            self.directory = (path as NSString).deletingLastPathComponent
-        }
-    }
-}
-
-// MARK: - 结果
-
-struct ExecutionResult {
-    var success: Bool
-    var output: String
-}
-
-// MARK: - 错误
-
-enum ExecutionError: LocalizedError {
-    case missingCommand
-    case missingTemplate
-    case missingPath
-    case commandFailed(String)
-    case executionFailed(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .missingCommand:
-            return "命令未设置"
-        case .missingTemplate:
-            return "模板未设置"
-        case .missingPath:
-            return "路径未设置"
-        case .commandFailed(let msg):
-            return "命令执行失败: \(msg)"
-        case .executionFailed(let msg):
-            return "执行失败: \(msg)"
-        }
     }
 }

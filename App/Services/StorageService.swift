@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 
 /// 存储服务 - 管理配置持久化
-class StorageService {
+class StorageService: StorageServiceProtocol {
     static let shared = StorageService()
 
     private let configPath: URL

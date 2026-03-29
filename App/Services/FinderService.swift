@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 
 /// Finder 交互服务 - 获取当前选中的文件/目录
-class FinderService {
+class FinderService: FinderServiceProtocol {
     static let shared = FinderService()
 
     private init() {}
