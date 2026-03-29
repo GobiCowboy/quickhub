@@ -114,8 +114,12 @@ class CommandExecutor: CommandExecutorProtocol {
             throw ExecutionError.missingTemplate
         }
 
-        // 解析文件名
-        let fileName = promptFileName(extension: ext, directory: context.directory)
+        // 解析文件名 - 使用用户输入
+        let fileName = await withCheckedContinuation { continuation in
+            UserInputHelper.promptFileName(extension: ext, directory: context.directory) { name in
+                continuation.resume(returning: name ?? "Untitled")
+            }
+        }
 
         let fullFileName = "\(fileName).\(ext)"
         let fileURL = URL(fileURLWithPath: context.directory).appendingPathComponent(fullFileName)
@@ -135,12 +139,6 @@ class CommandExecutor: CommandExecutorProtocol {
         }
     }
 
-    private func promptFileName(extension ext: String, directory: String) -> String {
-        // 简化版本：使用默认文件名
-        // 完整版本需要展示对话框让用户输入
-        return "Untitled.\(ext)"
-    }
-
     private func renderTemplate(_ template: String, fileName: String) -> String {
         let now = Date()
         let formatter = DateFormatter()
@@ -156,7 +154,13 @@ class CommandExecutor: CommandExecutorProtocol {
     // MARK: - 新建文件夹
 
     private func executeCreateFolder(_ item: CommandItem, context: ExecutionContext) async throws -> ExecutionResult {
-        let folderName = promptFolderName(directory: context.directory)
+        // 使用用户输入的文件夹名
+        let folderName = await withCheckedContinuation { continuation in
+            UserInputHelper.promptFolderName(directory: context.directory) { name in
+                continuation.resume(returning: name ?? "Untitled Folder")
+            }
+        }
+
         let folderURL = URL(fileURLWithPath: context.directory).appendingPathComponent(folderName)
 
         do {
@@ -169,12 +173,6 @@ class CommandExecutor: CommandExecutorProtocol {
         } catch {
             throw ExecutionError.executionFailed(error.localizedDescription)
         }
-    }
-
-    private func promptFolderName(directory: String) -> String {
-        // 简化版本：使用默认文件夹名
-        // 完整版本需要展示对话框让用户输入
-        return "Untitled Folder"
     }
 
     // MARK: - 打开目录
