@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 // MARK: - 用户输入帮助类
 
@@ -68,5 +69,105 @@ enum UserInputHelper {
                 }
             }
         }
+    }
+
+    /// 显示 Bitwarden 搜索对话框
+    static func promptBitwardenSearch(completion: @escaping (String?) -> Void) {
+        DispatchQueue.main.async {
+            let alert = NSAlert()
+            alert.messageText = "搜索密码"
+            alert.informativeText = "请输入搜索关键词："
+            alert.addButton(withTitle: "搜索")
+            alert.addButton(withTitle: "取消")
+
+            let inputField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
+            inputField.placeholderString = "搜索 Bitwarden..."
+            alert.accessoryView = inputField
+
+            alert.beginSheetModal(for: NSApp.keyWindow ?? NSWindow()) { response in
+                if response == .alertFirstButtonReturn {
+                    let query = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                    completion(query.isEmpty ? nil : query)
+                } else {
+                    completion(nil)
+                }
+            }
+        }
+    }
+
+    /// 显示 Bitwarden 搜索结果列表
+    static func showBitwardenResults(items: [BitwardenItem], completion: @escaping (BitwardenItem?) -> Void) {
+        DispatchQueue.main.async {
+            let hostingController = NSHostingController(
+                rootView: BitwardenResultsView(items: items, onSelect: completion)
+            )
+
+            let window = NSWindow(contentViewController: hostingController)
+            window.title = "搜索结果"
+            window.styleMask = [.titled, .closable]
+            window.setContentSize(NSSize(width: 400, height: 300))
+            window.center()
+
+            let panel = NSPanel(contentViewController: hostingController)
+            panel.title = "搜索结果"
+            panel.styleMask = [.titled, .closable, .fullSizeContentView]
+            panel.setContentSize(NSSize(width: 400, height: 300))
+            panel.center()
+
+            NSApp.activate(ignoringOtherApps: true)
+            panel.makeKeyAndOrderFront(nil)
+        }
+    }
+}
+
+// MARK: - Bitwarden 搜索结果视图
+
+struct BitwardenResultsView: View {
+    let items: [BitwardenItem]
+    let onSelect: (BitwardenItem?) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if items.isEmpty {
+                Text("未找到匹配的密码")
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List(items) { item in
+                    Button(action: {
+                        onSelect(item)
+                    }) {
+                        HStack {
+                            Image(systemName: "key.fill")
+                                .foregroundColor(.orange)
+                            VStack(alignment: .leading) {
+                                Text(item.name)
+                                    .font(.body)
+                                if let username = item.login?.username {
+                                    Text(username)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            Divider()
+
+            HStack {
+                Spacer()
+                Button("取消") {
+                    onSelect(nil)
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+            .padding()
+        }
+        .frame(width: 400, height: 300)
     }
 }

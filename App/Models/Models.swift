@@ -66,6 +66,7 @@ enum CommandType: String, Codable, CaseIterable {
     case createFolder = "create_folder" // 新建文件夹
     case openFinder = "open_finder"    // 打开目录
     case openApp = "open_app"          // 打开应用
+    case bitwardenSearch = "bitwarden_search" // Bitwarden 密码搜索
 }
 
 // MARK: - 命令分组
@@ -109,4 +110,29 @@ struct AppSettings: Codable {
     var showNotifications: Bool = true
 
     init() {}
+}
+
+// MARK: - Bitwarden 数据模型
+
+struct BitwardenItem: Codable, Identifiable {
+    let id: String
+    let name: String
+    let login: BitwardenLoginItem?
+    let notes: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, login, notes
+    }
+}
+
+struct BitwardenLoginItem: Codable {
+    let username: String?
+    let password: String?
+    let totp: String?
+    let uris: [BitwardenUri]?
+}
+
+struct BitwardenUri: Codable {
+    let uri: String?
+    let match: Int?
 }

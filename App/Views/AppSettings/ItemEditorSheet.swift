@@ -101,6 +101,10 @@ struct ItemEditorSheet: View {
                         }
 
                         Toggle("在终端中执行", isOn: $openInTerminal)
+
+                    case .bitwardenSearch:
+                        Text("Bitwarden 搜索无需配置")
+                            .foregroundColor(.secondary)
                     }
                 }
                 .padding(20)
@@ -163,6 +167,10 @@ struct ItemEditorSheet: View {
             icon = cmdItem.icon
             command = cmdItem.command ?? ""
             openInTerminal = cmdItem.openInTerminal ?? true
+
+        case .bitwardenSearch(let cmdItem):
+            name = cmdItem.name
+            icon = cmdItem.icon
         }
     }
 
@@ -177,6 +185,8 @@ struct ItemEditorSheet: View {
         case .folder(let cmdItem):
             updateItem(cmdItem)
         case .shell(let cmdItem):
+            updateItem(cmdItem)
+        case .bitwardenSearch(let cmdItem):
             updateItem(cmdItem)
         }
         onSave()
@@ -193,6 +203,8 @@ struct ItemEditorSheet: View {
         case .folder(let cmdItem):
             deleteFromConfig(cmdItem)
         case .shell(let cmdItem):
+            deleteFromConfig(cmdItem)
+        case .bitwardenSearch(let cmdItem):
             deleteFromConfig(cmdItem)
         }
         onSave()
@@ -230,6 +242,8 @@ struct ItemEditorSheet: View {
                 case .shell:
                     updatedItem.command = command
                     updatedItem.openInTerminal = openInTerminal
+                case .bitwardenSearch:
+                    break
                 }
 
                 config.groups[groupIndex].items[itemIndex] = updatedItem

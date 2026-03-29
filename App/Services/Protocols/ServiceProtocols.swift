@@ -48,6 +48,16 @@ protocol CommandExecutorProtocol {
     func execute(_ item: CommandItem, context: ExecutionContext) async throws -> ExecutionResult
 }
 
+// MARK: - Bitwarden 服务协议
+
+protocol BitwardenServiceProtocol {
+    /// 搜索密码
+    func searchPasswords(query: String) async throws -> [BitwardenItem]
+
+    /// 获取密码详情
+    func getPassword(itemId: String) async throws -> BitwardenLoginItem?
+}
+
 // MARK: - 上下文
 
 struct ExecutionContext {

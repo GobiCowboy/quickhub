@@ -20,6 +20,8 @@ class CommandExecutor: CommandExecutorProtocol {
             return try await executeOpenFinder(item, context: context)
         case .openApp:
             return try await executeOpenApp(item, context: context)
+        case .bitwardenSearch:
+            return try await executeBitwardenSearch(context: context)
         }
     }
 
@@ -204,5 +206,53 @@ class CommandExecutor: CommandExecutorProtocol {
         try await NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
 
         return ExecutionResult(success: true, output: "已打开应用")
+    }
+
+    // MARK: - Bitwarden 密码搜索
+
+    private func executeBitwardenSearch(context: ExecutionContext) async throws -> ExecutionResult {
+        // 弹出搜索框获取用户输入
+        let query = await withCheckedContinuation { continuation in
+            UserInputHelper.promptBitwardenSearch { searchText in
+                continuation.resume(returning: searchText ?? "")
+            }
+        }
+
+        guard !query.isEmpty else {
+            return ExecutionResult(success: false, output: "搜索已取消")
+        }
+
+        // 搜索密码
+        let items = try await BitwardenService.shared.searchPasswords(query: query)
+
+        if items.isEmpty {
+            return ExecutionResult(success: true, output: "未找到匹配的密码")
+        }
+
+        // 如果只有一个结果，直接复制
+        if items.count == 1, let item = items.first, let login = item.login, let password = login.password {
+            copyToClipboard(password)
+            return ExecutionResult(success: true, output: "已复制 \(item.name) 的密码")
+        }
+
+        // 多个结果，弹出选择
+        let selectedItem = await withCheckedContinuation { continuation in
+            UserInputHelper.showBitwardenResults(items: items) { selected in
+                continuation.resume(returning: selected)
+            }
+        }
+
+        if let item = selectedItem, let login = item.login, let password = login.password {
+            copyToClipboard(password)
+            return ExecutionResult(success: true, output: "已复制 \(item.name) 的密码")
+        }
+
+        return ExecutionResult(success: false, output: "未选择或密码为空")
+    }
+
+    private func copyToClipboard(_ text: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
     }
 }

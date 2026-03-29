@@ -64,6 +64,8 @@ struct CommandItemRow: View {
             return "目录"
         case .openApp:
             return "应用"
+        case .bitwardenSearch:
+            return "密码"
         }
     }
 

@@ -32,6 +32,7 @@
 		FE05EC513AC5F27631080BCB /* Presets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC49CEA37FF4A8CCDA5270 /* Presets.swift */; };
 		A1B2C3D4E5F6071891011121 /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B3C4D5E6F7081920213141 /* HotkeyRecorderView.swift */; };
 		B3C4D5E6F7A8B9C0D1E2F314 /* HotkeyUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D5E6F7A8B9C0D1E2F3142 /* HotkeyUtil.swift */; };
+		D5E6F7A8B9C0D1E2F31425 /* BitwardenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F7A8B9C0D1E2F31436 /* BitwardenService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
 		F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorSheet.swift; sourceTree = "<group>"; };
 		A2B3C4D5E6F7081920213141 /* HotkeyRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRecorderView.swift; sourceTree = "<group>"; };
 		C4D5E6F7A8B9C0D1E2F3142 /* HotkeyUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyUtil.swift; sourceTree = "<group>"; };
+		E6F7A8B9C0D1E2F31436 /* BitwardenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -106,6 +108,7 @@
 				7B1133E985EE1D372996E65E /* CommandExecutor.swift */,
 				A2D8211C0F5F66F5B3B5139A /* FinderService.swift */,
 				8376DFBE60B5134502D963E5 /* StorageService.swift */,
+				E6F7A8B9C0D1E2F31436 /* BitwardenService.swift */,
 				1FFFC330895C6413DAD57D43 /* Protocols */,
 			);
 			path = Services;
@@ -278,6 +281,7 @@
 				F5A2FC3A767658D4B70B4E75 /* ServiceProtocols.swift in Sources */,
 				4CDA118184BD65B0D1E0C42D /* ShellCommandSettingsView.swift in Sources */,
 				96D6960F3694B1D8FE776841 /* StorageService.swift in Sources */,
+				D5E6F7A8B9C0D1E2F31425 /* BitwardenService.swift in Sources */,
 				AA1618CFB10056952692CB80 /* UserInputHelper.swift in Sources */,
 				C84EF1214C44E733B0496247 /* main.swift in Sources */,
 				A1B2C3D4E5F6071891011121 /* HotkeyRecorderView.swift in Sources */,
