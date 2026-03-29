@@ -169,26 +169,20 @@ class StorageService: StorageServiceProtocol {
                 ]
             ),
             CommandGroup(
-                name: "目录快捷",
-                icon: "bookmark",
+                name: "常用目录",
+                icon: "star.fill",
                 items: [
                     CommandItem(
-                        name: "打开桌面",
+                        name: "桌面",
                         icon: "desktopcomputer",
                         type: .openFinder,
                         targetPath: "~/Desktop"
                     ),
                     CommandItem(
-                        name: "打开下载",
+                        name: "下载",
                         icon: "arrow.down.circle.fill",
                         type: .openFinder,
                         targetPath: "~/Downloads"
-                    ),
-                    CommandItem(
-                        name: "打开项目",
-                        icon: "folder.fill",
-                        type: .openFinder,
-                        targetPath: "~/Projects"
                     )
                 ]
             )
