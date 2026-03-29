@@ -6,7 +6,6 @@ struct OpenAppSettingsView: View {
     @Binding var config: AppConfig
     var onEdit: (EditableItem) -> Void
     @State private var customAppPath = ""
-    @State private var showFilePicker = false
     @State private var errorMessage: String?
 
     // 按分类组织的预设应用
@@ -112,7 +111,7 @@ struct OpenAppSettingsView: View {
                 .cornerRadius(6)
             }
 
-            // 可添加 - 按分类展示
+            // 可添加 - 按分类展示（包含在 ScrollView 内）
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     ForEach(presetCategories, id: \.name) { category in
@@ -135,44 +134,53 @@ struct OpenAppSettingsView: View {
                             }
                         }
                     }
+
+                    // 自定义应用（放在 ScrollView 内）
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("自定义", systemImage: "plus.square.dashed")
+                            .font(.headline)
+                            .foregroundColor(.accentColor)
+
+                        HStack {
+                            TextField("应用路径，如 /Applications/xxx.app", text: $customAppPath)
+                                .textFieldStyle(.roundedBorder)
+
+                            Button("浏览...") {
+                                browseFolder()
+                            }
+                        }
+
+                        Button("添加应用") {
+                            addCustomApp()
+                        }
+                        .disabled(customAppPath.isEmpty)
+
+                        Text("提示: 文件位置有误或未下载时，请通过自定义方式设置")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 .padding(.vertical, 8)
             }
 
-            Divider()
-
-            // 自定义应用
-            Text("添加自定义应用")
-                .font(.headline)
-
-            HStack {
-                TextField("应用路径，如 /Applications/xxx.app", text: $customAppPath)
-                    .textFieldStyle(.roundedBorder)
-
-                Button("浏览...") {
-                    showFilePicker = true
-                }
-            }
-
-            Button("添加应用") {
-                addCustomApp()
-            }
-            .disabled(customAppPath.isEmpty)
-
-            Text("提示: 文件位置有误或未下载时，请通过自定义方式设置")
-                .font(.caption)
-                .foregroundColor(.secondary)
-
             Spacer()
         }
         .padding(20)
-        .fileImporter(isPresented: $showFilePicker, allowedContentTypes: [.application]) { result in
-            if case .success(let url) = result {
-                customAppPath = url.path
-            }
-        }
         .onAppear {
             checkForMissingApps()
+        }
+    }
+
+    private func browseFolder() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.allowedContentTypes = [.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+
+        if panel.runModal() == .OK, let url = panel.url {
+            customAppPath = url.path
         }
     }
 

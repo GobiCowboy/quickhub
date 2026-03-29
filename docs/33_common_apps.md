@@ -137,6 +137,38 @@ private func checkForMissingApps() {
 
 用户可以点击"清除"按钮关闭提示，或通过自定义方式重新设置正确的应用路径。
 
+## 设置页面布局
+
+设置页面采用全滚动布局，与新建文件设置保持一致：
+
+- 顶部：标题 + 说明
+- 已启用项目（如果有）
+- 错误信息（如果有，显示应用路径错误提示）
+- 可添加应用列表（按分类组织，全部可滚动）
+- 自定义应用添加区域
+
+### 浏览应用
+
+点击"浏览..."按钮时，使用 `NSOpenPanel` 打开文件选择器：
+
+```swift
+private func browseFolder() {
+    let panel = NSOpenPanel()
+    panel.canChooseFiles = true
+    panel.canChooseDirectories = false
+    panel.allowsMultipleSelection = false
+    panel.allowedContentTypes = [.application]
+    panel.directoryURL = URL(fileURLWithPath: "/Applications")
+
+    if panel.runModal() == .OK, let url = panel.url {
+        customAppPath = url.path
+    }
+}
+```
+
+- 默认定位到 `/Applications` 目录
+- 只显示 `.app` 类型的应用文件
+
 ## 相关文件
 
 - `App/Views/AppSettings/OpenAppSettingsView.swift` - 设置页面视图
