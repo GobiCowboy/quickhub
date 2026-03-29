@@ -27,35 +27,26 @@ enum UserInputHelper {
             // 激活应用
             NSApp.activate(ignoringOtherApps: true)
 
-            // 延迟显示对话框，确保窗口状态稳定
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                // 先关闭任何可能阻挡的窗口
-                if let keyWindow = NSApp.keyWindow {
-                    // 使用 keyWindow 作为 sheet 父窗口
-                    alert.beginSheetModal(for: keyWindow) { response in
-                        if response == .alertFirstButtonReturn {
-                            let fileName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                            completion(fileName.isEmpty ? "Untitled" : fileName)
-                        } else {
-                            completion(nil)
-                        }
-                    }
+            // 创建一个临时窗口作为 sheet 的父窗口
+            let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+            tempWindow.level = .floating
+            tempWindow.center()
+            tempWindow.makeKeyAndOrderFront(nil)
 
-                    // 延迟聚焦到输入框（sheet 显示后）
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        keyWindow.makeFirstResponder(inputField)
-                        inputField.selectText(nil)
-                    }
+            // 显示 sheet 并在显示后聚焦输入框
+            alert.beginSheetModal(for: tempWindow) { response in
+                if response == .alertFirstButtonReturn {
+                    let fileName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                    completion(fileName.isEmpty ? "Untitled" : fileName)
                 } else {
-                    // 没有 keyWindow，使用 runModal 显示普通对话框
-                    let response = alert.runModal()
-                    if response == .alertFirstButtonReturn {
-                        let fileName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        completion(fileName.isEmpty ? "Untitled" : fileName)
-                    } else {
-                        completion(nil)
-                    }
+                    completion(nil)
                 }
+            }
+
+            // 延迟聚焦到输入框
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                tempWindow.makeFirstResponder(inputField)
+                inputField.selectText(nil)
             }
         }
     }
@@ -77,49 +68,29 @@ enum UserInputHelper {
             inputField.placeholderString = "文件夹名称"
             alert.accessoryView = inputField
 
-            // 激活应用并获取关键窗口
+            // 激活应用
             NSApp.activate(ignoringOtherApps: true)
 
-            // 延迟显示对话框，确保窗口状态稳定
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                guard let keyWindow = NSApp.keyWindow else {
-                    // 如果还是没有 keyWindow，创建一个临时窗口作为 sheet 父窗口
-                    let tempWindow = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1, height: 1), styleMask: .borderless, backing: .buffered, defer: false)
-                    tempWindow.level = .floating
-                    tempWindow.center()
-                    tempWindow.makeKeyAndOrderFront(nil)
+            // 创建一个临时窗口作为 sheet 的父窗口
+            let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+            tempWindow.level = .floating
+            tempWindow.center()
+            tempWindow.makeKeyAndOrderFront(nil)
 
-                    alert.beginSheetModal(for: tempWindow) { response in
-                        if response == .alertFirstButtonReturn {
-                            let folderName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                            completion(folderName.isEmpty ? "Untitled Folder" : folderName)
-                        } else {
-                            completion(nil)
-                        }
-                    }
-
-                    // 延迟聚焦到输入框
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        tempWindow.makeFirstResponder(inputField)
-                        inputField.selectText(nil)
-                    }
-                    return
+            // 显示 sheet 并在显示后聚焦输入框
+            alert.beginSheetModal(for: tempWindow) { response in
+                if response == .alertFirstButtonReturn {
+                    let folderName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                    completion(folderName.isEmpty ? "Untitled Folder" : folderName)
+                } else {
+                    completion(nil)
                 }
+            }
 
-                alert.beginSheetModal(for: keyWindow) { response in
-                    if response == .alertFirstButtonReturn {
-                        let folderName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                        completion(folderName.isEmpty ? "Untitled Folder" : folderName)
-                    } else {
-                        completion(nil)
-                    }
-                }
-
-                // 延迟聚焦到输入框
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    keyWindow.makeFirstResponder(inputField)
-                    inputField.selectText(nil)
-                }
+            // 延迟聚焦到输入框
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                tempWindow.makeFirstResponder(inputField)
+                inputField.selectText(nil)
             }
         }
     }

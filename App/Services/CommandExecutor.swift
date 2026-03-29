@@ -119,12 +119,44 @@ class CommandExecutor: CommandExecutorProtocol {
         // 解析文件名 - 使用用户输入
         let fileName = await withCheckedContinuation { continuation in
             UserInputHelper.promptFileName(extension: ext, directory: context.directory) { name in
-                continuation.resume(returning: name ?? "Untitled")
+                continuation.resume(returning: name)
             }
+        }
+
+        // 用户取消
+        guard let fileName = fileName else {
+            return ExecutionResult(success: false, output: "已取消")
         }
 
         let fullFileName = "\(fileName).\(ext)"
         let fileURL = URL(fileURLWithPath: context.directory).appendingPathComponent(fullFileName)
+
+        // 检查文件是否已存在
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            let shouldReplace = await withCheckedContinuation { continuation in
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    alert.messageText = "文件已存在"
+                    alert.informativeText = "\(fullFileName) 已存在。是否要替换它？"
+                    alert.addButton(withTitle: "替换")
+                    alert.addButton(withTitle: "取消")
+
+                    // 创建临时窗口作为 sheet 父窗口
+                    let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+                    tempWindow.level = .floating
+                    tempWindow.center()
+                    tempWindow.makeKeyAndOrderFront(nil)
+
+                    alert.beginSheetModal(for: tempWindow) { response in
+                        continuation.resume(returning: response == .alertFirstButtonReturn)
+                    }
+                }
+            }
+
+            if !shouldReplace {
+                return ExecutionResult(success: false, output: "已取消")
+            }
+        }
 
         // 渲染模板
         let content = renderTemplate(template, fileName: fileName)
@@ -159,11 +191,46 @@ class CommandExecutor: CommandExecutorProtocol {
         // 使用用户输入的文件夹名
         let folderName = await withCheckedContinuation { continuation in
             UserInputHelper.promptFolderName(directory: context.directory) { name in
-                continuation.resume(returning: name ?? "Untitled Folder")
+                continuation.resume(returning: name)
             }
         }
 
+        // 用户取消
+        guard let folderName = folderName else {
+            return ExecutionResult(success: false, output: "已取消")
+        }
+
         let folderURL = URL(fileURLWithPath: context.directory).appendingPathComponent(folderName)
+
+        // 检查文件夹是否已存在
+        if FileManager.default.fileExists(atPath: folderURL.path) {
+            let shouldReplace = await withCheckedContinuation { continuation in
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    alert.messageText = "文件夹已存在"
+                    alert.informativeText = "\(folderName) 已存在。是否要替换它？"
+                    alert.addButton(withTitle: "替换")
+                    alert.addButton(withTitle: "取消")
+
+                    // 创建临时窗口作为 sheet 父窗口
+                    let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+                    tempWindow.level = .floating
+                    tempWindow.center()
+                    tempWindow.makeKeyAndOrderFront(nil)
+
+                    alert.beginSheetModal(for: tempWindow) { response in
+                        continuation.resume(returning: response == .alertFirstButtonReturn)
+                    }
+                }
+            }
+
+            if !shouldReplace {
+                return ExecutionResult(success: false, output: "已取消")
+            }
+
+            // 删除已存在的文件夹
+            try FileManager.default.removeItem(at: folderURL)
+        }
 
         do {
             try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
