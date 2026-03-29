@@ -128,13 +128,6 @@ class StorageService: StorageServiceProtocol {
                 icon: "terminal",
                 items: [
                     CommandItem(
-                        name: "在终端打开",
-                        icon: "terminal",
-                        type: .shell,
-                        command: "cd '{dir}' && open -a Terminal",
-                        openInTerminal: false
-                    ),
-                    CommandItem(
                         name: "复制路径",
                         icon: "doc.on.doc",
                         type: .shell,
@@ -142,18 +135,46 @@ class StorageService: StorageServiceProtocol {
                         openInTerminal: false
                     ),
                     CommandItem(
-                        name: "Git 状态",
-                        icon: "arrow.triangle.branch",
+                        name: "在终端打开",
+                        icon: "terminal",
                         type: .shell,
-                        command: "cd '{dir}' && git status",
-                        openInTerminal: true
+                        command: "cd '{dir}' && open -a Terminal",
+                        openInTerminal: false
                     ),
                     CommandItem(
-                        name: "Git 拉取",
-                        icon: "arrow.down.circle",
+                        name: "在终端新标签页打开",
+                        icon: "terminal.fill",
                         type: .shell,
-                        command: "cd '{dir}' && git pull",
-                        openInTerminal: true
+                        command: "cd '{dir}' && osascript -e 'tell app \"Terminal\" to do script \"cd {dir}\"'",
+                        openInTerminal: false
+                    ),
+                    CommandItem(
+                        name: "在 iTerm2 打开",
+                        icon: "terminal",
+                        type: .shell,
+                        command: "cd '{dir}' && open -a iTerm",
+                        openInTerminal: false
+                    ),
+                    CommandItem(
+                        name: "在 iTerm2 新标签页打开",
+                        icon: "terminal.fill",
+                        type: .shell,
+                        command: "cd '{dir}' && osascript -e 'tell app \"iTerm\" to create session with default profile'",
+                        openInTerminal: false
+                    ),
+                    CommandItem(
+                        name: "在 tmux 打开",
+                        icon: "rectangle.split.3x1",
+                        type: .shell,
+                        command: "cd '{dir}' && tmux new-session -d -s temp && tmux send-keys 'cd {dir}' Enter",
+                        openInTerminal: false
+                    ),
+                    CommandItem(
+                        name: "在 VS Code 打开",
+                        icon: "chevron.left.forwardslash.chevron.right",
+                        type: .shell,
+                        command: "cd '{dir}' && code .",
+                        openInTerminal: false
                     )
                 ]
             ),

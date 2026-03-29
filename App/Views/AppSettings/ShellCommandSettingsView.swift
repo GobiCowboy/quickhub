@@ -9,15 +9,13 @@ struct ShellCommandSettingsView: View {
     @State private var customCommandName = ""
 
     private let presetCommands: [ShellPreset] = [
-        ShellPreset(name: "Git 状态", command: "git status", icon: "arrow.triangle.branch", openTerminal: true),
-        ShellPreset(name: "Git 拉取", command: "git pull", icon: "arrow.down.circle", openTerminal: true),
-        ShellPreset(name: "Git 推送", command: "git push", icon: "arrow.up.circle", openTerminal: true),
-        ShellPreset(name: "Git 分支", command: "git branch -a", icon: "arrow.triangle.branch", openTerminal: true),
-        ShellPreset(name: "Docker 容器", command: "docker ps", icon: "shippingbox.fill", openTerminal: true),
-        ShellPreset(name: "Docker 镜像", command: "docker images", icon: "shippingbox", openTerminal: true),
-        ShellPreset(name: "NPM 依赖", command: "npm install", icon: "cube.box", openTerminal: true),
-        ShellPreset(name: "PIP 列表", command: "pip list", icon: "cube.box.fill", openTerminal: true),
-        ShellPreset(name: "复制路径", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false)
+        ShellPreset(name: "复制路径", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
+        ShellPreset(name: "在终端打开", command: "cd '{dir}' && open -a Terminal", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "在终端新标签页打开", command: "cd '{dir}' && osascript -e 'tell app \"Terminal\" to do script \"cd {dir}\"'", icon: "terminal.fill", openTerminal: false),
+        ShellPreset(name: "在 iTerm2 打开", command: "cd '{dir}' && open -a iTerm", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "在 iTerm2 新标签页打开", command: "cd '{dir}' && osascript -e 'tell app \"iTerm\" to create session with default profile'", icon: "terminal.fill", openTerminal: false),
+        ShellPreset(name: "在 tmux 打开", command: "cd '{dir}' && tmux new-session -d -s temp && tmux send-keys 'cd {dir}' Enter", icon: "rectangle.split.3x1", openTerminal: false),
+        ShellPreset(name: "在 VS Code 打开", command: "cd '{dir}' && code .", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false)
     ]
 
     var body: some View {
@@ -85,7 +83,20 @@ struct ShellCommandSettingsView: View {
                 TextField("命令内容，如: git status", text: $customCommand)
                     .textFieldStyle(.roundedBorder)
 
-                Text("提示: 使用 {path} 表示选中文件路径，{dir} 表示目录")
+                Text("提示: 使用 {path} 表示选中文件路径，{dir} 表示目录，{filename} 表示文件名")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                Text("示例:")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text("复制路径: echo -n '{path}' | pbcopy")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text("终端打开: cd '{dir}' && open -a Terminal")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text("iTerm2: cd '{dir}' && open -a iTerm")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
