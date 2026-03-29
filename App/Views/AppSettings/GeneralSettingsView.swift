@@ -1,32 +1,34 @@
 import SwiftUI
 
-// MARK: - 通用设置
-
 struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var showNotifications = true
-    @State private var hotkey = "Cmd+Shift+P"
+    @StateObject private var hotkeyRecorder = HotkeyRecorderViewModel()
 
     var body: some View {
         Form {
             Section("启动") {
                 Toggle("开机自动启动", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _ in
+                        saveSettings()
+                    }
             }
 
             Section("通知") {
                 Toggle("执行命令后显示通知", isOn: $showNotifications)
+                    .onChange(of: showNotifications) { _ in
+                        saveSettings()
+                    }
             }
 
             Section("快捷键") {
                 HStack {
                     Text("打开面板")
                     Spacer()
-                    Text(hotkey)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.secondary.opacity(0.1))
-                        .cornerRadius(4)
+                    HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey)
+                        .onChange(of: hotkeyRecorder.hotkey) { _ in
+                            saveSettings()
+                        }
                 }
             }
 
@@ -55,6 +57,27 @@ struct GeneralSettingsView: View {
         }
         .formStyle(.grouped)
         .padding(20)
+        .onAppear {
+            loadSettings()
+        }
+    }
+
+    private func loadSettings() {
+        let settings = StorageService.shared.loadConfig().settings
+        hotkeyRecorder.hotkey = settings.hotkey
+        launchAtLogin = settings.launchAtLogin
+        showNotifications = settings.showNotifications
+    }
+
+    private func saveSettings() {
+        var config = StorageService.shared.loadConfig()
+        config.settings.hotkey = hotkeyRecorder.hotkey
+        config.settings.launchAtLogin = launchAtLogin
+        config.settings.showNotifications = showNotifications
+        StorageService.shared.saveConfig(config)
+
+        // 通知 AppDelegate 重新注册快捷键
+        NotificationCenter.default.post(name: .hotkeySettingsChanged, object: nil)
     }
 
     private func openConfigDirectory() {
@@ -66,5 +89,18 @@ struct GeneralSettingsView: View {
     private func resetToDefaults() {
         StorageService.shared.saveConfig(AppConfig(groups: []))
         ConfigObserver.shared.refresh()
+        loadSettings()
     }
+}
+
+// MARK: - 快捷键录制视图模型
+class HotkeyRecorderViewModel: ObservableObject {
+    @Published var hotkey: HotkeyConfiguration?
+
+    init() {}
+}
+
+// MARK: - 通知名称
+extension Notification.Name {
+    static let hotkeySettingsChanged = Notification.Name("hotkeySettingsChanged")
 }

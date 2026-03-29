@@ -7,6 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow!
     private var eventMonitor: Any?
     private var settingsHostingController: NSHostingController<AppSettingsView>?
+    private var globalHotkeyMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 初始化存储服务
@@ -20,6 +21,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 监听全局快捷键
         setupGlobalHotKey()
+
+        // 监听快捷键设置变化通知
+        NotificationCenter.default.addObserver(
+            forName: .hotkeySettingsChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.setupGlobalHotKey()
+        }
 
         // 隐藏 Dock 图标（菜单栏应用）
         NSApp.setActivationPolicy(.accessory)
@@ -64,9 +74,32 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setupGlobalHotKey() {
-        // Cmd+Shift+P 打开面板
-        NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.modifierFlags.contains([.command, .shift]) && event.charactersIgnoringModifiers == "p" {
+        // 先移除之前的监听
+        if let monitor = globalHotkeyMonitor {
+            NSEvent.removeMonitor(monitor)
+            globalHotkeyMonitor = nil
+        }
+
+        // 读取保存的快捷键配置
+        let savedHotkey = StorageService.shared.loadConfig().settings.hotkey
+        let config = savedHotkey ?? HotkeyConfiguration.defaultHotkey
+
+        guard !config.isEmpty else {
+            print("[Hotkey] 快捷键为空，跳过注册")
+            return
+        }
+
+        print("[Hotkey] 注册快捷键: keyCode=\(config.keyCode), modifiers=\(config.modifiers)")
+
+        // 全局监听键盘事件
+        globalHotkeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            let eventModifiers = event.modifierFlags.rawValue & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
+            let configModifiers = config.modifiers & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
+
+            print("[Hotkey] 收到事件: keyCode=\(event.keyCode), modifiers=\(eventModifiers), 期望: keyCode=\(config.keyCode), modifiers=\(configModifiers)")
+
+            if event.keyCode == config.keyCode && eventModifiers == configModifiers {
+                print("[Hotkey] 快捷键匹配! 切换面板")
                 DispatchQueue.main.async {
                     self?.togglePanel()
                 }

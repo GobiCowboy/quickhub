@@ -1,4 +1,19 @@
 import Foundation
+import AppKit
+
+// MARK: - 快捷键配置
+struct HotkeyConfiguration: Codable, Equatable {
+    var keyCode: UInt16
+    var modifiers: UInt
+
+    static let defaultHotkey = HotkeyConfiguration(keyCode: 35, modifiers: UInt(NSEvent.ModifierFlags([.command, .shift]).rawValue)) // Cmd+Shift+P
+
+    static let empty = HotkeyConfiguration(keyCode: 0, modifiers: 0)
+
+    var isEmpty: Bool {
+        return keyCode == 0 && modifiers == 0
+    }
+}
 
 // MARK: - 命令项
 struct CommandItem: Identifiable, Codable, Hashable {
@@ -89,7 +104,7 @@ struct AppConfig: Codable {
 
 // MARK: - 应用设置
 struct AppSettings: Codable {
-    var hotkey: String = "Cmd+Shift+P"
+    var hotkey: HotkeyConfiguration?
     var launchAtLogin: Bool = false
     var showNotifications: Bool = true
 
