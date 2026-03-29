@@ -113,29 +113,13 @@ class StorageService: StorageServiceProtocol {
     static func defaultGroups() -> [CommandGroup] {
         return [
             CommandGroup(
-                name: "文件操作",
-                icon: "folder",
+                name: "新建文件/文件夹",
+                icon: "folder.badge.plus",
                 items: [
                     CommandItem(
-                        name: "新建 Markdown",
-                        icon: "doc.text",
-                        type: .createFile,
-                        template: "# {{FILENAME}}\n\n{{DATE}}\n",
-                        fileExtension: "md"
-                    ),
-                    CommandItem(
-                        name: "新建 Swift 文件",
-                        icon: "swift",
-                        type: .createFile,
-                        template: "//\n//  {{FILENAME}}.swift\n//\n\nimport Foundation\n",
-                        fileExtension: "swift"
-                    ),
-                    CommandItem(
-                        name: "复制路径",
-                        icon: "doc.on.doc",
-                        type: .shell,
-                        command: "echo -n '{path}' | pbcopy",
-                        openInTerminal: false
+                        name: "新建文件夹",
+                        icon: "folder.badge.plus",
+                        type: .createFolder
                     )
                 ]
             ),
@@ -148,6 +132,13 @@ class StorageService: StorageServiceProtocol {
                         icon: "terminal",
                         type: .shell,
                         command: "cd '{dir}' && open -a Terminal",
+                        openInTerminal: false
+                    ),
+                    CommandItem(
+                        name: "复制路径",
+                        icon: "doc.on.doc",
+                        type: .shell,
+                        command: "echo -n '{path}' | pbcopy",
                         openInTerminal: false
                     ),
                     CommandItem(

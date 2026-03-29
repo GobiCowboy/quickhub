@@ -28,5 +28,7 @@
     <string>NSApplication</string>
     <key>LSUIElement</key>
     <true/>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>RightClickX 需要访问 Finder 以获取当前选中的文件和目录信息，从而在正确的位置创建文件或文件夹。</string>
 </dict>
 </plist>

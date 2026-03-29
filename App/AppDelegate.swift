@@ -33,6 +33,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 隐藏 Dock 图标（菜单栏应用）
         NSApp.setActivationPolicy(.accessory)
+
+        // 请求 Finder 自动化权限
+        requestFinderAccess()
+    }
+
+    /// 请求 Finder 自动化权限
+    private func requestFinderAccess() {
+        let script = """
+        tell application "Finder"
+            return name of it
+        end tell
+        """
+
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: script) {
+            // 尝试执行脚本，这会触发权限请求
+            let result = appleScript.executeAndReturnError(&error)
+            if result.stringValue != nil {
+                print("[AppDelegate] Finder 权限获取成功")
+            } else if let error = error {
+                print("[AppDelegate] Finder 权限获取失败: \(error)")
+            }
+        }
     }
 
     private func setupStatusItem() {

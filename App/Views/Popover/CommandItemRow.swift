@@ -96,6 +96,11 @@ struct CommandItemRow: View {
             directory: FinderService.shared.getCurrentDirectory()
         )
 
+        print("[CommandItemRow] 执行命令: \(item.name)")
+        print("[CommandItemRow] context.filePath: \(context.filePath ?? "nil")")
+        print("[CommandItemRow] context.directory: \(context.directory)")
+        print("[CommandItemRow] context.fileName: \(context.fileName ?? "nil")")
+
         Task {
             do {
                 let result = try await CommandExecutor.shared.execute(item, context: context)

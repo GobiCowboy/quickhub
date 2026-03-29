@@ -15,7 +15,8 @@ struct NewFileSettingsView: View {
             FileTemplatePreset(name: "PPT", ext: "pptx", icon: "chart.bar"),
             FileTemplatePreset(name: "Pages", ext: "pages", icon: "doc.richtext.fill"),
             FileTemplatePreset(name: "Numbers", ext: "numbers", icon: "tablecells.fill"),
-            FileTemplatePreset(name: "Keynote", ext: "key", icon: "play.rectangle.fill")
+            FileTemplatePreset(name: "Keynote", ext: "key", icon: "play.rectangle.fill"),
+            FileTemplatePreset(name: "Markdown", ext: "md", icon: "doc.richtext")
         ]),
         ("编程", "chevron.left.forwardslash.chevron.right", [
             FileTemplatePreset(name: "Swift", ext: "swift", icon: "swift"),
@@ -39,7 +40,7 @@ struct NewFileSettingsView: View {
     ]
 
     private var enabledFolderItems: [CommandItem] {
-        let group = config.groups.first { $0.name == "文件操作" }
+        let group = config.groups.first { $0.name == "新建文件/文件夹" }
         return group?.items.filter { $0.type == .createFolder } ?? []
     }
 
@@ -161,7 +162,7 @@ struct NewFileSettingsView: View {
     }
 
     private func getEnabledTemplates() -> [CommandItem] {
-        let group = config.groups.first { $0.name == "文件操作" }
+        let group = config.groups.first { $0.name == "新建文件/文件夹" }
         return group?.items.filter { $0.type == .createFile } ?? []
     }
 
@@ -171,8 +172,8 @@ struct NewFileSettingsView: View {
     }
 
     private func addTemplate(_ preset: FileTemplatePreset) {
-        ensureGroup(name: "文件操作", icon: "folder")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "文件操作" }) {
+        ensureGroup(name: "新建文件/文件夹", icon: "folder.badge.plus")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "新建文件/文件夹" }) {
             let template = preset.toCommandItem()
             config.groups[groupIndex].items.append(template)
             StorageService.shared.saveConfig(config)
@@ -181,7 +182,7 @@ struct NewFileSettingsView: View {
     }
 
     private func deleteTemplate(_ item: CommandItem) {
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "文件操作" }) {
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "新建文件/文件夹" }) {
             config.groups[groupIndex].items.removeAll { $0.id == item.id }
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()
@@ -189,8 +190,8 @@ struct NewFileSettingsView: View {
     }
 
     private func addNewFolder() {
-        ensureGroup(name: "文件操作", icon: "folder")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "文件操作" }) {
+        ensureGroup(name: "新建文件/文件夹", icon: "folder.badge.plus")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "新建文件/文件夹" }) {
             let folderItem = CommandItem(name: "新建文件夹", icon: "folder.fill", type: .createFolder)
             config.groups[groupIndex].items.append(folderItem)
             StorageService.shared.saveConfig(config)
@@ -199,7 +200,7 @@ struct NewFileSettingsView: View {
     }
 
     private func deleteFolderItem(_ item: CommandItem) {
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "文件操作" }) {
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "新建文件/文件夹" }) {
             config.groups[groupIndex].items.removeAll { $0.id == item.id }
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()
@@ -211,8 +212,8 @@ struct NewFileSettingsView: View {
         let name = ext.isEmpty ? "自定义文件" : ".\(ext)"
         let icon = ext.isEmpty ? "doc" : "doc.fill"
 
-        ensureGroup(name: "文件操作", icon: "folder")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "文件操作" }) {
+        ensureGroup(name: "新建文件/文件夹", icon: "folder.badge.plus")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "新建文件/文件夹" }) {
             let item = CommandItem(name: name, icon: icon, type: .createFile, fileExtension: ext)
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
