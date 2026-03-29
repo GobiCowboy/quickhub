@@ -163,6 +163,11 @@ class StorageService: StorageServiceProtocol {
                         type: .shell,
                         command: "cd '{dir}' && git pull",
                         openInTerminal: true
+                    ),
+                    CommandItem(
+                        name: "搜索 Bitwarden 密码",
+                        icon: "key.fill",
+                        type: .bitwardenSearch
                     )
                 ]
             ),
