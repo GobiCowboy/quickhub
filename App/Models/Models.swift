@@ -1,0 +1,97 @@
+import Foundation
+
+// MARK: - 命令项
+struct CommandItem: Identifiable, Codable, Hashable {
+    var id: UUID
+    var name: String           // 显示名称
+    var icon: String          // SF Symbol 图标
+    var type: CommandType      // 命令类型
+    var enabled: Bool         // 是否启用
+
+    // Shell 命令相关
+    var command: String?      // shell 命令
+    var openInTerminal: Bool? // 是否在终端中执行
+
+    // 新建文件相关
+    var template: String?     // 文件模板内容
+    var fileExtension: String? // 文件扩展名
+
+    // 打开目录相关
+    var targetPath: String?    // 目标路径
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        icon: String = "command",
+        type: CommandType = .shell,
+        enabled: Bool = true,
+        command: String? = nil,
+        openInTerminal: Bool? = nil,
+        template: String? = nil,
+        fileExtension: String? = nil,
+        targetPath: String? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.type = type
+        self.enabled = enabled
+        self.command = command
+        self.openInTerminal = openInTerminal
+        self.template = template
+        self.fileExtension = fileExtension
+        self.targetPath = targetPath
+    }
+}
+
+// MARK: - 命令类型
+enum CommandType: String, Codable, CaseIterable {
+    case shell = "shell"              // Shell 命令
+    case createFile = "create_file"    // 新建文件
+    case createFolder = "create_folder" // 新建文件夹
+    case openFinder = "open_finder"    // 打开目录
+    case openApp = "open_app"          // 打开应用
+}
+
+// MARK: - 命令分组
+struct CommandGroup: Identifiable, Codable, Hashable {
+    var id: UUID
+    var name: String           // 分组名称
+    var icon: String          // 分组图标
+    var enabled: Bool         // 是否启用
+    var items: [CommandItem]  // 包含的命令
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        icon: String = "folder",
+        enabled: Bool = true,
+        items: [CommandItem] = []
+    ) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.enabled = enabled
+        self.items = items
+    }
+}
+
+// MARK: - 完整配置
+struct AppConfig: Codable {
+    var groups: [CommandGroup]
+    var settings: AppSettings
+
+    init(groups: [CommandGroup] = [], settings: AppSettings = AppSettings()) {
+        self.groups = groups
+        self.settings = settings
+    }
+}
+
+// MARK: - 应用设置
+struct AppSettings: Codable {
+    var hotkey: String = "Cmd+Shift+P"
+    var launchAtLogin: Bool = false
+    var showNotifications: Bool = true
+
+    init() {}
+}

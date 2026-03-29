@@ -1,0 +1,48 @@
+name: RightClickX
+options:
+  bundleIdPrefix: com.rightclickx
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_IDENTITY: "-"
+
+targets:
+  RightClickX:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rightclickx.app
+        INFOPLIST_FILE: App/Info.plist
+        PRODUCT_NAME: RightClickX
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        COMBINE_HIDPI_IMAGES: YES
+    entitlements:
+      path: App/RightClickX.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+
+packages: {}
+
+schemes:
+  RightClickX:
+    build:
+      targets:
+        RightClickX: all
+    run:
+      config: Debug
+    archive:
+      config: Release
