@@ -32,8 +32,18 @@ class CommandExecutor: CommandExecutorProtocol {
             throw ExecutionError.missingCommand
         }
 
+        // 处理旧版的带有 bug 的 AppleScript 终端启动代码，强制升级为原生更快的 open -a 指令
+        var processedCommand = command
+        if processedCommand.hasPrefix("osascript") {
+            if processedCommand.contains("\"Terminal\"") && processedCommand.contains("cd") {
+                processedCommand = "open -a Terminal '{dir}'"
+            } else if processedCommand.contains("\"iTerm\"") && processedCommand.contains("cd") {
+                processedCommand = "open -a iTerm '{dir}'"
+            }
+        }
+
         // 替换占位符
-        let expandedCommand = expandCommand(command, context: context)
+        let expandedCommand = expandCommand(processedCommand, context: context)
 
         // 是否在终端中执行
         if item.openInTerminal == true {
@@ -131,12 +141,15 @@ class CommandExecutor: CommandExecutorProtocol {
             script = "cd '\(directory)' && \(command)"
         }
 
-        let escapedScript = script.replacingOccurrences(of: "'", with: "'\\''")
+        // 安全转义 AppleScript 中的字符串（处理反斜杠和双引号）
+        let appleScriptEscapedScript = script
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
 
         let appleScript = """
         tell application "Terminal"
             activate
-            do script "\(escapedScript)"
+            do script "\(appleScriptEscapedScript)"
         end tell
         """
 

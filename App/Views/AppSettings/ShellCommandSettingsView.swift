@@ -10,8 +10,8 @@ struct ShellCommandSettingsView: View {
 
     private let presetCommands: [ShellPreset] = [
         ShellPreset(name: "复制路径", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
-        ShellPreset(name: "在终端打开", command: "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"{dir}\\\" && zsh\"'", icon: "terminal", openTerminal: false),
-        ShellPreset(name: "在 iTerm2 打开", command: "osascript -e 'tell application \"iTerm\" to create session with default profile' -e 'tell session -1 of window 1 to write text \"cd \\\"{dir}\\\"\"'", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "在终端打开", command: "open -a Terminal '{dir}'", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "在 iTerm2 打开", command: "open -a iTerm '{dir}'", icon: "terminal", openTerminal: false),
         ShellPreset(name: "在 VS Code 打开", command: "cd '{dir}' && code .", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false)
     ]
 
@@ -93,10 +93,10 @@ struct ShellCommandSettingsView: View {
                         Text("复制路径: echo -n '{path}' | pbcopy")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("终端打开: osascript -e 'tell application \"Terminal\" to do script \"cd \\\"{dir}\\\"\"'")
+                        Text("终端打开: open -a Terminal '{dir}'")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("iTerm2: osascript -e 'tell application \"iTerm\" to create session with default profile' -e 'tell session -1 of window 1 to write text \"cd \\\"{dir}\\\"\"'")
+                        Text("iTerm2: open -a iTerm '{dir}'")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         Text("VSCode: cd '{dir}' && code .")
@@ -115,7 +115,7 @@ struct ShellCommandSettingsView: View {
     }
 
     private func getEnabledCommands() -> [CommandItem] {
-        let group = config.groups.first { $0.name == "终端命令" }
+        let group = config.groups.first { $0.name == "命令" }
         let result = group?.items.filter { $0.type == .shell } ?? []
         print("[ShellCommandSettings] getEnabledCommands: count=\(result.count), items=\(result.map { $0.name }))")
         return result
@@ -130,8 +130,8 @@ struct ShellCommandSettingsView: View {
 
     private func addCommand(_ cmd: ShellPreset) {
         print("[ShellCommandSettings] addCommand called: \(cmd.name)")
-        ensureGroup(name: "终端命令", icon: "terminal")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "终端命令" }) {
+        ensureGroup(name: "命令", icon: "terminal")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "命令" }) {
             let item = cmd.toCommandItem()
             print("[ShellCommandSettings] Adding item: \(item.name), id=\(item.id)")
             config.groups[groupIndex].items.append(item)
@@ -143,8 +143,8 @@ struct ShellCommandSettingsView: View {
 
     private func addCustomCommand() {
         print("[ShellCommandSettings] addCustomCommand called: \(customCommandName)")
-        ensureGroup(name: "终端命令", icon: "terminal")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "终端命令" }) {
+        ensureGroup(name: "命令", icon: "terminal")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "命令" }) {
             let item = CommandItem(
                 name: customCommandName,
                 icon: "command",
@@ -162,7 +162,7 @@ struct ShellCommandSettingsView: View {
 
     private func deleteCommand(_ item: CommandItem) {
         print("[ShellCommandSettings] deleteCommand called: \(item.name), id=\(item.id)")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "终端命令" }) {
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "命令" }) {
             print("[ShellCommandSettings] Before delete - items count: \(config.groups[groupIndex].items.count)")
             config.groups[groupIndex].items.removeAll { $0.id == item.id }
             StorageService.shared.saveConfig(config)

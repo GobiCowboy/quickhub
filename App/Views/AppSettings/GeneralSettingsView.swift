@@ -106,7 +106,7 @@ struct GeneralSettingsView: View {
     }
 
     private func resetToDefaults() {
-        StorageService.shared.saveConfig(AppConfig(groups: []))
+        StorageService.shared.saveConfig(AppConfig(groups: StorageService.defaultGroups()))
         ConfigObserver.shared.refresh()
         loadSettings()
     }

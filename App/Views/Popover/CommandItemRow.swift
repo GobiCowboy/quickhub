@@ -12,35 +12,38 @@ struct CommandItemRow: View {
     @State private var isExecuting = false
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 6) {
             itemIcon
-                .foregroundColor(.accentColor)
-                .frame(width: 20)
+                .font(.system(size: 13))
+                .foregroundColor(isHovered ? .white : .primary)
+                .frame(width: 16)
 
             Text(item.name)
-                .foregroundColor(.primary)
+                .font(.system(size: 12))
+                .foregroundColor(isHovered ? .white : .primary)
 
             Spacer()
 
-            // 命令类型标签
+            // 命令类型标签（在原生菜单往往省略，或者做得很淡）
             Text(commandTypeLabel)
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 6)
+                .font(.system(size: 9))
+                .foregroundColor(isHovered ? .white.opacity(0.8) : .secondary)
+                .padding(.horizontal, 4)
                 .padding(.vertical, 2)
-                .background(Color.secondary.opacity(0.1))
+                .background(isHovered ? Color.white.opacity(0.2) : Color.secondary.opacity(0.1))
                 .cornerRadius(4)
 
             if isExecuting {
                 ProgressView()
                     .controlSize(.small)
+                    .colorScheme(isHovered ? .dark : .light)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 3)
         .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(isHovered ? Color.accentColor.opacity(0.15) : Color.clear)
+            RoundedRectangle(cornerRadius: 4)
+                .fill(isHovered ? Color.accentColor : Color.clear)
         )
         .contentShape(Rectangle())
         .onHover { hovering in

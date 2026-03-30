@@ -30,6 +30,8 @@ struct AppSettingsView: View {
                     ShellCommandSettingsView(config: $config, onEdit: { editingItem = $0 })
                 case .bitwarden:
                     BitwardenSettingsView(config: $config, onEdit: { editingItem = $0 })
+                case .menuSort:
+                    MenuSortSettingsView(config: $config)
                 case .general:
                     GeneralSettingsView()
                 }
@@ -72,19 +74,21 @@ enum EditableItem: Identifiable, Equatable {
 
 enum SettingsCategory: String, CaseIterable {
     case newFile = "new_file"
-    case openApp = "open_app"
     case openFolder = "open_folder"
+    case openApp = "open_app"
     case shell = "shell"
     case bitwarden = "bitwarden"
+    case menuSort = "menu_sort"
     case general = "general"
 
     var title: String {
         switch self {
-        case .newFile: return "新建文件"
-        case .openApp: return "打开应用"
+        case .newFile: return "新建文件/文件夹"
         case .openFolder: return "打开文件夹"
-        case .shell: return "命令行"
+        case .openApp: return "打开应用"
+        case .shell: return "命令"
         case .bitwarden: return "密码管理"
+        case .menuSort: return "菜单排序"
         case .general: return "通用设置"
         }
     }
@@ -92,10 +96,11 @@ enum SettingsCategory: String, CaseIterable {
     var icon: String {
         switch self {
         case .newFile: return "doc.badge.plus"
-        case .openApp: return "app"
         case .openFolder: return "folder"
+        case .openApp: return "app"
         case .shell: return "terminal"
         case .bitwarden: return "key.fill"
+        case .menuSort: return "list.bullet"
         case .general: return "gear"
         }
     }

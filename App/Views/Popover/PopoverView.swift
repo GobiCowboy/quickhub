@@ -31,53 +31,9 @@ struct PopoverView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 顶部栏
-            HStack {
-                Text("RightClickX")
-                    .font(.headline)
-                Spacer()
-                Button(action: { openSettings() }) {
-                    Image(systemName: "gear")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("设置")
-
-                Button(action: { onClose?() }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("关闭")
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .background(Color(nsColor: .controlBackgroundColor))
-
-            Divider()
-
-            // 搜索框
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                TextField("搜索命令...", text: $searchText)
-                    .textFieldStyle(.plain)
-                if !searchText.isEmpty {
-                    Button(action: { searchText = "" }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(12)
-            .background(Color(nsColor: .textBackgroundColor))
-
-            Divider()
-
             // 命令列表
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8) {
+                LazyVStack(alignment: .leading, spacing: 3) {
                     ForEach(filteredGroups) { group in
                         if !group.items.isEmpty {
                             GroupSectionView(
@@ -87,30 +43,60 @@ struct PopoverView: View {
                                 hoveredItemIndex: $hoveredItemIndex,
                                 onClose: onClose
                             )
+                            
+                            if group.id != filteredGroups.last?.id {
+                                Divider()
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 3)
+                            }
                         }
                     }
 
                     // 空状态
                     if filteredGroups.isEmpty {
-                        VStack(spacing: 12) {
-                            Image(systemName: "command.circle")
-                                .font(.system(size: 40))
-                                .foregroundColor(.secondary)
+                        VStack(spacing: 6) {
                             Text("暂无命令")
+                                .font(.system(size: 12))
                                 .foregroundColor(.secondary)
-                            Text("在设置中添加命令")
-                                .font(.caption)
+                            Text("请在下方打开设置添加")
+                                .font(.system(size: 10))
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
+                        .padding(.top, 16)
+                        .padding(.bottom, 8)
                     }
                 }
-                .padding(12)
+                .padding(.vertical, 6)
             }
+            
+            Divider()
+            
+            // 底部设置栏
+            HStack {
+                Spacer()
+                Button(action: { openSettings() }) {
+                    Label("设置...", systemImage: "gear")
+                        .font(.system(size: 12))
+                        .foregroundColor(.primary)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .contentShape(Rectangle())
+                .onHover { isHovered in
+                    if isHovered {
+                        NSCursor.pointingHand.set()
+                    } else {
+                        NSCursor.arrow.set()
+                    }
+                }
+            }
+            .padding(.bottom, 2)
         }
-        .frame(width: 320, height: 450)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .frame(width: 240, height: 350) // 收敛固定尺寸以符合更细的间距
+        .background(VisualEffectBackground()) // 采用系统级高斯模糊外观
+        .cornerRadius(8)
     }
 
     private var filteredGroups: [CommandGroup] {
@@ -134,6 +120,20 @@ struct PopoverView: View {
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.openSettings()
         }
+    }
+}
+
+// 供实现系统菜单模糊背景
+struct VisualEffectBackground: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .popover // 使用 popover 可以获得更明亮清透的系统底色
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+        nsView.material = .popover
     }
 }
 

@@ -96,7 +96,7 @@ struct OpenFolderSettingsView: View {
     }
 
     private func getEnabledFolders() -> [CommandItem] {
-        let group = config.groups.first { $0.name == "常用目录" }
+        let group = config.groups.first { $0.name == "打开文件夹" }
         return group?.items.filter { $0.type == .openFinder } ?? []
     }
 
@@ -106,8 +106,8 @@ struct OpenFolderSettingsView: View {
     }
 
     private func addFolder(_ folder: FolderPreset) {
-        ensureGroup(name: "常用目录", icon: "folder")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "常用目录" }) {
+        ensureGroup(name: "打开文件夹", icon: "folder")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开文件夹" }) {
             let item = folder.toCommandItem()
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
@@ -119,8 +119,8 @@ struct OpenFolderSettingsView: View {
         let path = (customFolderPath as NSString).expandingTildeInPath
         let name = URL(fileURLWithPath: path).lastPathComponent
 
-        ensureGroup(name: "常用目录", icon: "folder")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "常用目录" }) {
+        ensureGroup(name: "打开文件夹", icon: "folder")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开文件夹" }) {
             let item = CommandItem(name: name, icon: "folder.fill", type: .openFinder, targetPath: path)
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
@@ -130,7 +130,7 @@ struct OpenFolderSettingsView: View {
     }
 
     private func deleteFolder(_ item: CommandItem) {
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "常用目录" }) {
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开文件夹" }) {
             config.groups[groupIndex].items.removeAll { $0.id == item.id }
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()

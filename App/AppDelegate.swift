@@ -166,7 +166,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         newPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         newPanel.isMovableByWindowBackground = true
         newPanel.hidesOnDeactivate = false
-        newPanel.backgroundColor = NSColor.windowBackgroundColor
+        newPanel.backgroundColor = .clear
+        newPanel.isOpaque = false
+        newPanel.hasShadow = true
         newPanel.titlebarAppearsTransparent = true
         newPanel.titleVisibility = .hidden
 
@@ -266,41 +268,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             print("[AppDelegate] 保存的 Finder 选择: \(currentFinderSelection.map { $0.lastPathComponent })")
 
             showPanel()
-
-            // 延迟后恢复 Finder 选择
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.restoreFinderSelection(self.currentFinderSelection)
-            }
-        }
-    }
-
-    /// 恢复 Finder 选择
-    private func restoreFinderSelection(_ paths: [URL]) {
-        guard !paths.isEmpty else { return }
-
-        // 构建 AppleScript 来选中这些项目
-        let pathStrings = paths.map { "'" + $0.path + "'" }.joined(separator: ", ")
-        let script = """
-        tell application "Finder"
-            try
-                set targetFolder to folder POSIX file "\(paths.first!.deletingLastPathComponent().path)"
-                activate
-                set selection to {}
-                delay 0.05
-                select item "\(paths.first!.lastPathComponent)" of targetFolder
-            on error errMsg
-                log "restoreFinderSelection error: " & errMsg
-            end try
-        end tell
-        """
-
-        print("[AppDelegate] 恢复 Finder 选择: \(paths.map { $0.lastPathComponent })")
-        var error: NSDictionary?
-        if let appleScript = NSAppleScript(source: script) {
-            appleScript.executeAndReturnError(&error)
-            if let err = error {
-                print("[AppDelegate] 恢复失败: \(err)")
-            }
         }
     }
 

@@ -124,7 +124,38 @@ class StorageService: StorageServiceProtocol {
                 ]
             ),
             CommandGroup(
-                name: "终端命令",
+                name: "打开文件夹",
+                icon: "folder",
+                items: [
+                    CommandItem(
+                        name: "桌面",
+                        icon: "desktopcomputer",
+                        type: .openFinder,
+                        targetPath: "~/Desktop"
+                    ),
+                    CommandItem(
+                        name: "下载",
+                        icon: "arrow.down.circle.fill",
+                        type: .openFinder,
+                        targetPath: "~/Downloads"
+                    )
+                ]
+            ),
+            CommandGroup(
+                name: "打开应用",
+                icon: "app",
+                items: [
+                    CommandItem(
+                        name: "终端",
+                        icon: "terminal",
+                        type: .shell,
+                        command: "open -a Terminal '{dir}'",
+                        openInTerminal: false
+                    )
+                ]
+            ),
+            CommandGroup(
+                name: "命令",
                 icon: "terminal",
                 items: [
                     CommandItem(
@@ -132,20 +163,6 @@ class StorageService: StorageServiceProtocol {
                         icon: "doc.on.doc",
                         type: .shell,
                         command: "echo -n '{path}' | pbcopy",
-                        openInTerminal: false
-                    ),
-                    CommandItem(
-                        name: "在终端打开",
-                        icon: "terminal",
-                        type: .shell,
-                        command: "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"{dir}\\\" && zsh\"'",
-                        openInTerminal: false
-                    ),
-                    CommandItem(
-                        name: "在 iTerm2 打开",
-                        icon: "terminal",
-                        type: .shell,
-                        command: "osascript -e 'tell application \"iTerm\" to create session with default profile' -e 'tell session -1 of window 1 to write text \"cd \\\"{dir}\\\"\"'",
                         openInTerminal: false
                     ),
                     CommandItem(
@@ -165,24 +182,6 @@ class StorageService: StorageServiceProtocol {
                         name: "搜索 Bitwarden 密码",
                         icon: "key.fill",
                         type: .bitwardenSearch
-                    )
-                ]
-            ),
-            CommandGroup(
-                name: "常用目录",
-                icon: "star.fill",
-                items: [
-                    CommandItem(
-                        name: "桌面",
-                        icon: "desktopcomputer",
-                        type: .openFinder,
-                        targetPath: "~/Desktop"
-                    ),
-                    CommandItem(
-                        name: "下载",
-                        icon: "arrow.down.circle.fill",
-                        type: .openFinder,
-                        targetPath: "~/Downloads"
                     )
                 ]
             )

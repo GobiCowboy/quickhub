@@ -10,33 +10,19 @@ struct GroupSectionView: View {
     var onClose: (() -> Void)?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            // 分组标题
-            HStack {
-                Image(systemName: group.icon)
-                    .foregroundColor(.accentColor)
-                    .frame(width: 20)
+        VStack(alignment: .leading, spacing: 1) {
+            // 分组标题（原生的段落标题通常非常低调）
+            if !group.name.isEmpty {
                 Text(group.name)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                Spacer()
-                Text("\(group.items.filter { $0.enabled }.count)")
-                    .font(.caption)
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(Color.secondary.opacity(0.15))
-                    .cornerRadius(10)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 3)
+                    .padding(.bottom, 3)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(hoveredGroupId == group.id ? Color.accentColor.opacity(0.1) : Color.clear)
-            )
 
             // 命令项
-            VStack(spacing: 2) {
+            VStack(spacing: 0) {
                 ForEach(Array(group.items.filter { $0.enabled }.enumerated()), id: \.element.id) { index, item in
                     if searchText.isEmpty || item.name.localizedCaseInsensitiveContains(searchText) {
                         CommandItemRow(
@@ -58,7 +44,7 @@ struct GroupSectionView: View {
                     }
                 }
             }
-            .padding(.leading, 16)
+            .padding(.horizontal, 6)
         }
     }
 }

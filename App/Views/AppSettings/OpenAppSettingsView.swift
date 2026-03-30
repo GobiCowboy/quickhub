@@ -185,7 +185,7 @@ struct OpenAppSettingsView: View {
     }
 
     private func getEnabledApps() -> [CommandItem] {
-        let group = config.groups.first { $0.name == "常用应用" }
+        let group = config.groups.first { $0.name == "打开应用" }
         return group?.items.filter { $0.type == .openApp } ?? []
     }
 
@@ -201,8 +201,8 @@ struct OpenAppSettingsView: View {
             return
         }
 
-        ensureGroup(name: "常用应用", icon: "app")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "常用应用" }) {
+        ensureGroup(name: "打开应用", icon: "app")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开应用" }) {
             let item = app.toCommandItem()
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
@@ -221,8 +221,8 @@ struct OpenAppSettingsView: View {
 
         let name = URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent
 
-        ensureGroup(name: "常用应用", icon: "app")
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "常用应用" }) {
+        ensureGroup(name: "打开应用", icon: "app")
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开应用" }) {
             let item = CommandItem(name: name, icon: "app", type: .openApp, targetPath: path)
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
@@ -233,7 +233,7 @@ struct OpenAppSettingsView: View {
     }
 
     private func deleteApp(_ item: CommandItem) {
-        if let groupIndex = config.groups.firstIndex(where: { $0.name == "常用应用" }) {
+        if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开应用" }) {
             config.groups[groupIndex].items.removeAll { $0.id == item.id }
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()

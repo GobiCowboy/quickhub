@@ -24,6 +24,7 @@
 		99FBC52DC35E21EF90796E72 /* HotkeyUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E2AAE41F1B4E4AA4255B3AE /* HotkeyUtil.swift */; };
 		9EF3CB7EE6C363D38C785F96 /* GlobalHotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 368C6D096A58F4C9E20486DD /* GlobalHotkeyManager.swift */; };
 		9FD6623ABCB465112BAD68BC /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8D86811EA5E1580715F591 /* GeneralSettingsView.swift */; };
+		A06DBBCCAACA4153287002C2 /* MenuSortSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFE65BABB652AB7D4630899 /* MenuSortSettingsView.swift */; };
 		A42C0D8A80D58B542D3D516A /* BitwardenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2CF0E8BCEC0D87CE115F7A /* BitwardenService.swift */; };
 		AA1618CFB10056952692CB80 /* UserInputHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */; };
 		BA9BB7F141BD13B8E0EDC531 /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CECCE928194BF8F237796D0 /* HotkeyRecorderView.swift */; };
@@ -66,6 +67,7 @@
 		C04935DB4F27C87EEBEECB95 /* OpenFolderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFolderSettingsView.swift; sourceTree = "<group>"; };
 		C2BC58DD77B6073E63FF7B6D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputHelper.swift; sourceTree = "<group>"; };
+		DFFE65BABB652AB7D4630899 /* MenuSortSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSortSettingsView.swift; sourceTree = "<group>"; };
 		E2E2D647B22BD86426CE9E33 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F268B93969609453B123A326 /* BitwardenSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenSettingsView.swift; sourceTree = "<group>"; };
 		F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorSheet.swift; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 				F268B93969609453B123A326 /* BitwardenSettingsView.swift */,
 				6A8D86811EA5E1580715F591 /* GeneralSettingsView.swift */,
 				F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */,
+				DFFE65BABB652AB7D4630899 /* MenuSortSettingsView.swift */,
 				56F680A69EFA1548BD00B1D1 /* NewFileSettingsView.swift */,
 				865B7CDAA1F1F3E818463B1C /* OpenAppSettingsView.swift */,
 				C04935DB4F27C87EEBEECB95 /* OpenFolderSettingsView.swift */,
@@ -291,6 +294,7 @@
 				99FBC52DC35E21EF90796E72 /* HotkeyUtil.swift in Sources */,
 				D827D562AAC998563248994A /* IconPickerSheet.swift in Sources */,
 				0A7D75B79DA85383C21E83F5 /* ItemEditorSheet.swift in Sources */,
+				A06DBBCCAACA4153287002C2 /* MenuSortSettingsView.swift in Sources */,
 				F4751C738ED48F4DC411598A /* Models.swift in Sources */,
 				37CD6FFF3A7ACBEC283A3E67 /* NewFileSettingsView.swift in Sources */,
 				1367E9A7F7CC2830E656C812 /* OpenAppSettingsView.swift in Sources */,

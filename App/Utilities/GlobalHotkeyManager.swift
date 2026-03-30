@@ -2,11 +2,8 @@ import AppKit
 import Carbon
 
 fileprivate func globalHotkeyHandlerCallback(nextHandler: EventHandlerCallRef?, theEvent: EventRef?, userData: UnsafeMutableRawPointer?) -> OSStatus {
-    guard let userData = userData else { return noErr }
-    let manager = Unmanaged<GlobalHotkeyManager>.fromOpaque(userData).takeUnretainedValue()
-    
-    if GetEventClass(theEvent) == kEventClassKeyboard && GetEventKind(theEvent) == UInt32(kEventHotKeyPressed) {
-        manager.action?()
+    if let event = theEvent, GetEventClass(event) == kEventClassKeyboard && GetEventKind(event) == UInt32(kEventHotKeyPressed) {
+        GlobalHotkeyManager.shared.action?()
     }
     return noErr
 }
@@ -30,9 +27,7 @@ class GlobalHotkeyManager {
         // 安装全局事件处理器（仅安装一次）
         if !isHandlerInstalled {
             var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-            let ptr = Unmanaged.passUnretained(self).toOpaque()
-            
-            InstallEventHandler(GetApplicationEventTarget(), globalHotkeyHandlerCallback, 1, &eventType, ptr, nil)
+            InstallEventHandler(GetApplicationEventTarget(), globalHotkeyHandlerCallback, 1, &eventType, nil, nil)
             isHandlerInstalled = true
         }
         
