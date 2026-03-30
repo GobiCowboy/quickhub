@@ -19,6 +19,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 创建浮动面板
         setupPanel()
 
+        // 检查辅助功能权限
+        checkAccessibilityPermission()
+
         // 监听全局快捷键
         setupGlobalHotKey()
 
@@ -36,6 +39,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 请求 Finder 自动化权限
         requestFinderAccess()
+    }
+
+    /// 检查辅助功能权限（全局快捷键需要）
+    private func checkAccessibilityPermission() {
+        // 先检查是否已有权限（不弹出系统对话框）
+        let trusted = AXIsProcessTrusted()
+        print("[AppDelegate] 辅助功能权限检查: AXIsProcessTrusted() = \(trusted)")
+        print("[AppDelegate] 进程路径: \(Bundle.main.bundlePath)")
+
+        if trusted {
+            print("[AppDelegate] 辅助功能权限已授予")
+            return
+        }
+
+        print("[AppDelegate] 辅助功能权限未授予，全局快捷键可能无法工作")
+        // 提示用户手动去设置
+        DispatchQueue.main.async {
+            self.showAccessibilityAlert()
+        }
+    }
+
+    private func showAccessibilityAlert() {
+        let alert = NSAlert()
+        alert.messageText = "需要辅助功能权限"
+        alert.informativeText = "全局快捷键需要辅助功能权限。请在系统设置中启用 RightClickX 的辅助功能权限，然后重启应用。"
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "打开系统设置")
+        alert.addButton(withTitle: "稍后")
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            // 打开辅助功能设置
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                NSWorkspace.shared.open(url)
+            }
+        }
     }
 
     /// 请求 Finder 自动化权限
@@ -112,14 +150,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        print("[Hotkey] 注册快捷键: keyCode=\(config.keyCode), modifiers=\(config.modifiers)")
+        let hotkeyString = HotkeyUtil.encode(config)
+        print("[Hotkey] 注册快捷键: \(hotkeyString) (keyCode=\(config.keyCode), modifiers=\(config.modifiers))")
 
         // 全局监听键盘事件
         globalHotkeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
             let eventModifiers = event.modifierFlags.rawValue & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
             let configModifiers = config.modifiers & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
 
-            print("[Hotkey] 收到事件: keyCode=\(event.keyCode), modifiers=\(eventModifiers), 期望: keyCode=\(config.keyCode), modifiers=\(configModifiers)")
+            let eventString = HotkeyUtil.encode(keyCode: event.keyCode, modifiers: eventModifiers)
+            print("[Hotkey] 收到事件: \(eventString) (keyCode=\(event.keyCode), modifiers=\(eventModifiers))")
+            print("[Hotkey] 期望匹配: keyCode=\(config.keyCode), modifiers=\(configModifiers)")
 
             if event.keyCode == config.keyCode && eventModifiers == configModifiers {
                 print("[Hotkey] 快捷键匹配! 切换面板")

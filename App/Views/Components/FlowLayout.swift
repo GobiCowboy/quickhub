@@ -21,7 +21,12 @@ struct FlowLayout: Layout {
     }
 
     private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
-        let maxWidth = proposal.width ?? .infinity
+        // 获取可用宽度，如果为无穷大则使用 300 作为默认值
+        var maxWidth = proposal.width ?? 300
+        if maxWidth.isInfinite || maxWidth <= 0 {
+            maxWidth = 300
+        }
+
         var positions: [CGPoint] = []
         var currentX: CGFloat = 0
         var currentY: CGFloat = 0

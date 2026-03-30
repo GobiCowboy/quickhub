@@ -6,7 +6,7 @@ struct HotkeyConfiguration: Codable, Equatable {
     var keyCode: UInt16
     var modifiers: UInt
 
-    static let defaultHotkey = HotkeyConfiguration(keyCode: 35, modifiers: UInt(NSEvent.ModifierFlags([.command, .shift]).rawValue)) // Cmd+Shift+P
+    static let defaultHotkey = HotkeyConfiguration(keyCode: 12, modifiers: 655360) // ⌥⇧Q
 
     static let empty = HotkeyConfiguration(keyCode: 0, modifiers: 0)
 

@@ -1,5 +1,7 @@
 import SwiftUI
 import ServiceManagement
+import AppKit
+import Carbon
 
 struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
@@ -26,10 +28,9 @@ struct GeneralSettingsView: View {
                 HStack {
                     Text("打开面板")
                     Spacer()
-                    HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey)
-                        .onChange(of: hotkeyRecorder.hotkey) { _ in
-                            saveSettings()
-                        }
+                    HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey) {
+                        saveSettings()
+                    }
                 }
             }
 

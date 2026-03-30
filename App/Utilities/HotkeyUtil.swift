@@ -106,40 +106,64 @@ enum HotkeyUtil {
     // MARK: - 检测系统快捷键冲突
     static func checkSystemConflicts(keyCode: UInt16, modifiers: UInt) -> [String] {
         var conflicts: [String] = []
-
         let flags = NSEvent.ModifierFlags(rawValue: modifiers)
+        let hotkeyString = encode(keyCode: keyCode, modifiers: modifiers)
 
-        // 检测常见系统快捷键冲突
-        let systemHotkeys: [(flags: NSEvent.ModifierFlags, keyCode: UInt16, name: String)] = [
-            (.command, 49, "⌘+Space - Spotlight（可能被替换）"),
-            (.command, 36, "⌘+↩ - 固定到程序坞"),
-            (.command, 53, "⌘+Esc - 强制退出"),
-            (.control, 36, "⌃+↩ - 切换用户"),
-            (.command, 96, "⌘+F1 - 切换显示器"),
-            (.command, 97, "⌘+F2 - 系统设置"),
-            (.command, 98, "⌘+F3 - 应用 Exposé"),
-            (.command, 99, "⌘+F4 - 显示器 Exposé"),
-            (.command, 100, "⌘+F5 - 调度中心"),
-            (.control, 101, "⌃+F6 - 语音控制"),
-            (.option, 49, "⌥+Space - Apple 菜单"),
+        // 检测与常见应用快捷键的冲突
+        let commonConflicts: [(flags: NSEvent.ModifierFlags, keyCode: UInt16, name: String)] = [
+            // Chrome
+            (.command, 2, "⌘+D - Chrome: 添加书签"),
+            (.command, 3, "⌘+F - Chrome: 查找"),
+            (.command, 6, "⌘+H - Chrome: 隐藏窗口"),
+            (.command, 7, "⌘+W - Chrome: 关闭窗口"),
+            (.command, 8, "⌘+C - Chrome: 复制"),
+            (.command, 9, "⌘+V - Chrome: 粘贴"),
+            (.command, 11, "⌘+B - Chrome: 书签栏"),
+            (.command, 13, "⌘+R - Chrome: 刷新"),
+            (.command, 15, "⌘+U - Chrome: 源代码"),
+            // Safari
+            (.command, 49, "⌘+Space - Spotlight"),
+            (.command, 51, "⌘+Delete - 删除"),
+            // Finder
+            (.command, 49, "⌘+Space - Spotlight"),
+            (.command, 52, "⌘+\\ - Finder: 显示隐藏文件"),
+            // Xcode
+            (.command, 0, "⌘+A - 全选"),
+            (.command, 1, "⌘+S - 保存"),
+            (.command, 6, "⌘+H - 隐藏"),
+            (.command, 7, "⌘+W - 关闭"),
+            (.command, 8, "⌘+C - 复制"),
+            (.command, 9, "⌘+V - 粘贴"),
+            (.command, 11, "⌘+B - 粗体"),
+            (.command, 13, "⌘+R - 运行"),
+            // Terminal
+            (.command, 49, "⌘+Space - Spotlight"),
+            // iTerm2
+            (.command, 49, "⌘+Space - Spotlight"),
+            // VSCode
+            (.command, 49, "⌘+Space - VSCode: 命令面板"),
+            (.command, 6, "⌘+H - VSCode: 隐藏"),
+            (.command, 7, "⌘+W - VSCode: 关闭标签"),
+            (.command, 12, "⌘+P - VSCode: 快速打开"),
+            (.command, 13, "⌘+R - VSCode: 转到符号"),
         ]
 
-        for hotkey in systemHotkeys {
-            // 检查修饰符是否匹配（不区分顺序）
-            let requiredFlags = hotkey.flags.rawValue & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
+        for conflict in commonConflicts {
+            let requiredFlags = conflict.flags.rawValue & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
             let currentFlags = modifiers & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
 
-            if requiredFlags == currentFlags && hotkey.keyCode == keyCode {
-                conflicts.append(hotkey.name)
+            if requiredFlags == currentFlags && conflict.keyCode == keyCode {
+                conflicts.append(conflict.name)
             }
         }
 
-        // 检查是否缺少修饰符（纯功能键或单键）
+        // 检查是否缺少必要的修饰符
         if modifiers == 0 {
-            conflicts.append("无修饰符快捷键可能与系统冲突")
-        } else if !flags.contains(.command) && !flags.contains(.control) {
-            conflicts.append("建议使用 ⌘ 或 ⌃ 修饰符以避免冲突")
+            conflicts.append("无修饰符快捷键容易冲突")
         }
+
+        // 记录当前快捷键
+        print("[HotkeyUtil] 检测冲突: \(hotkeyString), 发现冲突: \(conflicts.count)")
 
         return conflicts
     }
