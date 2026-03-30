@@ -115,13 +115,17 @@ struct CommandItemRow: View {
     }
 
     private func showNotification(title: String, message: String) {
+        // 检查设置是否允许发送通知
+        let settings = StorageService.shared.loadConfig().settings
+        guard settings.showNotifications else { return }
+
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             if granted {
                 let content = UNMutableNotificationContent()
                 content.title = title
                 content.body = message
-                    let request = UNNotificationRequest(
+                let request = UNNotificationRequest(
                     identifier: UUID().uuidString,
                     content: content,
                     trigger: nil

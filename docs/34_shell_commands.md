@@ -17,11 +17,8 @@
 | 名称 | 命令 | 说明 |
 |------|------|------|
 | 复制路径 | `echo -n '{path}' | pbcopy` | 复制选中文件/文件夹的完整路径到剪贴板 |
-| 在终端打开 | `cd '{dir}' && open -a Terminal` | 在 macOS Terminal 中打开当前目录 |
-| 在终端新标签页打开 | `cd '{dir}' && osascript -e 'tell app "Terminal" to do script "cd {dir}"'` | 在 Terminal 新标签页中打开 |
-| 在 iTerm2 打开 | `cd '{dir}' && open -a iTerm` | 在 iTerm2 中打开当前目录 |
-| 在 iTerm2 新标签页打开 | `cd '{dir}' && osascript -e 'tell app "iTerm" to create session with default profile'` | 在 iTerm2 新标签页打开 |
-| 在 tmux 打开 | `cd '{dir}' && tmux new-session -d -s temp && tmux send-keys 'cd {dir}' Enter` | 在 tmux 会话中打开 |
+| 在终端打开 | `osascript -e 'tell application "Terminal" to do script "cd \\"{dir}\\" && zsh"'` | 在 macOS Terminal 中打开当前目录 |
+| 在 iTerm2 打开 | `osascript -e 'tell application "iTerm" to create session with default profile' -e 'tell session -1 of window 1 to write text "cd \\"{dir}\\"""'` | 在 iTerm2 中打开当前目录 |
 | 在 VS Code 打开 | `cd '{dir}' && code .` | 使用 VS Code 打开当前目录 |
 
 ## 变量说明
@@ -62,15 +59,22 @@ NSAppleScript(script).executeAndReturnError(&error)
 设置页面提供以下功能：
 
 1. **已启用命令** - 显示当前已添加的命令
-2. **预设命令** - 提供常用命令快速添加
+2. **预设命令** - 提供常用命令快速添加（水平滚动布局）
 3. **自定义命令** - 用户可添加自定义命令
+
+### UI 布局
+
+- 整个设置页面使用 `ScrollView` 包裹，内容超出时可整体滚动
+- 预设命令区域使用 `ScrollView(.horizontal)` 水平滚动
+- 已启用命令区域使用 `FlowLayout` 流式布局
 
 ### 自定义命令示例
 
 ```
 复制路径: echo -n '{path}' | pbcopy
-终端打开: cd '{dir}' && open -a Terminal
-iTerm2: cd '{dir}' && open -a iTerm
+终端打开: osascript -e 'tell application "Terminal" to do script "cd \\"{dir}\\" && zsh"'
+iTerm2: osascript -e 'tell application "iTerm" to create session with default profile' -e 'tell session -1 of window 1 to write text "cd \\"{dir}\\"""'
+VSCode: cd '{dir}' && code .
 ```
 
 ## 技术实现
@@ -115,3 +119,5 @@ private func resolveVariables(_ command: String, context: ExecutionContext) -> S
 - `App/Views/AppSettings/ShellCommandSettingsView.swift` - 设置页面
 - `App/Views/AppSettings/Presets.swift` - ShellPreset 模型
 - `App/Services/CommandExecutor.swift` - 命令执行器
+- `App/Views/Components/EnabledChip.swift` - 启用/可添加 Chip 组件
+- `App/Views/Components/FlowLayout.swift` - 流式布局

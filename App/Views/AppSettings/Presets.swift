@@ -42,11 +42,19 @@ struct FolderPreset: Identifiable {
 // MARK: - Shell 命令预设
 
 struct ShellPreset: Identifiable {
-    let id = UUID()
+    let id: String  // 使用 name 作为 id，确保稳定性
     let name: String
     let command: String
     let icon: String
     let openTerminal: Bool
+
+    init(name: String, command: String, icon: String, openTerminal: Bool) {
+        self.id = name
+        self.name = name
+        self.command = command
+        self.icon = icon
+        self.openTerminal = openTerminal
+    }
 
     func toCommandItem() -> CommandItem {
         CommandItem(name: name, icon: icon, type: .shell, command: command, openInTerminal: openTerminal)

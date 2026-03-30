@@ -1,4 +1,5 @@
 import SwiftUI
+import ServiceManagement
 
 struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
@@ -76,8 +77,25 @@ struct GeneralSettingsView: View {
         config.settings.showNotifications = showNotifications
         StorageService.shared.saveConfig(config)
 
+        // 更新开机自动启动状态
+        updateLaunchAtLogin()
+
         // 通知 AppDelegate 重新注册快捷键
         NotificationCenter.default.post(name: .hotkeySettingsChanged, object: nil)
+    }
+
+    private func updateLaunchAtLogin() {
+        do {
+            if launchAtLogin {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            print("设置开机启动失败: \(error.localizedDescription)")
+            // 同步 UI 状态
+            launchAtLogin = SMAppService.mainApp.status == .enabled
+        }
     }
 
     private func openConfigDirectory() {

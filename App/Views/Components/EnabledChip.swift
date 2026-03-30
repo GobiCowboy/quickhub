@@ -61,6 +61,10 @@ struct AddableChip: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(Color.secondary.opacity(0.1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.orange, lineWidth: 1)
+            )
             .cornerRadius(16)
         }
         .buttonStyle(.plain)
