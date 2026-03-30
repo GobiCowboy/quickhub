@@ -180,7 +180,7 @@ class CommandExecutor: CommandExecutorProtocol {
            let range = Range(match.range(at: 1), in: command) {
             let dirPath = String(command[range])
             let url = URL(fileURLWithPath: dirPath)
-            NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+            try await NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
             return ExecutionResult(success: true, output: "已在 VS Code 中打开")
         }
 
