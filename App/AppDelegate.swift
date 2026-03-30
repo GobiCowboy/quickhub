@@ -193,29 +193,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         guard !config.isEmpty else {
             print("[Hotkey] 快捷键为空，跳过注册")
+            GlobalHotkeyManager.shared.unregister()
             return
         }
 
         let hotkeyString = HotkeyUtil.encode(config)
         print("[Hotkey] 注册快捷键: \(hotkeyString) (keyCode=\(config.keyCode), modifiers=\(config.modifiers))")
 
-        // 全局监听键盘事件
-        globalHotkeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            let eventModifiers = event.modifierFlags.rawValue & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
-            let configModifiers = config.modifiers & NSEvent.ModifierFlags.deviceIndependentFlagsMask.rawValue
-
-            let eventString = HotkeyUtil.encode(keyCode: event.keyCode, modifiers: eventModifiers)
-            print("[Hotkey] 收到事件: \(eventString) (keyCode=\(event.keyCode), modifiers=\(eventModifiers))")
-            print("[Hotkey] 期望匹配: keyCode=\(config.keyCode), modifiers=\(configModifiers)")
-
-            if event.keyCode == config.keyCode && eventModifiers == configModifiers {
-                print("[Hotkey] 快捷键匹配! 切换面板")
-                // 同步获取 Finder 选择（阻止任何窗口切换）
-                self?.currentFinderSelection = self?.syncGetFinderSelection() ?? []
-                print("[Hotkey] 快捷键处理中获取 Finder 选择: \(self?.currentFinderSelection.map { $0.lastPathComponent } ?? [])")
-                DispatchQueue.main.async {
-                    self?.togglePanel()
-                }
+        // 全局监听键盘事件（使用 Carbon 吞噬按键事件，防止前台程序受键盘输入影响）
+        GlobalHotkeyManager.shared.register(keyCode: config.keyCode, modifiers: config.modifiers) { [weak self] in
+            print("[Hotkey] 快捷键匹配! 切换面板")
+            // 同步获取 Finder 选择（阻止任何窗口切换）
+            self?.currentFinderSelection = self?.syncGetFinderSelection() ?? []
+            print("[Hotkey] 快捷键处理中获取 Finder 选择: \(self?.currentFinderSelection.map { $0.lastPathComponent } ?? [])")
+            DispatchQueue.main.async {
+                self?.togglePanel()
             }
         }
     }
