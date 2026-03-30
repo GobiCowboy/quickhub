@@ -52,16 +52,22 @@ class CommandExecutor: CommandExecutorProtocol {
     }
 
     private func executeSilently(_ command: String) async throws -> ExecutionResult {
+        print("[CommandExecutor] executeSilently: \(command)")
+
         // 对于打开 Terminal/iTerm 的命令，使用 AppleScript
         if command.contains("open -a Terminal") {
+            print("[CommandExecutor] Detected Terminal command")
             return try await executeTerminalCommand(command)
         } else if command.contains("open -a iTerm") {
+            print("[CommandExecutor] Detected iTerm command")
             return try await executeITermCommand(command)
         } else if command.contains("code ") {
+            print("[CommandExecutor] Detected VSCode command")
             return try await executeVSCodeCommand(command)
         }
 
         // 对于其他命令，使用 zsh 执行
+        print("[CommandExecutor] Using zsh to execute")
         return try await withCheckedThrowingContinuation { continuation in
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/zsh")
@@ -77,6 +83,7 @@ class CommandExecutor: CommandExecutorProtocol {
 
                 let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 let output = String(data: data, encoding: .utf8) ?? ""
+                print("[CommandExecutor] zsh output: \(output), status: \(task.terminationStatus)")
 
                 if task.terminationStatus == 0 {
                     continuation.resume(returning: ExecutionResult(success: true, output: output))
@@ -84,12 +91,14 @@ class CommandExecutor: CommandExecutorProtocol {
                     continuation.resume(throwing: ExecutionError.commandFailed(output))
                 }
             } catch {
+                print("[CommandExecutor] zsh error: \(error)")
                 continuation.resume(throwing: ExecutionError.executionFailed(error.localizedDescription))
             }
         }
     }
 
     private func executeTerminalCommand(_ command: String) async throws -> ExecutionResult {
+        print("[CommandExecutor] executeTerminalCommand: \(command)")
         // 提取目录路径
         let pattern = #"cd '([^']+)' && open -a Terminal"#
         var dirPath = ""
@@ -100,6 +109,8 @@ class CommandExecutor: CommandExecutorProtocol {
             dirPath = String(command[range])
         }
 
+        print("[CommandExecutor] Extracted dirPath: \(dirPath)")
+
         let appleScript: String
         if dirPath.isEmpty {
             appleScript = """
@@ -109,19 +120,22 @@ class CommandExecutor: CommandExecutorProtocol {
             end tell
             """
         } else {
-            let escapedDir = dirPath.replacingOccurrences(of: "'", with: "\\'")
+            // 直接在 AppleScript 中使用路径，不额外转义
             appleScript = """
             tell application "Terminal"
                 activate
-                do script "cd '\(escapedDir)'"
+                do script "cd \"\(dirPath)\""
             end tell
             """
         }
+
+        print("[CommandExecutor] Executing AppleScript: \(appleScript)")
 
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: appleScript) {
             scriptObject.executeAndReturnError(&error)
             if let error = error {
+                print("[CommandExecutor] AppleScript error: \(error)")
                 throw ExecutionError.executionFailed(error.description)
             }
         }
@@ -130,6 +144,7 @@ class CommandExecutor: CommandExecutorProtocol {
     }
 
     private func executeITermCommand(_ command: String) async throws -> ExecutionResult {
+        print("[CommandExecutor] executeITermCommand: \(command)")
         // 提取目录路径
         let pattern = #"cd '([^']+)' && open -a iTerm"#
         var dirPath = ""
@@ -140,6 +155,8 @@ class CommandExecutor: CommandExecutorProtocol {
             dirPath = String(command[range])
         }
 
+        print("[CommandExecutor] Extracted dirPath: \(dirPath)")
+
         let appleScript: String
         if dirPath.isEmpty {
             appleScript = """
@@ -149,22 +166,24 @@ class CommandExecutor: CommandExecutorProtocol {
             end tell
             """
         } else {
-            let escapedDir = dirPath.replacingOccurrences(of: "'", with: "\\'")
             appleScript = """
             tell application "iTerm"
                 activate
                 create session with default profile
                 tell current session of first window
-                    write text "cd '\(escapedDir)'"
+                    write text "cd \"\(dirPath)\""
                 end tell
             end tell
             """
         }
 
+        print("[CommandExecutor] Executing AppleScript: \(appleScript)")
+
         var error: NSDictionary?
         if let scriptObject = NSAppleScript(source: appleScript) {
             scriptObject.executeAndReturnError(&error)
             if let error = error {
+                print("[CommandExecutor] AppleScript error: \(error)")
                 throw ExecutionError.executionFailed(error.description)
             }
         }
@@ -173,18 +192,22 @@ class CommandExecutor: CommandExecutorProtocol {
     }
 
     private func executeVSCodeCommand(_ command: String) async throws -> ExecutionResult {
+        print("[CommandExecutor] executeVSCodeCommand: \(command)")
         // 提取目录路径
         let pattern = #"cd '([^']+)' && code \."#
         if let regex = try? NSRegularExpression(pattern: pattern),
            let match = regex.firstMatch(in: command, range: NSRange(command.startIndex..., in: command)),
            let range = Range(match.range(at: 1), in: command) {
             let dirPath = String(command[range])
+            print("[CommandExecutor] Extracted dirPath: \(dirPath)")
             let url = URL(fileURLWithPath: dirPath)
+            print("[CommandExecutor] Opening VSCode at url: \(url)")
             try await NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
             return ExecutionResult(success: true, output: "已在 VS Code 中打开")
         }
 
         // fallback: 直接执行 code
+        print("[CommandExecutor] VSCode fallback: executing directly")
         return try await withCheckedThrowingContinuation { continuation in
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/zsh")
