@@ -166,7 +166,7 @@ class StorageService: StorageServiceProtocol {
                         name: "在 tmux 打开",
                         icon: "rectangle.split.3x1",
                         type: .shell,
-                        command: "cd '{dir}' && tmux new-session -d -s temp && tmux send-keys 'cd {dir}' Enter",
+                        command: "tmux new-window -c '{dir}'",
                         openInTerminal: false
                     ),
                     CommandItem(

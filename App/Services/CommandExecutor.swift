@@ -52,6 +52,16 @@ class CommandExecutor: CommandExecutorProtocol {
     }
 
     private func executeSilently(_ command: String) async throws -> ExecutionResult {
+        // 对于打开 Terminal/iTerm 的命令，使用 AppleScript
+        if command.contains("open -a Terminal") {
+            return try await executeTerminalCommand(command)
+        } else if command.contains("open -a iTerm") {
+            return try await executeITermCommand(command)
+        } else if command.contains("code ") {
+            return try await executeVSCodeCommand(command)
+        }
+
+        // 对于其他命令，使用 zsh 执行
         return try await withCheckedThrowingContinuation { continuation in
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/zsh")
@@ -73,6 +83,117 @@ class CommandExecutor: CommandExecutorProtocol {
                 } else {
                     continuation.resume(throwing: ExecutionError.commandFailed(output))
                 }
+            } catch {
+                continuation.resume(throwing: ExecutionError.executionFailed(error.localizedDescription))
+            }
+        }
+    }
+
+    private func executeTerminalCommand(_ command: String) async throws -> ExecutionResult {
+        // 提取目录路径
+        let pattern = #"cd '([^']+)' && open -a Terminal"#
+        var dirPath = ""
+
+        if let regex = try? NSRegularExpression(pattern: pattern),
+           let match = regex.firstMatch(in: command, range: NSRange(command.startIndex..., in: command)),
+           let range = Range(match.range(at: 1), in: command) {
+            dirPath = String(command[range])
+        }
+
+        let appleScript: String
+        if dirPath.isEmpty {
+            appleScript = """
+            tell application "Terminal"
+                activate
+                do script ""
+            end tell
+            """
+        } else {
+            let escapedDir = dirPath.replacingOccurrences(of: "'", with: "\\'")
+            appleScript = """
+            tell application "Terminal"
+                activate
+                do script "cd '\(escapedDir)'"
+            end tell
+            """
+        }
+
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: appleScript) {
+            scriptObject.executeAndReturnError(&error)
+            if let error = error {
+                throw ExecutionError.executionFailed(error.description)
+            }
+        }
+
+        return ExecutionResult(success: true, output: "已在 Terminal 中打开")
+    }
+
+    private func executeITermCommand(_ command: String) async throws -> ExecutionResult {
+        // 提取目录路径
+        let pattern = #"cd '([^']+)' && open -a iTerm"#
+        var dirPath = ""
+
+        if let regex = try? NSRegularExpression(pattern: pattern),
+           let match = regex.firstMatch(in: command, range: NSRange(command.startIndex..., in: command)),
+           let range = Range(match.range(at: 1), in: command) {
+            dirPath = String(command[range])
+        }
+
+        let appleScript: String
+        if dirPath.isEmpty {
+            appleScript = """
+            tell application "iTerm"
+                activate
+                create session with default profile
+            end tell
+            """
+        } else {
+            let escapedDir = dirPath.replacingOccurrences(of: "'", with: "\\'")
+            appleScript = """
+            tell application "iTerm"
+                activate
+                create session with default profile
+                tell current session of first window
+                    write text "cd '\(escapedDir)'"
+                end tell
+            end tell
+            """
+        }
+
+        var error: NSDictionary?
+        if let scriptObject = NSAppleScript(source: appleScript) {
+            scriptObject.executeAndReturnError(&error)
+            if let error = error {
+                throw ExecutionError.executionFailed(error.description)
+            }
+        }
+
+        return ExecutionResult(success: true, output: "已在 iTerm2 中打开")
+    }
+
+    private func executeVSCodeCommand(_ command: String) async throws -> ExecutionResult {
+        // 提取目录路径
+        let pattern = #"cd '([^']+)' && code \."#
+        if let regex = try? NSRegularExpression(pattern: pattern),
+           let match = regex.firstMatch(in: command, range: NSRange(command.startIndex..., in: command)),
+           let range = Range(match.range(at: 1), in: command) {
+            let dirPath = String(command[range])
+            let url = URL(fileURLWithPath: dirPath)
+            NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+            return ExecutionResult(success: true, output: "已在 VS Code 中打开")
+        }
+
+        // fallback: 直接执行 code
+        return try await withCheckedThrowingContinuation { continuation in
+            let task = Process()
+            task.executableURL = URL(fileURLWithPath: "/bin/zsh")
+            task.arguments = ["-c", command]
+
+            do {
+                try task.run()
+                task.waitUntilExit()
+                continuation.resume(returning: ExecutionResult(success: task.terminationStatus == 0, output: ""))
             } catch {
                 continuation.resume(throwing: ExecutionError.executionFailed(error.localizedDescription))
             }
