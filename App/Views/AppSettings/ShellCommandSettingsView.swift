@@ -10,7 +10,9 @@ struct ShellCommandSettingsView: View {
 
     private let presetCommands: [ShellPreset] = [
         ShellPreset(name: "复制路径", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
-        ShellPreset(name: "在终端打开", command: "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"{dir}\\\" && zsh\"'", icon: "terminal", openTerminal: false)
+        ShellPreset(name: "在终端打开", command: "osascript -e 'tell application \"Terminal\" to do script \"cd \\\"{dir}\\\" && zsh\"'", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "在 iTerm2 打开", command: "osascript -e 'tell application \"iTerm\" to create session with default profile' -e 'tell session -1 of window 1 to write text \"cd \\\"{dir}\\\"\"'", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "在 VS Code 打开", command: "cd '{dir}' && code .", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false)
     ]
 
     var body: some View {
@@ -90,6 +92,12 @@ struct ShellCommandSettingsView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Text("终端打开: osascript -e 'tell application \"Terminal\" to do script \"cd \\\"{dir}\\\"\"'")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("iTerm2: osascript -e 'tell application \"iTerm\" to create session with default profile' -e 'tell session -1 of window 1 to write text \"cd \\\"{dir}\\\"\"'")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("VSCode: cd '{dir}' && code .")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
