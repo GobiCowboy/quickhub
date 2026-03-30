@@ -2,12 +2,46 @@ import AppKit
 import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    static var shared: AppDelegate? {
+        return NSApp.delegate as? AppDelegate
+    }
+
     private var statusItem: NSStatusItem!
     private var panel: NSPanel!
     private var settingsWindow: NSWindow!
     private var eventMonitor: Any?
     private var settingsHostingController: NSHostingController<AppSettingsView>?
     private var globalHotkeyMonitor: Any?
+    private var clickOutsideMonitor: Any?
+    private var debugMonitor: Any?
+    // 保存当前 Finder 选中项，在面板打开时获取
+    private var currentFinderSelection: [URL] = []
+
+    // 提供给外部访问保存的 Finder 选择
+    func getSavedFinderSelection() -> [URL] {
+        return currentFinderSelection
+    }
+
+    // 调试方法：打印 Finder 选择（使用 F6 触发）
+    func setupDebugHotkey() {
+        // 移除之前的监控
+        if let m = debugMonitor {
+            NSEvent.removeMonitor(m)
+        }
+        // 单独的监控器检测 F6
+        debugMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            // F6 = keyCode 97
+            if event.keyCode == 97 {
+                let result = self.syncGetFinderSelection()
+                print("[DEBUG] ===== Finder Selection (F6) =====")
+                print("[DEBUG] 选中的文件: \(result.map { $0.lastPathComponent })")
+                print("[DEBUG] 完整路径: \(result.map { $0.path })")
+                print("[DEBUG] ==================================")
+                return nil // 消费事件
+            }
+            return event
+        }
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 初始化存储服务
@@ -24,6 +58,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 监听全局快捷键
         setupGlobalHotKey()
+
+        // 调试：监听 Ctrl+Option+Command+D 打印 Finder 选择
+        setupDebugHotkey()
 
         // 监听快捷键设置变化通知
         NotificationCenter.default.addObserver(
@@ -116,22 +153,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.closePanel()
         })
 
-        panel = NSPanel(
+        let newPanel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: 320, height: 450),
             styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
 
-        panel.contentViewController = NSHostingController(rootView: panelView)
-        panel.isFloatingPanel = true
-        panel.level = .floating
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.isMovableByWindowBackground = true
-        panel.hidesOnDeactivate = false
-        panel.backgroundColor = NSColor.windowBackgroundColor
-        panel.titlebarAppearsTransparent = true
-        panel.titleVisibility = .hidden
+        newPanel.contentViewController = NSHostingController(rootView: panelView)
+        newPanel.isFloatingPanel = true
+        newPanel.level = .floating
+        newPanel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        newPanel.isMovableByWindowBackground = true
+        newPanel.hidesOnDeactivate = false
+        newPanel.backgroundColor = NSColor.windowBackgroundColor
+        newPanel.titlebarAppearsTransparent = true
+        newPanel.titleVisibility = .hidden
+
+        // 保存位置（仅当已存在面板时）
+        if panel != nil {
+            let oldFrame = panel.frame
+            panel = newPanel
+            panel.setFrame(oldFrame, display: true)
+        } else {
+            panel = newPanel
+        }
     }
 
     private func setupGlobalHotKey() {
@@ -164,6 +210,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             if event.keyCode == config.keyCode && eventModifiers == configModifiers {
                 print("[Hotkey] 快捷键匹配! 切换面板")
+                // 同步获取 Finder 选择（阻止任何窗口切换）
+                self?.currentFinderSelection = self?.syncGetFinderSelection() ?? []
+                print("[Hotkey] 快捷键处理中获取 Finder 选择: \(self?.currentFinderSelection.map { $0.lastPathComponent } ?? [])")
                 DispatchQueue.main.async {
                     self?.togglePanel()
                 }
@@ -171,11 +220,95 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// 同步获取 Finder 选择（阻塞直到完成）
+    private func syncGetFinderSelection() -> [URL] {
+        let script = """
+        tell application "Finder"
+            try
+                set sel to selection
+                if sel is not {} then
+                    set pathList to ""
+                    repeat with i from 1 to (count sel)
+                        set anItem to item i of sel
+                        set pathList to pathList & POSIX path of (anItem as alias) & linefeed
+                    end repeat
+                    return pathList
+                else
+                    return POSIX path of (target of front Finder window as alias)
+                end if
+            on error
+                return ""
+            end try
+        end tell
+        """
+
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: script) {
+            let result = appleScript.executeAndReturnError(&error)
+            if let pathString = result.stringValue {
+                let paths = pathString.components(separatedBy: "\n")
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+                    .map { URL(fileURLWithPath: $0) }
+                return paths
+            }
+        }
+        return []
+    }
+
+    /// 在快捷键触发时立即获取 Finder 选择（异步，已废弃）
+    private func prefetchFinderSelection() {
+        // 旧方法，已被 syncGetFinderSelection 替代
+    }
+
     @objc private func togglePanel() {
         if panel.isVisible {
             closePanel()
         } else {
+            // 打开面板前先打印 Finder 选择
+            let selection = syncGetFinderSelection()
+            print("[DEBUG] 打开面板前 Finder 选择: \(selection.map { $0.lastPathComponent })")
+
+            // 保存当前 Finder 选择
+            currentFinderSelection = selection
+            print("[AppDelegate] 保存的 Finder 选择: \(currentFinderSelection.map { $0.lastPathComponent })")
+
             showPanel()
+
+            // 延迟后恢复 Finder 选择
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.restoreFinderSelection(self.currentFinderSelection)
+            }
+        }
+    }
+
+    /// 恢复 Finder 选择
+    private func restoreFinderSelection(_ paths: [URL]) {
+        guard !paths.isEmpty else { return }
+
+        // 构建 AppleScript 来选中这些项目
+        let pathStrings = paths.map { "'" + $0.path + "'" }.joined(separator: ", ")
+        let script = """
+        tell application "Finder"
+            try
+                set targetFolder to folder POSIX file "\(paths.first!.deletingLastPathComponent().path)"
+                activate
+                set selection to {}
+                delay 0.05
+                select item "\(paths.first!.lastPathComponent)" of targetFolder
+            on error errMsg
+                log "restoreFinderSelection error: " & errMsg
+            end try
+        end tell
+        """
+
+        print("[AppDelegate] 恢复 Finder 选择: \(paths.map { $0.lastPathComponent })")
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: script) {
+            appleScript.executeAndReturnError(&error)
+            if let err = error {
+                print("[AppDelegate] 恢复失败: \(err)")
+            }
         }
     }
 
@@ -183,41 +316,81 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 刷新面板内容以获取最新配置
         refreshPanelContent()
 
-        // 获取鼠标位置，在鼠标位置显示面板
+        // 获取鼠标位置
         let mouseLocation = NSEvent.mouseLocation
 
         // 获取屏幕尺寸
         guard let screen = NSScreen.main else { return }
         let screenFrame = screen.visibleFrame
 
-        // 计算面板位置（显示在鼠标附近）
-        var panelOrigin = mouseLocation
-        panelOrigin.x -= panel.frame.width / 2  // 居中于鼠标
+        // 面板左上角对齐鼠标位置
+        // NSPoint.origin 是面板左下角，macOS 坐标系原点在左下角，Y轴向上
+        // 要让面板左上角对齐鼠标，panelOrigin.y = mouseLocation.y - panelHeight
+        var panelOrigin = NSPoint(
+            x: mouseLocation.x,
+            y: mouseLocation.y - panel.frame.height
+        )
 
-        // 确保面板在屏幕内
-        if panelOrigin.x < screenFrame.minX {
-            panelOrigin.x = screenFrame.minX
-        } else if panelOrigin.x + panel.frame.width > screenFrame.maxX {
+        // 确保面板在屏幕内（右侧边界）
+        if panelOrigin.x + panel.frame.width > screenFrame.maxX {
             panelOrigin.x = screenFrame.maxX - panel.frame.width
         }
 
-        // 面板显示在鼠标上方
-        panelOrigin.y = mouseLocation.y - panel.frame.height - 10
+        // 确保面板在屏幕内（左侧边界）
+        if panelOrigin.x < screenFrame.minX {
+            panelOrigin.x = screenFrame.minX
+        }
 
-        // 如果下方空间不够，显示在鼠标下方
+        // 确保面板在屏幕内（底部边界）
         if panelOrigin.y < screenFrame.minY {
-            panelOrigin.y = mouseLocation.y + 20
+            panelOrigin.y = screenFrame.minY
+        }
+
+        // 确保面板在屏幕内（顶部边界）
+        if panelOrigin.y + panel.frame.height > screenFrame.maxY {
+            panelOrigin.y = screenFrame.maxY - panel.frame.height
         }
 
         panel.setFrameOrigin(panelOrigin)
         panel.makeKeyAndOrderFront(nil)
-
-        // 确保窗口可见
         panel.orderFrontRegardless()
+
+        // 开始监听点击事件，用于点击外部关闭
+        startClickOutsideMonitor()
     }
 
     private func closePanel() {
         panel.orderOut(nil)
+        stopClickOutsideMonitor()
+    }
+
+    // MARK: - 点击外部关闭
+
+    private func startClickOutsideMonitor() {
+        stopClickOutsideMonitor()
+
+        clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self = self, self.panel.isVisible else { return }
+
+            // 获取鼠标位置
+            let mouseLocation = NSEvent.mouseLocation
+
+            // 检查点击位置是否在面板范围内
+            let panelFrame = self.panel.frame
+            if !NSPointInRect(mouseLocation, panelFrame) {
+                // 点击在面板外部，关闭面板
+                DispatchQueue.main.async {
+                    self.closePanel()
+                }
+            }
+        }
+    }
+
+    private func stopClickOutsideMonitor() {
+        if let monitor = clickOutsideMonitor {
+            NSEvent.removeMonitor(monitor)
+            clickOutsideMonitor = nil
+        }
     }
 
     func openSettings() {

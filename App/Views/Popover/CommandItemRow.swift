@@ -90,13 +90,32 @@ struct CommandItemRow: View {
         isExecuting = true
         onClose?()
 
-        // 获取当前 Finder 上下文
+        // 获取当前 Finder 上下文 - 使用保存的选择，避免面板打开后 Finder 选择改变
+        let selection = AppDelegate.shared?.getSavedFinderSelection() ?? []
+        let firstPath = selection.first?.path
+        let directory: String
+        if let url = selection.first {
+            var isDir: ObjCBool = false
+            if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) {
+                if isDir.boolValue {
+                    directory = url.path
+                } else {
+                    directory = url.deletingLastPathComponent().path
+                }
+            } else {
+                directory = FileManager.default.homeDirectoryForCurrentUser.path
+            }
+        } else {
+            directory = FileManager.default.homeDirectoryForCurrentUser.path
+        }
+
         let context = ExecutionContext(
-            filePath: FinderService.shared.getFirstSelectedPath(),
-            directory: FinderService.shared.getCurrentDirectory()
+            filePath: firstPath,
+            directory: directory
         )
 
         print("[CommandItemRow] 执行命令: \(item.name)")
+        print("[CommandItemRow] 保存的选择: \(selection.map { $0.lastPathComponent })")
         print("[CommandItemRow] context.filePath: \(context.filePath ?? "nil")")
         print("[CommandItemRow] context.directory: \(context.directory)")
         print("[CommandItemRow] context.fileName: \(context.fileName ?? "nil")")

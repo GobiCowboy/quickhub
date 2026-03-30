@@ -9,14 +9,17 @@ class FinderService: FinderServiceProtocol {
 
     /// 获取当前 Finder 选中的文件和目录
     func getSelectedItems() -> [URL] {
+        // 使用更可靠的 AppleScript 获取选中项
+        // 使用 item i of selection 而不是 repeat with anItem in selection
         let script = """
         tell application "Finder"
             try
-                set sel to selection as alias list
-                if (count sel) > 0 then
+                set sel to selection
+                if sel is not {} then
                     set pathList to ""
-                    repeat with anItem in sel
-                        set pathList to pathList & POSIX path of anItem & linefeed
+                    repeat with i from 1 to (count sel)
+                        set anItem to item i of sel
+                        set pathList to pathList & POSIX path of (anItem as alias) & linefeed
                     end repeat
                     return pathList
                 else
@@ -30,6 +33,11 @@ class FinderService: FinderServiceProtocol {
         end tell
         """
 
+        return executeAppleScript(script: script)
+    }
+
+    /// 执行 AppleScript 并解析结果
+    private func executeAppleScript(script: String) -> [URL] {
         var error: NSDictionary?
         guard let appleScript = NSAppleScript(source: script) else {
             print("[FinderService] NSAppleScript 创建失败")
