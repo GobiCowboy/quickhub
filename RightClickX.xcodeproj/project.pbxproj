@@ -21,19 +21,19 @@
 		955A98D56FFF375CA21F6D12 /* FinderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D8211C0F5F66F5B3B5139A /* FinderService.swift */; };
 		96D6960F3694B1D8FE776841 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8376DFBE60B5134502D963E5 /* StorageService.swift */; };
 		9FD6623ABCB465112BAD68BC /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8D86811EA5E1580715F591 /* GeneralSettingsView.swift */; };
+		A1B2C3D4E5F6071891011121 /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B3C4D5E6F7081920213141 /* HotkeyRecorderView.swift */; };
 		AA1618CFB10056952692CB80 /* UserInputHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */; };
+		B3C4D5E6F7A8B9C0D1E2F314 /* HotkeyUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D5E6F7A8B9C0D1E2F3142 /* HotkeyUtil.swift */; };
 		BB51B22AF8BC6E4AE798D4B6 /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1858E8260357FA5A7D8AEB4 /* AppSettingsView.swift */; };
 		BC8849ADE0034F96D66BE951 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1133E985EE1D372996E65E /* CommandExecutor.swift */; };
 		C84EF1214C44E733B0496247 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E2D647B22BD86426CE9E33 /* main.swift */; };
+		D5E6F7A8B9C0D1E2F31425 /* BitwardenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F7A8B9C0D1E2F31436 /* BitwardenService.swift */; };
 		D827D562AAC998563248994A /* IconPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76256119A218975C3EB40776 /* IconPickerSheet.swift */; };
 		E6A6228F6E2CEC67A05F2523 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714CDCB0B9999F90EC946C5B /* FlowLayout.swift */; };
 		F4751C738ED48F4DC411598A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEBE7AA6E74ACA94CCC6EA6 /* Models.swift */; };
 		F5A2FC3A767658D4B70B4E75 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F2A7EC941B10A57B268DB3 /* ServiceProtocols.swift */; };
-		FE05EC513AC5F27631080BCB /* Presets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC49CEA37FF4A8CCDA5270 /* Presets.swift */; };
-		A1B2C3D4E5F6071891011121 /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2B3C4D5E6F7081920213141 /* HotkeyRecorderView.swift */; };
-		B3C4D5E6F7A8B9C0D1E2F314 /* HotkeyUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D5E6F7A8B9C0D1E2F3142 /* HotkeyUtil.swift */; };
-		D5E6F7A8B9C0D1E2F31425 /* BitwardenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F7A8B9C0D1E2F31436 /* BitwardenService.swift */; };
 		F7A8B9C0D1E2F31437 /* BitwardenSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8B9C0D1E2F31448 /* BitwardenSettingsView.swift */; };
+		FE05EC513AC5F27631080BCB /* Presets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC49CEA37FF4A8CCDA5270 /* Presets.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,7 +50,9 @@
 		865B7CDAA1F1F3E818463B1C /* OpenAppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAppSettingsView.swift; sourceTree = "<group>"; };
 		9767AF9790EABEC7F1A9F7F4 /* RightClickX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RightClickX.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1858E8260357FA5A7D8AEB4 /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
+		A2B3C4D5E6F7081920213141 /* HotkeyRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRecorderView.swift; sourceTree = "<group>"; };
 		A2D8211C0F5F66F5B3B5139A /* FinderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderService.swift; sourceTree = "<group>"; };
+		A8B9C0D1E2F31448 /* BitwardenSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenSettingsView.swift; sourceTree = "<group>"; };
 		AAF3AADA7435B1E38FCA9306 /* RightClickX.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RightClickX.entitlements; sourceTree = "<group>"; };
 		B7F2A7EC941B10A57B268DB3 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
 		B90CE104850D2A12BA081E07 /* ShellCommandSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellCommandSettingsView.swift; sourceTree = "<group>"; };
@@ -60,13 +62,11 @@
 		BCEBE7AA6E74ACA94CCC6EA6 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		C04935DB4F27C87EEBEECB95 /* OpenFolderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFolderSettingsView.swift; sourceTree = "<group>"; };
 		C2BC58DD77B6073E63FF7B6D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C4D5E6F7A8B9C0D1E2F3142 /* HotkeyUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyUtil.swift; sourceTree = "<group>"; };
 		CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputHelper.swift; sourceTree = "<group>"; };
 		E2E2D647B22BD86426CE9E33 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorSheet.swift; sourceTree = "<group>"; };
-		A2B3C4D5E6F7081920213141 /* HotkeyRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRecorderView.swift; sourceTree = "<group>"; };
-		C4D5E6F7A8B9C0D1E2F3142 /* HotkeyUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyUtil.swift; sourceTree = "<group>"; };
 		E6F7A8B9C0D1E2F31436 /* BitwardenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenService.swift; sourceTree = "<group>"; };
-		A8B9C0D1E2F31448 /* BitwardenSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenSettingsView.swift; sourceTree = "<group>"; };
+		F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -223,11 +223,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
-				TargetAttributes = {
-					998346D0201E3030E77F1576 = {
-						ProvisioningStyle = Automatic;
-					};
-				};
 			};
 			buildConfigurationList = 55C7A7B52C2C1B5999106D09 /* Build configuration list for PBXProject "RightClickX" */;
 			developmentRegion = en;
@@ -301,11 +296,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/RightClickX.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4UNNXY925R;
 				INFOPLIST_FILE = App/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
 				PRODUCT_NAME = RightClickX;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -374,11 +377,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/RightClickX.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4UNNXY925R;
 				INFOPLIST_FILE = App/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
 				PRODUCT_NAME = RightClickX;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
