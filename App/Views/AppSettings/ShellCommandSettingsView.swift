@@ -10,11 +10,8 @@ struct ShellCommandSettingsView: View {
 
     private let presetCommands: [ShellPreset] = [
         ShellPreset(name: "复制路径", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
-        ShellPreset(name: "在终端打开", command: "cd '{dir}' && open -a Terminal", icon: "terminal", openTerminal: false),
-        ShellPreset(name: "在终端新标签页打开", command: "cd '{dir}' && osascript -e 'tell app \"Terminal\" to do script \"cd {dir}\"'", icon: "terminal.fill", openTerminal: false),
-        ShellPreset(name: "在 iTerm2 打开", command: "cd '{dir}' && open -a iTerm", icon: "terminal", openTerminal: false),
-        ShellPreset(name: "在 iTerm2 新标签页打开", command: "cd '{dir}' && osascript -e 'tell app \"iTerm\" to create session with default profile'", icon: "terminal.fill", openTerminal: false),
-        ShellPreset(name: "在 tmux 打开", command: "tmux new-window -c '{dir}'", icon: "rectangle.split.3x1", openTerminal: false),
+        ShellPreset(name: "在终端打开", command: "osascript -e 'tell application \"Terminal\" to do script \"cd '{dir}' && zsh\"'", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "在 iTerm2 打开", command: "osascript -e 'tell application \"iTerm\" to create session with default profile' -e 'tell session -1 of window 1 to write text \"cd '{dir}'\"'", icon: "terminal", openTerminal: false),
         ShellPreset(name: "在 VS Code 打开", command: "cd '{dir}' && code .", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false)
     ]
 

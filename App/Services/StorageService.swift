@@ -138,35 +138,14 @@ class StorageService: StorageServiceProtocol {
                         name: "在终端打开",
                         icon: "terminal",
                         type: .shell,
-                        command: "cd '{dir}' && open -a Terminal",
-                        openInTerminal: false
-                    ),
-                    CommandItem(
-                        name: "在终端新标签页打开",
-                        icon: "terminal.fill",
-                        type: .shell,
-                        command: "cd '{dir}' && osascript -e 'tell app \"Terminal\" to do script \"cd {dir}\"'",
+                        command: "osascript -e 'tell application \"Terminal\" to do script \"cd '{dir}' && zsh\"'",
                         openInTerminal: false
                     ),
                     CommandItem(
                         name: "在 iTerm2 打开",
                         icon: "terminal",
                         type: .shell,
-                        command: "cd '{dir}' && open -a iTerm",
-                        openInTerminal: false
-                    ),
-                    CommandItem(
-                        name: "在 iTerm2 新标签页打开",
-                        icon: "terminal.fill",
-                        type: .shell,
-                        command: "cd '{dir}' && osascript -e 'tell app \"iTerm\" to create session with default profile'",
-                        openInTerminal: false
-                    ),
-                    CommandItem(
-                        name: "在 tmux 打开",
-                        icon: "rectangle.split.3x1",
-                        type: .shell,
-                        command: "tmux new-window -c '{dir}'",
+                        command: "osascript -e 'tell application \"iTerm\" to create session with default profile' -e 'tell session -1 of window 1 to write text \"cd '{dir}'\"'",
                         openInTerminal: false
                     ),
                     CommandItem(
