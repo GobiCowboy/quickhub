@@ -3,7 +3,10 @@ import Carbon
 
 fileprivate func globalHotkeyHandlerCallback(nextHandler: EventHandlerCallRef?, theEvent: EventRef?, userData: UnsafeMutableRawPointer?) -> OSStatus {
     if let event = theEvent, GetEventClass(event) == kEventClassKeyboard && GetEventKind(event) == UInt32(kEventHotKeyPressed) {
-        GlobalHotkeyManager.shared.action?()
+        // 必须在主线程分发以防止在 SwiftUI 或 UI 线程冲突时由于 Carbon 底层上下文切换导致 EXC_BAD_ACCESS
+        DispatchQueue.main.async {
+            GlobalHotkeyManager.shared.action?()
+        }
     }
     return noErr
 }
@@ -31,17 +34,14 @@ class GlobalHotkeyManager {
             isHandlerInstalled = true
         }
         
-        // HotKey 签名：'RCKX' 转 OSType
-        let hotKeyID = EventHotKeyID(signature: OSType(0x52434B58), id: 1)
-        
         // 转换 NSEvent Modifier 为 Carbon Modifier
         var carbonModifiers: UInt32 = 0
-        let flags = NSEvent.ModifierFlags(rawValue: modifiers)
-        if flags.contains(.command) { carbonModifiers |= UInt32(cmdKey) }
-        if flags.contains(.option) { carbonModifiers |= UInt32(optionKey) }
-        if flags.contains(.shift) { carbonModifiers |= UInt32(shiftKey) }
-        if flags.contains(.control) { carbonModifiers |= UInt32(controlKey) }
+        if modifiers & UInt(NSEvent.ModifierFlags.command.rawValue) != 0 { carbonModifiers |= UInt32(cmdKey) }
+        if modifiers & UInt(NSEvent.ModifierFlags.option.rawValue) != 0 { carbonModifiers |= UInt32(optionKey) }
+        if modifiers & UInt(NSEvent.ModifierFlags.shift.rawValue) != 0 { carbonModifiers |= UInt32(shiftKey) }
+        if modifiers & UInt(NSEvent.ModifierFlags.control.rawValue) != 0 { carbonModifiers |= UInt32(controlKey) }
         
+        let hotKeyID = EventHotKeyID(signature: OSType(0x52434B58), id: 1)
         let status = RegisterEventHotKey(UInt32(keyCode), carbonModifiers, hotKeyID, GetApplicationEventTarget(), 0, &hotKeyRef)
         if status != noErr {
             print("[GlobalHotkeyManager] 注册全局快捷键失败, Carbon OSStatus: \(status)")

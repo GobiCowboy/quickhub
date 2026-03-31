@@ -34,6 +34,7 @@
 		C84EF1214C44E733B0496247 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E2D647B22BD86426CE9E33 /* main.swift */; };
 		D827D562AAC998563248994A /* IconPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76256119A218975C3EB40776 /* IconPickerSheet.swift */; };
 		E6A6228F6E2CEC67A05F2523 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714CDCB0B9999F90EC946C5B /* FlowLayout.swift */; };
+		F428A6FF149323BA13A509A2 /* PinyinMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7BA1D5430556502508834E5 /* PinyinMatcher.swift */; };
 		F4751C738ED48F4DC411598A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCEBE7AA6E74ACA94CCC6EA6 /* Models.swift */; };
 		F5A2FC3A767658D4B70B4E75 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7F2A7EC941B10A57B268DB3 /* ServiceProtocols.swift */; };
 		FE05EC513AC5F27631080BCB /* Presets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9CC49CEA37FF4A8CCDA5270 /* Presets.swift */; };
@@ -71,6 +72,7 @@
 		DFFE65BABB652AB7D4630899 /* MenuSortSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSortSettingsView.swift; sourceTree = "<group>"; };
 		E14B317ADF5CBBF7B2A4C1F4 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		E2E2D647B22BD86426CE9E33 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		E7BA1D5430556502508834E5 /* PinyinMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinyinMatcher.swift; sourceTree = "<group>"; };
 		F268B93969609453B123A326 /* BitwardenSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenSettingsView.swift; sourceTree = "<group>"; };
 		F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -214,6 +216,7 @@
 			children = (
 				368C6D096A58F4C9E20486DD /* GlobalHotkeyManager.swift */,
 				9E2AAE41F1B4E4AA4255B3AE /* HotkeyUtil.swift */,
+				E7BA1D5430556502508834E5 /* PinyinMatcher.swift */,
 				CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */,
 			);
 			path = Utilities;
@@ -310,6 +313,7 @@
 				37CD6FFF3A7ACBEC283A3E67 /* NewFileSettingsView.swift in Sources */,
 				1367E9A7F7CC2830E656C812 /* OpenAppSettingsView.swift in Sources */,
 				03CDF4424CF68A5200C688BC /* OpenFolderSettingsView.swift in Sources */,
+				F428A6FF149323BA13A509A2 /* PinyinMatcher.swift in Sources */,
 				1B24385D7AF9167856C58CDE /* PopoverView.swift in Sources */,
 				FE05EC513AC5F27631080BCB /* Presets.swift in Sources */,
 				F5A2FC3A767658D4B70B4E75 /* ServiceProtocols.swift in Sources */,

@@ -150,7 +150,7 @@ struct PopoverView: View {
         return enabledGroups.map { group in
             var filteredGroup = group
             filteredGroup.items = group.items.filter { item in
-                item.name.localizedCaseInsensitiveContains(searchText)
+                item.enabled && PinyinMatcher.match(item.name, query: searchText)
             }
             return filteredGroup
         }.filter { !$0.items.isEmpty }
