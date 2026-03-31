@@ -260,45 +260,41 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// 同步获取 Finder 选择（阻塞直到完成）
+    /// 同步获取 Finder 选择（通过 Accessibility API，替代不稳定的 AppleScript）
     private func syncGetFinderSelection() -> [URL] {
-        let script = """
-        tell application "Finder"
-            try
-                set sel to selection
-                if sel is not {} then
-                    set pathList to ""
-                    repeat with i from 1 to (count sel)
-                        set anItem to item i of sel
-                        set pathList to pathList & POSIX path of (anItem as alias) & linefeed
-                    end repeat
-                    return pathList
-                else
-                    return POSIX path of (target of front Finder window as alias)
-                end if
-            on error
-                return ""
-            end try
-        end tell
-        """
-
-        var error: NSDictionary?
-        if let appleScript = NSAppleScript(source: script) {
-            let result = appleScript.executeAndReturnError(&error)
-            if let pathString = result.stringValue {
-                let paths = pathString.components(separatedBy: "\n")
-                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                    .filter { !$0.isEmpty }
-                    .map { URL(fileURLWithPath: $0) }
-                return paths
+        // 第一步：找到 Finder 应用
+        let finderApps = NSWorkspace.shared.runningApplications.filter { $0.bundleIdentifier == "com.apple.finder" }
+        guard let finder = finderApps.first else { return [] }
+        
+        let finderElement = AXUIElementCreateApplication(finder.processIdentifier)
+        var selectionValue: AnyObject?
+        
+        // 尝试获取选中的条目
+        let result = AXUIElementCopyAttributeValue(finderElement, "AXSelectedChildren" as CFString, &selectionValue)
+        
+        if result == .success, let selection = selectionValue as? [AXUIElement] {
+            var urls: [URL] = []
+            for element in selection {
+                var urlValue: AnyObject?
+                if AXUIElementCopyAttributeValue(element, "AXURL" as CFString, &urlValue) == .success,
+                   let url = urlValue as? URL {
+                    urls.append(url)
+                }
+            }
+            if !urls.isEmpty { return urls }
+        }
+        
+        // 如果没有选中，尝试获取当前打开的窗口路径
+        var focusedWindow: AnyObject?
+        if AXUIElementCopyAttributeValue(finderElement, kAXFocusedWindowAttribute as CFString, &focusedWindow) == .success {
+            var urlValue: AnyObject?
+            if AXUIElementCopyAttributeValue(focusedWindow as! AXUIElement, "AXURL" as CFString, &urlValue) == .success,
+               let url = urlValue as? URL {
+                return [url]
             }
         }
+        
         return []
-    }
-
-    /// 在快捷键触发时立即获取 Finder 选择（异步，已废弃）
-    private func prefetchFinderSelection() {
-        // 旧方法，已被 syncGetFinderSelection 替代
     }
 
     @objc private func togglePanel() {
