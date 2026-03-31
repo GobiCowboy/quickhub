@@ -13,7 +13,6 @@
 		1367E9A7F7CC2830E656C812 /* OpenAppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865B7CDAA1F1F3E818463B1C /* OpenAppSettingsView.swift */; };
 		1B24385D7AF9167856C58CDE /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC13C34B9725268ECCD5DC0D /* PopoverView.swift */; };
 		2CFF92060D84E2017AD906ED /* CommandItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540FCF3FADA218AA38BAA3CB /* CommandItemRow.swift */; };
-		2D83F7A3F71161437DCCC2A6 /* QuickHubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71A58431AF227D3FC93BC846 /* QuickHubApp.swift */; };
 		37CD6FFF3A7ACBEC283A3E67 /* NewFileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F680A69EFA1548BD00B1D1 /* NewFileSettingsView.swift */; };
 		432657411A9F95B440360237 /* BitwardenSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F268B93969609453B123A326 /* BitwardenSettingsView.swift */; };
 		4CDA118184BD65B0D1E0C42D /* ShellCommandSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90CE104850D2A12BA081E07 /* ShellCommandSettingsView.swift */; };
@@ -32,6 +31,7 @@
 		BAB010F4DDEB3AAD17F91809 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E14B317ADF5CBBF7B2A4C1F4 /* WelcomeView.swift */; };
 		BB51B22AF8BC6E4AE798D4B6 /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1858E8260357FA5A7D8AEB4 /* AppSettingsView.swift */; };
 		BC8849ADE0034F96D66BE951 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1133E985EE1D372996E65E /* CommandExecutor.swift */; };
+		C84EF1214C44E733B0496247 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E2D647B22BD86426CE9E33 /* main.swift */; };
 		D827D562AAC998563248994A /* IconPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76256119A218975C3EB40776 /* IconPickerSheet.swift */; };
 		E6A6228F6E2CEC67A05F2523 /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714CDCB0B9999F90EC946C5B /* FlowLayout.swift */; };
 		F428A6FF149323BA13A509A2 /* PinyinMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7BA1D5430556502508834E5 /* PinyinMatcher.swift */; };
@@ -49,7 +49,6 @@
 		5B2CF0E8BCEC0D87CE115F7A /* BitwardenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenService.swift; sourceTree = "<group>"; };
 		6A8D86811EA5E1580715F591 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		714CDCB0B9999F90EC946C5B /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
-		71A58431AF227D3FC93BC846 /* QuickHubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickHubApp.swift; sourceTree = "<group>"; };
 		76256119A218975C3EB40776 /* IconPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconPickerSheet.swift; sourceTree = "<group>"; };
 		789D0C3CB2DA759811030A00 /* EnabledChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnabledChip.swift; sourceTree = "<group>"; };
 		7B1133E985EE1D372996E65E /* CommandExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandExecutor.swift; sourceTree = "<group>"; };
@@ -72,6 +71,7 @@
 		CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputHelper.swift; sourceTree = "<group>"; };
 		DFFE65BABB652AB7D4630899 /* MenuSortSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSortSettingsView.swift; sourceTree = "<group>"; };
 		E14B317ADF5CBBF7B2A4C1F4 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		E2E2D647B22BD86426CE9E33 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		E7BA1D5430556502508834E5 /* PinyinMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinyinMatcher.swift; sourceTree = "<group>"; };
 		F268B93969609453B123A326 /* BitwardenSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenSettingsView.swift; sourceTree = "<group>"; };
 		F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorSheet.swift; sourceTree = "<group>"; };
@@ -101,7 +101,7 @@
 			children = (
 				BCC38973F8AC27C23A8F444B /* AppDelegate.swift */,
 				C2BC58DD77B6073E63FF7B6D /* Info.plist */,
-				71A58431AF227D3FC93BC846 /* QuickHubApp.swift */,
+				E2E2D647B22BD86426CE9E33 /* main.swift */,
 				AAF3AADA7435B1E38FCA9306 /* RightClickX.entitlements */,
 				5AB93F4FAAF4B532585908CA /* Models */,
 				7C3B480DEEF6A428F41FFE25 /* Resources */,
@@ -316,12 +316,12 @@
 				F428A6FF149323BA13A509A2 /* PinyinMatcher.swift in Sources */,
 				1B24385D7AF9167856C58CDE /* PopoverView.swift in Sources */,
 				FE05EC513AC5F27631080BCB /* Presets.swift in Sources */,
-				2D83F7A3F71161437DCCC2A6 /* QuickHubApp.swift in Sources */,
 				F5A2FC3A767658D4B70B4E75 /* ServiceProtocols.swift in Sources */,
 				4CDA118184BD65B0D1E0C42D /* ShellCommandSettingsView.swift in Sources */,
 				96D6960F3694B1D8FE776841 /* StorageService.swift in Sources */,
 				AA1618CFB10056952692CB80 /* UserInputHelper.swift in Sources */,
 				BAB010F4DDEB3AAD17F91809 /* WelcomeView.swift in Sources */,
+				C84EF1214C44E733B0496247 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -332,6 +332,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/RightClickX.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = App/Info.plist;
@@ -379,6 +380,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -404,6 +406,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/RightClickX.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = App/Info.plist;
@@ -451,6 +454,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
