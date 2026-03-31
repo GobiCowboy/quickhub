@@ -28,6 +28,7 @@ struct PopoverView: View {
     @State private var hoveredGroupId: UUID?
     @State private var hoveredItemIndex: Int?
     @FocusState private var isSearching: Bool
+    @State private var showSuccessToast = false
     @StateObject private var configObserver = ConfigObserver.shared
 
     var body: some View {
