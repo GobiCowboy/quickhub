@@ -28,8 +28,6 @@ struct AppSettingsView: View {
                     OpenFolderSettingsView(config: $config, onEdit: { editingItem = $0 })
                 case .shell:
                     ShellCommandSettingsView(config: $config, onEdit: { editingItem = $0 })
-                case .bitwarden:
-                    BitwardenSettingsView(config: $config, onEdit: { editingItem = $0 })
                 case .menuSort:
                     MenuSortSettingsView(config: $config)
                 case .general:
@@ -77,7 +75,6 @@ enum SettingsCategory: String, CaseIterable {
     case openFolder = "open_folder"
     case openApp = "open_app"
     case shell = "shell"
-    case bitwarden = "bitwarden"
     case menuSort = "menu_sort"
     case general = "general"
 
@@ -87,7 +84,6 @@ enum SettingsCategory: String, CaseIterable {
         case .openFolder: return "打开文件夹"
         case .openApp: return "打开应用"
         case .shell: return "命令"
-        case .bitwarden: return "密码管理"
         case .menuSort: return "菜单排序"
         case .general: return "通用设置"
         }
@@ -99,7 +95,6 @@ enum SettingsCategory: String, CaseIterable {
         case .openFolder: return "folder"
         case .openApp: return "app"
         case .shell: return "terminal"
-        case .bitwarden: return "key.fill"
         case .menuSort: return "list.bullet"
         case .general: return "gear"
         }

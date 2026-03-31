@@ -26,7 +26,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.rightclickx.app
         INFOPLIST_FILE: App/Info.plist
-        PRODUCT_NAME: RightClickX
+        PRODUCT_NAME: QuickHub
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
         COMBINE_HIDPI_IMAGES: YES

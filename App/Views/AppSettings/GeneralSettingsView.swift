@@ -66,7 +66,7 @@ struct GeneralSettingsView: View {
 
     private func loadSettings() {
         let settings = StorageService.shared.loadConfig().settings
-        hotkeyRecorder.hotkey = settings.hotkey
+        hotkeyRecorder.hotkey = settings.hotkey ?? HotkeyConfiguration.defaultHotkey
         launchAtLogin = settings.launchAtLogin
         showNotifications = settings.showNotifications
     }

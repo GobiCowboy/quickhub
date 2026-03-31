@@ -321,7 +321,7 @@
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
-				PRODUCT_NAME = RightClickX;
+				PRODUCT_NAME = QuickHub;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -394,7 +394,7 @@
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
-				PRODUCT_NAME = RightClickX;
+				PRODUCT_NAME = QuickHub;
 				SDKROOT = macosx;
 			};
 			name = Debug;

@@ -173,17 +173,6 @@ class StorageService: StorageServiceProtocol {
                         openInTerminal: false
                     )
                 ]
-            ),
-            CommandGroup(
-                name: "密码管理",
-                icon: "key.fill",
-                items: [
-                    CommandItem(
-                        name: "搜索 Bitwarden 密码",
-                        icon: "key.fill",
-                        type: .bitwardenSearch
-                    )
-                ]
             )
         ]
     }

@@ -100,7 +100,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func showAccessibilityAlert() {
         let alert = NSAlert()
         alert.messageText = "需要辅助功能权限"
-        alert.informativeText = "全局快捷键需要辅助功能权限。请在系统设置中启用 RightClickX 的辅助功能权限，然后重启应用。"
+        alert.informativeText = "全局快捷键需要辅助功能权限。请在系统设置中启用 QuickHub 的辅助功能权限，然后重启应用。"
         alert.alertStyle = .warning
         alert.addButton(withTitle: "打开系统设置")
         alert.addButton(withTitle: "稍后")
@@ -137,7 +137,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "command.circle.fill", accessibilityDescription: "RightClickX")
+            button.image = NSImage(systemSymbolName: "command.circle.fill", accessibilityDescription: "QuickHub")
             button.action = #selector(togglePanel)
             button.target = self
         }
@@ -366,7 +366,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
 
-        settingsWindow.title = "RightClickX 设置"
+        settingsWindow.title = "QuickHub 设置"
         settingsWindow.contentViewController = hostingController
         settingsWindow.center()
         settingsWindow.makeKeyAndOrderFront(nil)
