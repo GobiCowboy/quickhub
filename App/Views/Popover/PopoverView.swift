@@ -27,10 +27,26 @@ struct PopoverView: View {
     @State private var selectedGroup: CommandGroup?
     @State private var hoveredGroupId: UUID?
     @State private var hoveredItemIndex: Int?
+    @FocusState private var isSearching: Bool
     @StateObject private var configObserver = ConfigObserver.shared
 
     var body: some View {
         VStack(spacing: 0) {
+            // 搜索输入（呼出直接输入）
+            TextField("快速搜索命令...", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .padding(.horizontal, 14)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+                .focused($isSearching)
+                .onSubmit {
+                    executeFirstItem()
+                }
+
+            Divider()
+                .padding(.horizontal, 8)
+
             // 命令列表
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 3) {
@@ -97,6 +113,30 @@ struct PopoverView: View {
         .frame(width: 240, height: 350) // 收敛固定尺寸以符合更细的间距
         .background(VisualEffectBackground()) // 采用系统级高斯模糊外观
         .cornerRadius(8)
+        .onAppear {
+            isSearching = true
+        }
+    }
+
+    private func executeFirstItem() {
+        guard let firstItem = filteredGroups.first?.items.first(where: { it in
+            it.enabled && (searchText.isEmpty || it.name.localizedCaseInsensitiveContains(searchText))
+        }) else { return }
+        
+        let paths = (NSApp.delegate as? AppDelegate)?.getSavedFinderSelection() ?? []
+        let context = ExecutionContext(
+            filePath: paths.first?.path,
+            directory: paths.first?.deletingLastPathComponent().path ?? FileManager.default.homeDirectoryForCurrentUser.path
+        )
+        
+        Task {
+            do {
+                _ = try await CommandExecutor.shared.execute(firstItem, context: context)
+                onClose?()
+            } catch {
+                print("[PopoverView] 快速执行失败: \(error)")
+            }
+        }
     }
 
     private var filteredGroups: [CommandGroup] {
