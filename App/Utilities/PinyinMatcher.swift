@@ -9,28 +9,48 @@ struct PinyinMatcher {
         let lowerText = text.lowercased()
         
         // 1. 直接包含（中文字符或已有的英文字符）
-        if lowerText.contains(cleanQuery) { return true }
+        if lowerText.contains(cleanQuery) {
+            return true 
+        }
         
         // 2. 转换为拼音全拼
+        let pinyin = convertToPinyin(text, stripSpaces: true)
+        
+        // 3. 转换为拼音首字母简拼
+        let initials = extractInitials(text)
+        
+        print("[PinyinMatch] Query: '\(cleanQuery)', Text: '\(text)', Pinyin: '\(pinyin)', Initials: '\(initials)'")
+        
+        if pinyin.contains(cleanQuery) || initials.contains(cleanQuery) {
+            print("[PinyinMatch] MATCH SUCCESS!")
+            return true
+        }
+        
+        return false
+    }
+    
+    private static func convertToPinyin(_ text: String, stripSpaces: Bool) -> String {
         let mutableString = NSMutableString(string: text) as CFMutableString
         CFStringTransform(mutableString, nil, kCFStringTransformToLatin, false)
         CFStringTransform(mutableString, nil, kCFStringTransformStripDiacritics, false)
-        let pinyin = (mutableString as String).lowercased().replacingOccurrences(of: " ", with: "")
-        
-        if pinyin.contains(cleanQuery) { return true }
-        
-        // 3. 转换为拼音首字母简拼
-        let initials = text.components(separatedBy: .punctuationCharacters).joined()
-            .compactMap { char -> String? in
-                let s = String(char)
-                let ms = NSMutableString(string: s) as CFMutableString
-                CFStringTransform(ms, nil, kCFStringTransformToLatin, false)
-                CFStringTransform(ms, nil, kCFStringTransformStripDiacritics, false)
-                return (ms as String).first?.lowercased()
-            }.joined()
-        
-        if initials.contains(cleanQuery) { return true }
-        
-        return false
+        let result = mutableString as String
+        return stripSpaces ? result.lowercased().replacingOccurrences(of: " ", with: "") : result.lowercased()
+    }
+    
+    private static func extractInitials(_ text: String) -> String {
+        var initials = ""
+        for char in text {
+            let s = String(char)
+            let ms = NSMutableString(string: s) as CFMutableString
+            // 转拼音
+            CFStringTransform(ms, nil, kCFStringTransformToLatin, false)
+            // 去掉音标
+            CFStringTransform(ms, nil, kCFStringTransformStripDiacritics, false)
+            // 此时 ms 可能是 "zhōng" -> "zhong"
+            if let firstChar = (ms as String).first {
+                initials.append(firstChar.lowercased())
+            }
+        }
+        return initials
     }
 }
