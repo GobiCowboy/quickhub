@@ -28,6 +28,7 @@
 		A42C0D8A80D58B542D3D516A /* BitwardenService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B2CF0E8BCEC0D87CE115F7A /* BitwardenService.swift */; };
 		AA1618CFB10056952692CB80 /* UserInputHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */; };
 		BA9BB7F141BD13B8E0EDC531 /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CECCE928194BF8F237796D0 /* HotkeyRecorderView.swift */; };
+		BAB010F4DDEB3AAD17F91809 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E14B317ADF5CBBF7B2A4C1F4 /* WelcomeView.swift */; };
 		BB51B22AF8BC6E4AE798D4B6 /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1858E8260357FA5A7D8AEB4 /* AppSettingsView.swift */; };
 		BC8849ADE0034F96D66BE951 /* CommandExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1133E985EE1D372996E65E /* CommandExecutor.swift */; };
 		C84EF1214C44E733B0496247 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E2D647B22BD86426CE9E33 /* main.swift */; };
@@ -68,6 +69,7 @@
 		C2BC58DD77B6073E63FF7B6D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CE6585C9E6A036306AF07C97 /* UserInputHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputHelper.swift; sourceTree = "<group>"; };
 		DFFE65BABB652AB7D4630899 /* MenuSortSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuSortSettingsView.swift; sourceTree = "<group>"; };
+		E14B317ADF5CBBF7B2A4C1F4 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		E2E2D647B22BD86426CE9E33 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F268B93969609453B123A326 /* BitwardenSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenSettingsView.swift; sourceTree = "<group>"; };
 		F441D15328EAFB83B1A6B38A /* ItemEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemEditorSheet.swift; sourceTree = "<group>"; };
@@ -109,6 +111,14 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		361F41D19521BF19DB0F515C /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				E14B317ADF5CBBF7B2A4C1F4 /* WelcomeView.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
 		3AFD2787E873726700B1CD3A /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -127,6 +137,7 @@
 				6AA1AE1D6BB6BFCDDE00C859 /* AppSettings */,
 				5F7F6C759B36325917809047 /* Components */,
 				1D1BB549B21B93A524F4AECB /* Popover */,
+				361F41D19521BF19DB0F515C /* Welcome */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -305,6 +316,7 @@
 				4CDA118184BD65B0D1E0C42D /* ShellCommandSettingsView.swift in Sources */,
 				96D6960F3694B1D8FE776841 /* StorageService.swift in Sources */,
 				AA1618CFB10056952692CB80 /* UserInputHelper.swift in Sources */,
+				BAB010F4DDEB3AAD17F91809 /* WelcomeView.swift in Sources */,
 				C84EF1214C44E733B0496247 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -14,6 +14,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var globalHotkeyMonitor: Any?
     private var clickOutsideMonitor: Any?
     private var debugMonitor: Any?
+    private var welcomeWindow: NSWindow?
     // 保存当前 Finder 选中项，在面板打开时获取
     private var currentFinderSelection: [URL] = []
 
@@ -76,6 +77,42 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 请求 Finder 自动化权限
         requestFinderAccess()
+
+        // 检查是否是首次运行
+        checkFirstRun()
+    }
+
+    private func checkFirstRun() {
+        let hasSeenWelcome = UserDefaults.standard.bool(forKey: "hasSeenWelcomeV1")
+        if !hasSeenWelcome {
+            showWelcome()
+        }
+    }
+
+    private func showWelcome() {
+        let welcomeView = WelcomeView { [weak self] in
+            UserDefaults.standard.set(true, forKey: "hasSeenWelcomeV1")
+            self?.welcomeWindow?.close()
+            self?.welcomeWindow = nil
+        }
+        
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 480, height: 520),
+            styleMask: [.titled, .closable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        
+        window.center()
+        window.titleVisibility = .hidden
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        window.contentViewController = NSHostingController(rootView: welcomeView)
+        window.level = .floating
+        window.makeKeyAndOrderFront(nil)
+        
+        self.welcomeWindow = window
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     /// 检查辅助功能权限（全局快捷键需要）
