@@ -115,6 +115,7 @@ struct PopoverView: View {
         .background(VisualEffectBackground()) // 采用系统级高斯模糊外观
         .cornerRadius(8)
         .onAppear {
+            configObserver.refresh()
             isSearching = true
         }
     }

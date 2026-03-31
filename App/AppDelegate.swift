@@ -241,21 +241,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 全局监听键盘事件（使用 Carbon 吞噬按键事件，防止前台程序受键盘输入影响）
         GlobalHotkeyManager.shared.register(keyCode: config.keyCode, modifiers: config.modifiers) { [weak self] in
-            print("[Hotkey] 快捷键匹配! 切换面板")
-            
             // 重要：没权限时如果强行调用获取 Finder 脚本，在某些 macOS 版本上会因为 Sandbox 或内核限制导致 EXC_BAD_ACCESS
             if !AXIsProcessTrusted() {
-                print("[Hotkey] 警告: 未授予辅助功能权限，中止脚本执行并再次提示")
                 DispatchQueue.main.async {
                     self?.showAccessibilityAlert()
                 }
                 return
             }
 
-            // 同步获取 Finder 选择（阻止任何窗口切换）
-            self?.currentFinderSelection = self?.syncGetFinderSelection() ?? []
-            print("[Hotkey] 快捷键处理中获取 Finder 选择: \(self?.currentFinderSelection.map { $0.lastPathComponent } ?? [])")
+            // 同步获取 Finder 选择
+            let selection = self?.syncGetFinderSelection() ?? []
+            
             DispatchQueue.main.async {
+                self?.currentFinderSelection = selection
                 self?.togglePanel()
             }
         }
