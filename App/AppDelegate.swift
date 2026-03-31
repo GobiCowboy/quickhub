@@ -92,8 +92,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func showWelcome() {
         let welcomeView = WelcomeView { [weak self] in
             UserDefaults.standard.set(true, forKey: "hasSeenWelcomeV1")
-            self?.welcomeWindow?.close()
-            self?.welcomeWindow = nil
+            // 必须推迟到下一个 RunLoop：SwiftUI 按钮 action 执行期间
+            // 直接 close/nil 会释放正在处理事件的 NSHostingController → EXC_BAD_ACCESS
+            DispatchQueue.main.async {
+                self?.welcomeWindow?.close()
+                self?.welcomeWindow = nil
+            }
         }
         
         let window = NSWindow(
@@ -107,6 +111,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
+        window.isReleasedWhenClosed = false // 关键：手动管理内存，防止 close() 时意外释放
         window.contentViewController = NSHostingController(rootView: welcomeView)
         window.level = .floating
         window.makeKeyAndOrderFront(nil)
@@ -411,6 +416,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
 
+        settingsWindow.isReleasedWhenClosed = false
         settingsWindow.title = "QuickHub 设置"
         settingsWindow.contentViewController = hostingController
         settingsWindow.center()
