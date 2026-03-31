@@ -14,7 +14,9 @@ class ConfigObserver: ObservableObject {
     }
 
     func refresh() {
-        self.config = StorageService.shared.loadConfig()
+        DispatchQueue.main.async {
+            self.config = StorageService.shared.loadConfig()
+        }
     }
 }
 
@@ -24,16 +26,28 @@ struct PopoverView: View {
     var onClose: (() -> Void)?
 
     @State private var searchText = ""
-    @State private var selectedGroup: CommandGroup?
     @State private var hoveredGroupId: UUID?
     @State private var hoveredItemIndex: Int?
     @FocusState private var isSearching: Bool
-    @State private var showSuccessToast = false
     @StateObject private var configObserver = ConfigObserver.shared
+
+    // 面板过滤逻辑 - 使用计算属性（SwiftUI 标准推荐）
+    private var filteredGroups: [CommandGroup] {
+        let groups = configObserver.config.groups.filter { $0.enabled }
+        if searchText.isEmpty { return groups }
+        
+        return groups.map { group in
+            var filteredGroup = group
+            filteredGroup.items = group.items.filter { item in
+                item.enabled && PinyinMatcher.match(item.name, query: searchText)
+            }
+            return filteredGroup
+        }.filter { !$0.items.isEmpty }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
-            // 搜索输入（呼出直接输入）
+            // 搜索输入
             TextField("快速搜索命令...", text: $searchText)
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
@@ -51,8 +65,18 @@ struct PopoverView: View {
             // 命令列表
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 3) {
-                    ForEach(filteredGroups) { group in
-                        if !group.items.isEmpty {
+                    let groups = filteredGroups
+                    
+                    if groups.isEmpty {
+                        VStack(spacing: 6) {
+                            Text("暂无匹配命令")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 20)
+                    } else {
+                        ForEach(groups) { group in
                             GroupSectionView(
                                 group: group,
                                 searchText: searchText,
@@ -61,27 +85,12 @@ struct PopoverView: View {
                                 onClose: onClose
                             )
                             
-                            if group.id != filteredGroups.last?.id {
+                            if group.id != groups.last?.id {
                                 Divider()
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
                             }
                         }
-                    }
-
-                    // 空状态
-                    if filteredGroups.isEmpty {
-                        VStack(spacing: 6) {
-                            Text("暂无命令")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                            Text("请在下方打开设置添加")
-                                .font(.system(size: 10))
-                                .foregroundColor(.secondary)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 16)
-                        .padding(.bottom, 8)
                     }
                 }
                 .padding(.vertical, 6)
@@ -100,30 +109,23 @@ struct PopoverView: View {
                 .buttonStyle(.plain)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 6)
-                .contentShape(Rectangle())
-                .onHover { isHovered in
-                    if isHovered {
-                        NSCursor.pointingHand.set()
-                    } else {
-                        NSCursor.arrow.set()
-                    }
-                }
             }
             .padding(.bottom, 2)
         }
-        .frame(width: 240, height: 350) // 收敛固定尺寸以符合更细的间距
-        .background(VisualEffectBackground()) // 采用系统级高斯模糊外观
+        .frame(width: 240, height: 350)
+        .background(VisualEffectBackground())
         .cornerRadius(8)
         .onAppear {
             configObserver.refresh()
-            isSearching = true
+            // 确保窗口显示后搜索框立即激活，增加一个小延时防止由于 NSPanel 层级导致的焦点丢失
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                isSearching = true
+            }
         }
     }
 
     private func executeFirstItem() {
-        guard let firstItem = filteredGroups.first?.items.first(where: { it in
-            it.enabled && (searchText.isEmpty || it.name.localizedCaseInsensitiveContains(searchText))
-        }) else { return }
+        guard let firstItem = filteredGroups.first?.items.first else { return }
         
         let paths = (NSApp.delegate as? AppDelegate)?.getSavedFinderSelection() ?? []
         let context = ExecutionContext(
@@ -136,32 +138,9 @@ struct PopoverView: View {
                 _ = try await CommandExecutor.shared.execute(firstItem, context: context)
                 onClose?()
             } catch {
-                print("[PopoverView] 快速执行失败: \(error)")
+                print("[PopoverView] 快速执行失败")
             }
         }
-    }
-
-    private var filteredGroups: [CommandGroup] {
-        let enabledGroups = configObserver.config.groups.filter { $0.enabled }
-
-        if searchText.isEmpty {
-            return enabledGroups
-        }
-
-        let results = enabledGroups.map { group in
-            var filteredGroup = group
-            filteredGroup.items = group.items.filter { item in
-                item.enabled && PinyinMatcher.match(item.name, query: searchText)
-            }
-            return filteredGroup
-        }.filter { !$0.items.isEmpty }
-        
-        if !searchText.isEmpty {
-            let totalCount = results.reduce(0) { $0 + $1.items.count }
-            print("[PopoverView] Search: '\(searchText)', Results Groups: \(results.count), Items: \(totalCount)")
-        }
-        
-        return results
     }
 
     private func openSettings() {
@@ -176,16 +155,10 @@ struct PopoverView: View {
 struct VisualEffectBackground: NSViewRepresentable {
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
-        view.material = .popover // 使用 popover 可以获得更明亮清透的系统底色
+        view.material = .popover
         view.blendingMode = .behindWindow
         view.state = .active
         return view
     }
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
-        nsView.material = .popover
-    }
-}
-
-#Preview {
-    PopoverView(onClose: {})
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
