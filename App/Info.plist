@@ -26,6 +26,17 @@
     <string>Copyright © 2024. All rights reserved.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.rightclickx.app</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>quickhub</string>
+            </array>
+        </dict>
+    </array>
     <key>LSUIElement</key>
     <true/>
     <key>NSAppleEventsUsageDescription</key>
