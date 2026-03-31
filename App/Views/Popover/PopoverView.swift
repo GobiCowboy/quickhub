@@ -148,13 +148,20 @@ struct PopoverView: View {
             return enabledGroups
         }
 
-        return enabledGroups.map { group in
+        let results = enabledGroups.map { group in
             var filteredGroup = group
             filteredGroup.items = group.items.filter { item in
                 item.enabled && PinyinMatcher.match(item.name, query: searchText)
             }
             return filteredGroup
         }.filter { !$0.items.isEmpty }
+        
+        if !searchText.isEmpty {
+            let totalCount = results.reduce(0) { $0 + $1.items.count }
+            print("[PopoverView] Search: '\(searchText)', Results Groups: \(results.count), Items: \(totalCount)")
+        }
+        
+        return results
     }
 
     private func openSettings() {

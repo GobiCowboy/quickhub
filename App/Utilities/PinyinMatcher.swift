@@ -10,6 +10,7 @@ struct PinyinMatcher {
         
         // 1. 直接包含（中文字符或已有的英文字符）
         if lowerText.contains(cleanQuery) {
+            print("[PinyinMatch] Query: '\(cleanQuery)', Text: '\(text)' -> DIRECT MATCH")
             return true 
         }
         
@@ -17,19 +18,23 @@ struct PinyinMatcher {
         let pinyinFull = convertToPinyin(text, stripSpaces: true)
         let initials = extractInitials(text)
         
+        print("[PinyinMatch] Query: '\(cleanQuery)', Text: '\(text)', Pinyin: '\(pinyinFull)', Initials: '\(initials)'")
+        
         // 2. 全拼包含匹配
         if pinyinFull.contains(cleanQuery) {
+            print("[PinyinMatch] -> FULL PINYIN MATCH")
             return true
         }
         
-        // 3. 简拼前缀匹配 (这是解决 "xz" 匹配 "下载" 的关键)
-        // 只要简拼是以 query 开头，或者是 query 的子序列，我们就判定匹配
+        // 3. 简拼前缀匹配
         if initials.hasPrefix(cleanQuery) {
+            print("[PinyinMatch] -> INITIALS PREFIX MATCH")
             return true
         }
         
-        // 4. 增强：支持子序列匹配（例如 "xd" 匹配 "下载 (xz...)"）
+        // 4. 增强：支持子序列匹配
         if isSubsequence(cleanQuery, in: initials) {
+            print("[PinyinMatch] -> INITIALS SUBSEQUENCE MATCH")
             return true
         }
 
