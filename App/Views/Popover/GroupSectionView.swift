@@ -24,7 +24,7 @@ struct GroupSectionView: View {
             // 命令项
             VStack(spacing: 0) {
                 ForEach(Array(group.items.filter { $0.enabled }.enumerated()), id: \.element.id) { index, item in
-                    if searchText.isEmpty || item.name.localizedCaseInsensitiveContains(searchText) {
+                    if searchText.isEmpty || PinyinMatcher.match(item.name, query: searchText) {
                         CommandItemRow(
                             item: item,
                             isHovered: hoveredGroupId == group.id && hoveredItemIndex == index,
