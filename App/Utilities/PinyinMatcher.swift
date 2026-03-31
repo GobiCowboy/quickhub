@@ -13,20 +13,41 @@ struct PinyinMatcher {
             return true 
         }
         
-        // 2. 转换为拼音全拼
-        let pinyin = convertToPinyin(text, stripSpaces: true)
-        
-        // 3. 转换为拼音首字母简拼
+        // 获取全拼和简拼
+        let pinyinFull = convertToPinyin(text, stripSpaces: true)
         let initials = extractInitials(text)
         
-        print("[PinyinMatch] Query: '\(cleanQuery)', Text: '\(text)', Pinyin: '\(pinyin)', Initials: '\(initials)'")
-        
-        if pinyin.contains(cleanQuery) || initials.contains(cleanQuery) {
-            print("[PinyinMatch] MATCH SUCCESS!")
+        // 2. 全拼包含匹配
+        if pinyinFull.contains(cleanQuery) {
             return true
         }
         
+        // 3. 简拼前缀匹配 (这是解决 "xz" 匹配 "下载" 的关键)
+        // 只要简拼是以 query 开头，或者是 query 的子序列，我们就判定匹配
+        if initials.hasPrefix(cleanQuery) {
+            return true
+        }
+        
+        // 4. 增强：支持子序列匹配（例如 "xd" 匹配 "下载 (xz...)"）
+        if isSubsequence(cleanQuery, in: initials) {
+            return true
+        }
+
         return false
+    }
+    
+    private static func isSubsequence(_ query: String, in text: String) -> Bool {
+        if query.isEmpty { return true }
+        var queryIdx = query.startIndex
+        var textIdx = text.startIndex
+        
+        while queryIdx < query.endIndex && textIdx < text.endIndex {
+            if query[queryIdx] == text[textIdx] {
+                queryIdx = query.index(after: queryIdx)
+            }
+            textIdx = text.index(after: textIdx)
+        }
+        return queryIdx == query.endIndex
     }
     
     private static func convertToPinyin(_ text: String, stripSpaces: Bool) -> String {
@@ -42,11 +63,8 @@ struct PinyinMatcher {
         for char in text {
             let s = String(char)
             let ms = NSMutableString(string: s) as CFMutableString
-            // 转拼音
             CFStringTransform(ms, nil, kCFStringTransformToLatin, false)
-            // 去掉音标
             CFStringTransform(ms, nil, kCFStringTransformStripDiacritics, false)
-            // 此时 ms 可能是 "zhōng" -> "zhong"
             if let firstChar = (ms as String).first {
                 initials.append(firstChar.lowercased())
             }
