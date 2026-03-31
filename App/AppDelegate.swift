@@ -45,6 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        print("[AppDelegate] ⚡️ QuickHub 开始启动逻辑")
         // 初始化存储服务
         _ = StorageService.shared
 
