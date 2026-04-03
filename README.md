@@ -2,15 +2,28 @@
 
 极简、极速的 macOS 超级工具箱。通过一个按键，赋予你的 Finder 无限可能。
 
-## 0.66 元的极客礼物
+## 下载安装
 
-QuickHub 旨在通过最轻量的方式解决 Finder 操作的痛点。它不是复杂的效率工具，而是一个**“呼出即用、用完即走”**的命令面板。
+### 直接下载（推荐）
+下载打包好的应用：https://github.com/GobiCowboy/quickhub/releases/latest
+
+1. 下载 `QuickHub-vX.X.X.zip`
+2. 解压后拖到 **应用程序** 文件夹
+3. 首次运行需要右键点击选择"打开"
+
+### 从源码编译
+如果你通过源码安装，请确保已安装 `xcodegen`。
+
+```bash
+xcodegen generate
+xcodebuild -scheme RightClickX build
+```
 
 ## 核心特性
 
 - **🚀 瞬时呼出**: 选中 Finder 文件，按 `⌥⇧Q`。面板会精确出现在你的鼠标指针处。
 - **⌨️ 全程键盘操作**: 呼出面板后直接打字搜索命令，按 **回车** 立即执行。无需挪动鼠标。
-- **🛠️ 无限扩展**: 
+- **🛠️ 无限扩展**:
   - **Shell 命令**: 快速打开终端（Terminal/iTerm2）、VS Code、复制 POSIX 路径。
   - **文件模板**: 快速创建 Markdown、Swift、Python 脚本等，支持自定义内容。
   - **一键触达**: 快速打开桌面、下载目录或任何你常用的自定义路径。
@@ -33,14 +46,6 @@ QuickHub 旨在通过最轻量的方式解决 Finder 操作的痛点。它不是
 - macOS 13.0 (Ventura) 或更高版本
 - Xcode 15.0 或更高版本
 
-## 编译运行
-
-如果你通过源码安装，请确保已安装 `xcodegen`。
-
-```bash
-xcodegen generate
-xcodebuild -scheme RightClickX build
-```
-
 ---
+
 感谢你的支持！如果有任何建议，欢迎提交反馈。
