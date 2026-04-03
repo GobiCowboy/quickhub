@@ -7,26 +7,38 @@ struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var showNotifications = true
     @StateObject private var hotkeyRecorder = HotkeyRecorderViewModel()
+    @StateObject private var localeManager = LocaleManager.shared
 
     var body: some View {
         Form {
-            Section("启动") {
-                Toggle("开机自动启动", isOn: $launchAtLogin)
+            Section(localized("settings.general.section.language")) {
+                Picker(localized("settings.general.language"), selection: $localeManager.currentLanguage) {
+                    ForEach(LocaleManager.Language.allCases, id: \.self) { language in
+                        Text(language.rawValue).tag(language)
+                    }
+                }
+                .onChange(of: localeManager.currentLanguage) { _ in
+                    // 语言切换后刷新视图
+                }
+            }
+
+            Section(localized("settings.general.section.startup")) {
+                Toggle(localized("settings.general.launch_at_login"), isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _ in
                         saveSettings()
                     }
             }
 
-            Section("通知") {
-                Toggle("执行命令后显示通知", isOn: $showNotifications)
+            Section(localized("settings.general.section.notifications")) {
+                Toggle(localized("settings.general.show_notifications"), isOn: $showNotifications)
                     .onChange(of: showNotifications) { _ in
                         saveSettings()
                     }
             }
 
-            Section("快捷键") {
+            Section(localized("settings.general.section.shortcut")) {
                 HStack {
-                    Text("打开面板")
+                    Text(localized("settings.general.open_panel"))
                     Spacer()
                     HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey) {
                         saveSettings()
@@ -34,25 +46,25 @@ struct GeneralSettingsView: View {
                 }
             }
 
-            Section("关于") {
+            Section(localized("settings.general.section.about")) {
                 HStack {
-                    Text("版本")
+                    Text(localized("settings.general.version"))
                     Spacer()
                     Text("1.0.0")
                         .foregroundColor(.secondary)
                 }
 
-                Link("GitHub 项目", destination: URL(string: "https://github.com/your-repo")!)
+                Link(localized("settings.general.github"), destination: URL(string: "https://github.com/your-repo")!)
 
-                Link("问题反馈", destination: URL(string: "https://github.com/your-repo/issues")!)
+                Link(localized("settings.general.feedback"), destination: URL(string: "https://github.com/your-repo/issues")!)
             }
 
-            Section("高级") {
-                Button("打开配置文件目录") {
+            Section(localized("settings.general.section.advanced")) {
+                Button(localized("settings.general.open_config_dir")) {
                     openConfigDirectory()
                 }
 
-                Button("重置所有设置为默认") {
+                Button(localized("settings.general.reset_all")) {
                     resetToDefaults()
                 }
             }
@@ -93,7 +105,7 @@ struct GeneralSettingsView: View {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            print("设置开机启动失败: \(error.localizedDescription)")
+            print(localized("settings.general.launch_at_login_failed", with: error.localizedDescription))
             // 同步 UI 状态
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }

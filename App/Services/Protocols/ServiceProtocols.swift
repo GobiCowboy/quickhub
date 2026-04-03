@@ -96,15 +96,15 @@ enum ExecutionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingCommand:
-            return "命令未设置"
+            return localized("error.missing_command")
         case .missingTemplate:
-            return "模板未设置"
+            return localized("error.missing_template")
         case .missingPath:
-            return "路径未设置"
+            return localized("error.missing_path")
         case .commandFailed(let msg):
-            return "命令执行失败: \(msg)"
+            return localized("error.command_failed", with: msg)
         case .executionFailed(let msg):
-            return "执行失败: \(msg)"
+            return localized("error.execution_failed", with: msg)
         }
     }
 }

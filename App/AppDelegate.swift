@@ -95,14 +95,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.welcomeWindow?.close()
             self?.welcomeWindow = nil
         }
-        
+
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 480, height: 520),
             styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
-        
+
         window.center()
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
@@ -110,7 +110,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.contentViewController = NSHostingController(rootView: welcomeView)
         window.level = .floating
         window.makeKeyAndOrderFront(nil)
-        
+
         self.welcomeWindow = window
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -136,11 +136,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func showAccessibilityAlert() {
         let alert = NSAlert()
-        alert.messageText = "需要辅助功能权限"
-        alert.informativeText = "全局快捷键需要辅助功能权限。请在系统设置中启用 QuickHub 的辅助功能权限，然后重启应用。"
+        alert.messageText = localized("app.accessibility.title")
+        alert.informativeText = localized("app.accessibility.message")
         alert.alertStyle = .warning
-        alert.addButton(withTitle: "打开系统设置")
-        alert.addButton(withTitle: "稍后")
+        alert.addButton(withTitle: localized("app.accessibility.open_settings"))
+        alert.addButton(withTitle: localized("app.accessibility.later"))
 
         if alert.runModal() == .alertFirstButtonReturn {
             // 打开辅助功能设置
@@ -163,9 +163,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // 尝试执行脚本，这会触发权限请求
             let result = appleScript.executeAndReturnError(&error)
             if result.stringValue != nil {
-                print("[AppDelegate] Finder 权限获取成功")
+                print(localized("[AppDelegate] app.finder.permission_success"))
             } else if let error = error {
-                print("[AppDelegate] Finder 权限获取失败: \(error)")
+                print(localized("app.finder.permission_failed", with: error.description))
             }
         }
     }
@@ -252,7 +252,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             // 同步获取 Finder 选择
             let selection = self?.syncGetFinderSelection() ?? []
-            
+
             DispatchQueue.main.async {
                 self?.currentFinderSelection = selection
                 self?.togglePanel()
@@ -412,10 +412,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
 
-        settingsWindow.title = "QuickHub 设置"
+        settingsWindow.title = LocaleManager.shared.localized("app.settings.title")
         settingsWindow.contentViewController = hostingController
         settingsWindow.center()
         settingsWindow.makeKeyAndOrderFront(nil)
+
+        // 监听语言切换，重新设置窗口标题
+        NotificationCenter.default.addObserver(
+            forName: .languageChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.settingsWindow?.title = LocaleManager.shared.localized("app.settings.title")
+            }
+        }
 
         NSApp.activate(ignoringOtherApps: true)
     }

@@ -10,7 +10,7 @@ struct OpenAppSettingsView: View {
 
     // 按分类组织的预设应用
     private let presetCategories: [(name: String, icon: String, apps: [AppPreset])] = [
-        ("办公", "doc.text", [
+        ("open_app.category.office", "doc.text", [
             AppPreset(name: "Word", path: "/Applications/Microsoft Word.app", icon: "doc.fill"),
             AppPreset(name: "Excel", path: "/Applications/Microsoft Excel.app", icon: "tablecells"),
             AppPreset(name: "PowerPoint", path: "/Applications/Microsoft PowerPoint.app", icon: "chart.bar"),
@@ -18,7 +18,7 @@ struct OpenAppSettingsView: View {
             AppPreset(name: "Numbers", path: "/Applications/Numbers.app", icon: "tablecells.fill"),
             AppPreset(name: "Keynote", path: "/Applications/Keynote.app", icon: "play.rectangle.fill")
         ]),
-        ("设计", "paintpalette", [
+        ("open_app.category.design", "paintpalette", [
             AppPreset(name: "Figma", path: "/Applications/Figma.app", icon: "square.and.pencil"),
             AppPreset(name: "Sketch", path: "/Applications/Sketch.app", icon: "pencil.tip"),
             AppPreset(name: "Photoshop", path: "/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app", icon: "photo"),
@@ -26,7 +26,7 @@ struct OpenAppSettingsView: View {
             AppPreset(name: "Preview", path: "/Applications/Preview.app", icon: "eye"),
             AppPreset(name: "Pixelmator", path: "/Applications/Pixelmator.app", icon: "paintbrush.fill")
         ]),
-        ("开发", "chevron.left.forwardslash.chevron.right", [
+        ("open_app.category.dev", "chevron.left.forwardslash.chevron.right", [
             AppPreset(name: "Visual Studio Code", path: "/Applications/Visual Studio Code.app", icon: "p.square.fill"),
             AppPreset(name: "Xcode", path: "/Applications/Xcode.app", icon: "hammer.fill"),
             AppPreset(name: "Sublime Text", path: "/Applications/Sublime Text.app", icon: "doc.text"),
@@ -35,13 +35,13 @@ struct OpenAppSettingsView: View {
             AppPreset(name: "Terminal", path: "/Applications/Utilities/Terminal.app", icon: "terminal"),
             AppPreset(name: "Docker", path: "/Applications/Docker.app", icon: "shippingbox.fill")
         ]),
-        ("视频", "video", [
+        ("open_app.category.video", "video", [
             AppPreset(name: "VLC", path: "/Applications/VLC.app", icon: "play.rectangle.fill"),
             AppPreset(name: "IINA", path: "/Applications/IINA.app", icon: "play.circle.fill"),
             AppPreset(name: "QuickTime Player", path: "/Applications/QuickTime Player.app", icon: "film"),
             AppPreset(name: "DaVinci Resolve", path: "/Applications/DaVinci Resolve.app", icon: "film.fill")
         ]),
-        ("AI", "brain", [
+        ("open_app.category.ai", "brain", [
             AppPreset(name: "ChatGPT", path: "/Applications/ChatGPT.app", icon: "bubble.left.fill"),
             AppPreset(name: "Claude", path: "/Applications/Claude.app", icon: "brain"),
             AppPreset(name: "Copilot", path: "/Applications/Copilot.app", icon: "airplane"),
@@ -57,11 +57,11 @@ struct OpenAppSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("打开应用")
+            Text(localized("open_app.title"))
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("选择在右键菜单中快速打开的应用")
+            Text(localized("open_app.desc"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -72,7 +72,7 @@ struct OpenAppSettingsView: View {
 
             if !enabledApps.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("已启用", systemImage: "checkmark.circle.fill")
+                    Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
                         .font(.headline)
                         .foregroundColor(.green)
 
@@ -80,7 +80,7 @@ struct OpenAppSettingsView: View {
                         ForEach(enabledApps) { item in
                             EnabledChip(
                                 icon: item.icon.isEmpty ? "app" : item.icon,
-                                name: item.name,
+                                name: DefaultItemNameMapping.localizedItemName(item.name),
                                 onEdit: { onEdit(.app(item)) },
                                 onDelete: { deleteApp(item) }
                             )
@@ -100,7 +100,7 @@ struct OpenAppSettingsView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
-                    Button("清除") {
+                    Button(localized("common.clear")) {
                         errorMessage = nil
                     }
                     .buttonStyle(.plain)
@@ -118,7 +118,7 @@ struct OpenAppSettingsView: View {
                         let availableApps = getAvailableApps(for: category.apps)
                         if !availableApps.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
-                                Label(category.name, systemImage: category.icon)
+                                Label(localized(category.name), systemImage: category.icon)
                                     .font(.headline)
                                     .foregroundColor(.accentColor)
 
@@ -137,25 +137,25 @@ struct OpenAppSettingsView: View {
 
                     // 自定义应用（放在 ScrollView 内）
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("自定义", systemImage: "plus.square.dashed")
+                        Label(localized("open_app.custom"), systemImage: "plus.square.dashed")
                             .font(.headline)
                             .foregroundColor(.accentColor)
 
                         HStack {
-                            TextField("应用路径，如 /Applications/xxx.app", text: $customAppPath)
+                            TextField(localized("open_app.app_path_placeholder"), text: $customAppPath)
                                 .textFieldStyle(.roundedBorder)
 
-                            Button("浏览...") {
+                            Button(localized("common.browse")) {
                                 browseFolder()
                             }
                         }
 
-                        Button("添加应用") {
+                        Button(localized("open_app.add_app")) {
                             addCustomApp()
                         }
                         .disabled(customAppPath.isEmpty)
 
-                        Text("提示: 文件位置有误或未下载时，请通过自定义方式设置")
+                        Text(localized("open_app.tip.wrong_path"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -197,7 +197,7 @@ struct OpenAppSettingsView: View {
     private func addApp(_ app: AppPreset) {
         // 检查应用是否存在
         if !FileManager.default.fileExists(atPath: app.path) {
-            errorMessage = "\(app.name) 文件位置有误或未下载，请通过自定义方式设置"
+            errorMessage = localized("open_app.error.app_not_found", with: app.name)
             return
         }
 
@@ -215,7 +215,7 @@ struct OpenAppSettingsView: View {
 
         // 检查应用是否存在
         if !FileManager.default.fileExists(atPath: path) {
-            errorMessage = "应用不存在，请检查路径是否正确"
+            errorMessage = localized("open_app.error.app_not_exist")
             return
         }
 
@@ -252,7 +252,7 @@ struct OpenAppSettingsView: View {
         for app in enabledApps {
             if let targetPath = app.targetPath {
                 if !FileManager.default.fileExists(atPath: targetPath) {
-                    errorMessage = "\(app.name) 文件位置有误或未下载"
+                    errorMessage = localized("open_app.error.app_not_found", with: app.name)
                     return
                 }
             }

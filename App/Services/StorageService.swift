@@ -90,7 +90,7 @@ class StorageService: StorageServiceProtocol {
             let data = try encoder.encode(config)
             try data.write(to: configPath)
         } catch {
-            print("保存配置失败: \(error)")
+            print(localized("storage.save_failed", with: error.localizedDescription))
         }
     }
 
@@ -103,7 +103,7 @@ class StorageService: StorageServiceProtocol {
             let data = try Data(contentsOf: url)
             return try JSONDecoder().decode(AppConfig.self, from: data)
         } catch {
-            print("加载配置失败: \(error)")
+            print(localized("storage.load_failed", with: error.localizedDescription))
             return AppConfig()
         }
     }
@@ -148,9 +148,8 @@ class StorageService: StorageServiceProtocol {
                     CommandItem(
                         name: "终端",
                         icon: "terminal",
-                        type: .shell,
-                        command: "open -a Terminal '{dir}'",
-                        openInTerminal: false
+                        type: .openApp,
+                        targetPath: "/Applications/Utilities/Terminal.app"
                     )
                 ]
             ),

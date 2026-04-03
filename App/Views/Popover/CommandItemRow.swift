@@ -18,7 +18,7 @@ struct CommandItemRow: View {
                 .foregroundColor(isHovered ? .white : .primary)
                 .frame(width: 16)
 
-            Text(item.name)
+            Text(DefaultItemNameMapping.localizedItemName(item.name))
                 .font(.system(size: 12))
                 .foregroundColor(isHovered ? .white : .primary)
 
@@ -58,19 +58,19 @@ struct CommandItemRow: View {
     private var commandTypeLabel: String {
         switch item.type {
         case .shell:
-            return "Shell"
+            return localized("command_type.shell")
         case .copyPath:
-            return "路径"
+            return localized("command_type.copy_path")
         case .createFile:
-            return "文件"
+            return localized("command_type.create_file")
         case .createFolder:
-            return "文件夹"
+            return localized("command_type.create_folder")
         case .openFinder:
-            return "目录"
+            return localized("command_type.open_finder")
         case .openApp:
-            return "应用"
+            return localized("command_type.open_app")
         case .bitwardenSearch:
-            return "密码"
+            return localized("command_type.bitwarden")
         }
     }
 
@@ -132,7 +132,7 @@ struct CommandItemRow: View {
                     showNotification(title: item.name, message: result.output)
                 }
             } catch {
-                showNotification(title: "执行失败", message: error.localizedDescription)
+                showNotification(title: localized("notification.execution_failed"), message: error.localizedDescription)
             }
             isExecuting = false
         }

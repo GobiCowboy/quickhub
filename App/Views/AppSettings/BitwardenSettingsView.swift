@@ -15,11 +15,11 @@ struct BitwardenSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("密码管理")
+            Text(localized("bitwarden.title"))
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("在右键菜单中显示 Bitwarden 密码搜索功能")
+            Text(localized("bitwarden.desc"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -28,7 +28,7 @@ struct BitwardenSettingsView: View {
             // 已启用
             if !bitwardenItems.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("已启用", systemImage: "checkmark.circle.fill")
+                    Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
                         .font(.headline)
                         .foregroundColor(.green)
 
@@ -48,12 +48,12 @@ struct BitwardenSettingsView: View {
             }
 
             // 添加按钮
-            Text("添加 Bitwarden 搜索")
+            Text(localized("bitwarden.add_title"))
                 .font(.headline)
 
             HStack {
                 Button(action: addBitwardenItem) {
-                    Label("搜索 Bitwarden 密码", systemImage: "plus.circle.fill")
+                    Label(localized("bitwarden.add_button"), systemImage: "plus.circle.fill")
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(hasBitwardenItem)
@@ -61,7 +61,7 @@ struct BitwardenSettingsView: View {
                 Spacer()
             }
 
-            Text("使用 Bitwarden CLI (bw) 搜索保险库中的密码")
+            Text(localized("bitwarden.tip"))
                 .font(.caption)
                 .foregroundColor(.secondary)
 

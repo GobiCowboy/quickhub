@@ -1,0 +1,295 @@
+/* Common */
+"common.cancel" = "取消";
+"common.confirm" = "确认";
+"common.delete" = "删除";
+"common.save" = "保存";
+"common.close" = "关闭";
+"common.clear" = "清除";
+"common.add" = "添加";
+"common.create" = "创建";
+"common.cancel" = "取消";
+"common.browse" = "浏览...";
+"common.enabled" = "已启用";
+"common.tip" = "提示";
+"common.warning" = "警告";
+"common.error" = "错误";
+"common.success" = "成功";
+"common.search" = "搜索...";
+"common.no_results" = "暂无匹配命令";
+"common.settings" = "设置...";
+"common.path" = "路径";
+"common.name" = "名称";
+"common.icon" = "图标";
+"common.command" = "命令";
+"common.placeholder.path" = "文件或文件夹路径";
+"common.placeholder.name" = "输入名称";
+"common.placeholder.filename" = "文件名";
+"common.placeholder.command" = "命令内容，如: git status";
+"common.placeholder.ext" = "扩展名，如 env, gitignore";
+"common.placeholder.search_icon" = "搜索图标...";
+
+/* Group Names */
+"group.new_file_folder" = "新建文件/文件夹";
+"group.open_folder" = "打开文件夹";
+"group.open_app" = "打开应用";
+"group.commands" = "命令";
+"group.password_management" = "密码管理";
+
+/* Welcome View */
+"welcome.title" = "欢迎使用 QuickHub";
+"welcome.subtitle" = "极简、极速的 macOS 超级工具箱";
+"welcome.feature1.title" = "快捷唤醒 (⌥⇧Q)";
+"welcome.feature1.desc" = "选中 Finder 文件，按住快捷键。面板会瞬时出现在鼠标位置，比右键菜单更快。";
+"welcome.feature2.title" = "呼出即搜索";
+"welcome.feature2.desc" = "面板弹出后直接打字（如输入 'T'），然后按回车。全程无需挪动鼠标。";
+"welcome.feature3.title" = "自由定制";
+"welcome.feature3.desc" = "在设置 ⚙️ 中，你可以定义 Shell 脚本、文件模板、并随时更换你喜欢的快捷键。";
+"welcome.button" = "我已掌握，开始使用";
+
+/* Popover View */
+"popover.search_placeholder" = "快速搜索命令...";
+"popover.no_results" = "暂无匹配命令";
+
+/* General Settings View */
+"settings.general.section.language" = "语言";
+"settings.general.language" = "语言";
+"settings.general.section.startup" = "启动";
+"settings.general.launch_at_login" = "开机自动启动";
+"settings.general.section.notifications" = "通知";
+"settings.general.show_notifications" = "执行命令后显示通知";
+"settings.general.section.shortcut" = "快捷键";
+"settings.general.open_panel" = "打开面板";
+"settings.general.section.about" = "关于";
+"settings.general.version" = "版本";
+"settings.general.github" = "GitHub 项目";
+"settings.general.feedback" = "问题反馈";
+"settings.general.section.advanced" = "高级";
+"settings.general.open_config_dir" = "打开配置文件目录";
+"settings.general.reset_all" = "重置所有设置为默认";
+"settings.general.launch_at_login_failed" = "设置开机启动失败: %@";
+
+/* App Settings View */
+"settings.category.new_file" = "新建文件/文件夹";
+"settings.category.open_folder" = "打开文件夹";
+"settings.category.open_app" = "打开应用";
+"settings.category.shell" = "命令";
+"settings.category.menu_sort" = "菜单排序";
+"settings.category.general" = "通用设置";
+
+/* Item Editor Sheet */
+"editor.title" = "编辑项目";
+"editor.field.name" = "名称";
+"editor.field.name_placeholder" = "输入名称";
+"editor.field.icon" = "图标";
+"editor.field.icon_placeholder" = "SF Symbol 名称";
+"editor.field.icon_example" = "示例: doc.text, terminal, folder.fill, swift";
+"editor.field.icon_browse" = "浏览...";
+"editor.field.path" = "路径";
+"editor.field.extension" = "文件扩展名";
+"editor.field.extension_placeholder" = "如: txt, md, swift";
+"editor.field.command" = "命令";
+"editor.field.placeholder" = "占位符: {path}, {dir}, {filename}";
+"editor.execute_in_terminal" = "在终端中执行";
+"editor.bitwarden_no_config" = "Bitwarden 搜索无需配置";
+"editor.copy_path_no_config" = "复制路径无需配置";
+"editor.delete" = "删除";
+"editor.cancel" = "取消";
+"editor.save" = "保存";
+
+/* Open App Settings */
+"open_app.title" = "打开应用";
+"open_app.desc" = "选择在右键菜单中快速打开的应用";
+"open_app.category.office" = "办公";
+"open_app.category.design" = "设计";
+"open_app.category.dev" = "开发";
+"open_app.category.video" = "视频";
+"open_app.category.ai" = "AI";
+"open_app.custom" = "自定义";
+"open_app.add_custom" = "添加自定义应用";
+"open_app.app_path_placeholder" = "应用路径，如 /Applications/xxx.app";
+"open_app.add_app" = "添加应用";
+"open_app.tip.wrong_path" = "提示: 文件位置有误或未下载时，请通过自定义方式设置";
+"open_app.error.app_not_found" = "%@ 文件位置有误或未下载，请通过自定义方式设置";
+"open_app.error.app_not_exist" = "应用不存在，请检查路径是否正确";
+
+/* Bitwarden Settings */
+"bitwarden.title" = "密码管理";
+"bitwarden.desc" = "在右键菜单中显示 Bitwarden 密码搜索功能";
+"bitwarden.add_title" = "添加 Bitwarden 搜索";
+"bitwarden.add_button" = "搜索 Bitwarden 密码";
+"bitwarden.tip" = "使用 Bitwarden CLI (bw) 搜索保险库中的密码";
+"bitwarden.search_placeholder" = "请输入搜索关键词：";
+"bitwarden.search_button" = "搜索";
+"bitwarden.no_results" = "未找到匹配的密码";
+"bitwarden.search_title" = "搜索结果";
+
+/* New File Settings */
+"new_file.title" = "新建文件模板";
+"new_file.desc" = "选择要在右键菜单中显示的文件模板";
+"new_file.category.folder" = "文件夹";
+"new_file.add_folder" = "新建文件夹";
+"new_file.new_folder" = "新建文件夹";
+"new_file.category.office" = "办公";
+"new_file.category.coding" = "编程";
+"new_file.category.design" = "设计";
+"new_file.custom" = "自定义";
+"new_file.custom_ext_placeholder" = "扩展名，如 env, gitignore";
+"new_file.add" = "添加";
+"new_file.tip.auto_dot" = "提示: 会自动生成 . 符号，如输入 env 会创建 .env 文件";
+"new_file.custom_file" = "自定义文件";
+"new_file.enabled_templates" = "已启用模板";
+"new_file.enabled_folders" = "已启用文件夹";
+
+/* Open Folder Settings */
+"open_folder.title" = "打开文件夹";
+"open_folder.desc" = "选择在右键菜单中显示的快捷目录";
+"open_folder.preset_folders" = "预设目录";
+"open_folder.add_custom" = "添加自定义文件夹";
+"open_folder.folder_path_placeholder" = "文件夹路径，如 ~/MyFolder";
+"open_folder.add_folder" = "添加文件夹";
+"open_folder.browse" = "浏览...";
+"open_folder.desktop" = "桌面";
+"open_folder.downloads" = "下载";
+"open_folder.documents" = "文档";
+"open_folder.projects" = "项目";
+"open_folder.applications" = "应用";
+"open_folder.pictures" = "图片";
+"open_folder.music" = "音乐";
+"open_folder.movies" = "影片";
+
+/* Shell Command Settings */
+"shell.title" = "命令行工具";
+"shell.desc" = "选择在右键菜单中显示的命令";
+"shell.preset_commands" = "预设命令";
+"shell.add_custom" = "添加自定义命令";
+"shell.command_name_placeholder" = "命令名称";
+"shell.command_content_placeholder" = "命令内容，如: git status";
+"shell.tip.placeholders" = "提示: 使用 {path} 表示选中文件路径，{dir} 表示目录，{filename} 表示文件名";
+"shell.examples" = "示例:";
+"shell.example.copy_path" = "复制路径: echo -n '{path}' | pbcopy";
+"shell.example.terminal" = "终端打开: open -a Terminal '{dir}'";
+"shell.example.iterm" = "iTerm2: open -a iTerm '{dir}'";
+"shell.example.vscode" = "VSCode: cd '{dir}' && code .";
+"shell.add_command" = "添加命令";
+"shell.copy_path" = "复制路径";
+"shell.open_in_terminal" = "在终端打开";
+"shell.open_in_iterm" = "在 iTerm2 打开";
+"shell.open_in_vscode" = "在 VS Code 打开";
+
+/* Menu Sort Settings */
+"menu_sort.title" = "菜单排序";
+"menu_sort.desc" = "上下拖拽以调整组在右键面板中的显示顺序";
+
+/* Hotkey Recorder View */
+"hotkey.click_to_set" = "点击设置快捷键";
+"hotkey.press_shortcut" = "按下快捷键...";
+"hotkey.tip.accessibility" = "提示：全局快捷键需要辅助功能权限";
+"hotkey.cleared" = "快捷键已清除";
+
+/* Icon Picker Sheet */
+"icon_picker.title" = "选择图标";
+"icon_picker.search_placeholder" = "搜索图标...";
+
+/* User Input Helper */
+"input.new_file.title" = "新建文件";
+"input.new_file.prompt" = "请输入文件名：";
+"input.new_file.placeholder" = "文件名";
+"input.new_file.default" = "Untitled";
+"input.new_folder.title" = "新建文件夹";
+"input.new_folder.prompt" = "请输入文件夹名称：";
+"input.new_folder.placeholder" = "文件夹名称";
+"input.new_folder.default" = "Untitled Folder";
+"input.bitwarden_search.title" = "搜索密码";
+"input.bitwarden_search.prompt" = "请输入搜索关键词：";
+"input.bitwarden_search.placeholder" = "搜索 Bitwarden...";
+"input.bitwarden_results.title" = "搜索结果";
+"input.file_exists.title" = "文件已存在";
+"input.file_exists.message" = "%@ 已存在。是否要替换它？";
+"input.file_exists.replace" = "替换";
+"input.folder_exists.title" = "文件夹已存在";
+"input.folder_exists.message" = "%@ 已存在。是否要替换它？";
+
+/* Service Protocols */
+"error.missing_command" = "命令未设置";
+"error.missing_template" = "模板未设置";
+"error.missing_path" = "路径未设置";
+"error.command_failed" = "命令执行失败: %@";
+"error.execution_failed" = "执行失败: %@";
+
+/* Bitwarden Service */
+"bitwarden.error.search_failed" = "搜索失败: %@";
+"bitwarden.error.item_not_found" = "项目不存在";
+"bitwarden.error.execution_failed" = "执行失败: %@";
+"bitwarden.error.not_unlocked" = "Bitwarden 未解锁，请先解锁";
+
+/* Command Executor */
+"executor.copied" = "已复制: %@";
+"executor.vscode_opened" = "已在 VS Code 中打开";
+"executor.terminal_executed" = "已在终端中执行";
+"executor.created" = "已创建: %@";
+"executor.opened_in_finder" = "已在 Finder 中打开: %@";
+"executor.app_opened" = "已打开应用";
+"executor.search_cancelled" = "搜索已取消";
+"executor.no_matching_passwords" = "未找到匹配的密码";
+"executor.copied_password" = "已复制 %@ 的密码";
+"executor.not_selected" = "未选择或密码为空";
+"executor.path_empty" = "路径为空";
+"executor.cancelled" = "已取消";
+
+/* Storage Service */
+"storage.save_failed" = "保存配置失败: %@";
+"storage.load_failed" = "加载配置失败: %@";
+
+/* App Delegate */
+"app.accessibility.title" = "需要辅助功能权限";
+"app.accessibility.message" = "全局快捷键需要辅助功能权限。请在系统设置中启用 QuickHub 的辅助功能权限，然后重启应用。";
+"app.accessibility.open_settings" = "打开系统设置";
+"app.accessibility.later" = "稍后";
+"app.settings.title" = "QuickHub 设置";
+"app.finder.permission_success" = "Finder 权限获取成功";
+"app.finder.permission_failed" = "Finder 权限获取失败: %@";
+
+/* Command Item Row */
+"command_type.shell" = "Shell";
+"command_type.copy_path" = "路径";
+"command_type.create_file" = "文件";
+"command_type.create_folder" = "文件夹";
+"command_type.open_finder" = "目录";
+"command_type.open_app" = "应用";
+"command_type.bitwarden" = "密码";
+
+/* Notifications */
+"notification.execution_failed" = "执行失败";
+
+/* New File Presets */
+"new_file.new_folder" = "新建文件夹";
+"new_file.blank_text" = "空白文本";
+"new_file.word" = "Word";
+"new_file.excel" = "Excel";
+"new_file.ppt" = "PPT";
+"new_file.pages" = "Pages";
+"new_file.numbers" = "Numbers";
+"new_file.keynote" = "Keynote";
+"new_file.markdown" = "Markdown";
+"new_file.swift" = "Swift";
+"new_file.python" = "Python";
+"new_file.javascript" = "JavaScript";
+"new_file.typescript" = "TypeScript";
+"new_file.html" = "HTML";
+"new_file.css" = "CSS";
+"new_file.json" = "JSON";
+"new_file.yaml" = "YAML";
+"new_file.go" = "Go";
+"new_file.rust" = "Rust";
+"new_file.shell" = "Shell";
+"new_file.psd" = "PSD";
+"new_file.ai" = "AI";
+"new_file.sketch" = "Sketch";
+"new_file.figma" = "Figma";
+"new_file.custom_file" = "自定义文件";
+"new_file.folder" = "文件夹";
+
+/* App Presets */
+"app.terminal" = "终端";
+"app.iterm" = "iTerm";
+"app.vscode" = "VS Code";

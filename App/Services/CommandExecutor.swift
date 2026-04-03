@@ -57,14 +57,14 @@ class CommandExecutor: CommandExecutorProtocol {
 
     private func executeCopyPath(_ context: ExecutionContext) -> ExecutionResult {
         guard let filePath = context.filePath else {
-            return ExecutionResult(success: false, output: "路径为空")
+            return ExecutionResult(success: false, output: localized("executor.path_empty"))
         }
 
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(filePath, forType: .string)
         print("[CommandExecutor] 复制路径到剪贴板: \(filePath)")
-        return ExecutionResult(success: true, output: "已复制: \(filePath)")
+        return ExecutionResult(success: true, output: localized("executor.copied", with: filePath))
     }
 
     private func expandCommand(_ command: String, context: ExecutionContext) -> String {
@@ -127,7 +127,7 @@ class CommandExecutor: CommandExecutorProtocol {
             let url = URL(fileURLWithPath: dirPath)
             print("[CommandExecutor] Opening VSCode at url: \(url)")
             try await NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
-            return ExecutionResult(success: true, output: "已在 VS Code 中打开")
+            return ExecutionResult(success: true, output: localized("executor.vscode_opened"))
         }
 
         // fallback: 直接执行 code
@@ -172,7 +172,7 @@ class CommandExecutor: CommandExecutorProtocol {
             }
         }
 
-        return ExecutionResult(success: true, output: "已在终端中执行")
+        return ExecutionResult(success: true, output: localized("executor.terminal_executed"))
     }
 
     // MARK: - 新建文件
@@ -192,7 +192,7 @@ class CommandExecutor: CommandExecutorProtocol {
 
         // 用户取消
         guard let fileName = fileName else {
-            return ExecutionResult(success: false, output: "已取消")
+            return ExecutionResult(success: false, output: localized("executor.cancelled"))
         }
 
         let fullFileName = "\(fileName).\(ext)"
@@ -203,10 +203,10 @@ class CommandExecutor: CommandExecutorProtocol {
             let shouldReplace = await withCheckedContinuation { continuation in
                 DispatchQueue.main.async {
                     let alert = NSAlert()
-                    alert.messageText = "文件已存在"
-                    alert.informativeText = "\(fullFileName) 已存在。是否要替换它？"
-                    alert.addButton(withTitle: "替换")
-                    alert.addButton(withTitle: "取消")
+                    alert.messageText = localized("input.file_exists.title")
+                    alert.informativeText = localized("input.file_exists.message", with: fullFileName)
+                    alert.addButton(withTitle: localized("input.file_exists.replace"))
+                    alert.addButton(withTitle: localized("common.cancel"))
 
                     // 创建临时窗口作为 sheet 父窗口
                     let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
@@ -221,7 +221,7 @@ class CommandExecutor: CommandExecutorProtocol {
             }
 
             if !shouldReplace {
-                return ExecutionResult(success: false, output: "已取消")
+                return ExecutionResult(success: false, output: localized("executor.cancelled"))
             }
         }
 
@@ -234,7 +234,7 @@ class CommandExecutor: CommandExecutorProtocol {
             // 打开文件
             NSWorkspace.shared.activateFileViewerSelecting([fileURL])
 
-            return ExecutionResult(success: true, output: "已创建: \(fullFileName)")
+            return ExecutionResult(success: true, output: localized("executor.created", with: fullFileName))
         } catch {
             throw ExecutionError.executionFailed(error.localizedDescription)
         }
@@ -264,7 +264,7 @@ class CommandExecutor: CommandExecutorProtocol {
 
         // 用户取消
         guard let folderName = folderName else {
-            return ExecutionResult(success: false, output: "已取消")
+            return ExecutionResult(success: false, output: localized("executor.cancelled"))
         }
 
         let folderURL = URL(fileURLWithPath: context.directory).appendingPathComponent(folderName)
@@ -274,10 +274,10 @@ class CommandExecutor: CommandExecutorProtocol {
             let shouldReplace = await withCheckedContinuation { continuation in
                 DispatchQueue.main.async {
                     let alert = NSAlert()
-                    alert.messageText = "文件夹已存在"
-                    alert.informativeText = "\(folderName) 已存在。是否要替换它？"
-                    alert.addButton(withTitle: "替换")
-                    alert.addButton(withTitle: "取消")
+                    alert.messageText = localized("input.folder_exists.title")
+                    alert.informativeText = localized("input.folder_exists.message", with: folderName)
+                    alert.addButton(withTitle: localized("input.file_exists.replace"))
+                    alert.addButton(withTitle: localized("common.cancel"))
 
                     // 创建临时窗口作为 sheet 父窗口
                     let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
@@ -292,7 +292,7 @@ class CommandExecutor: CommandExecutorProtocol {
             }
 
             if !shouldReplace {
-                return ExecutionResult(success: false, output: "已取消")
+                return ExecutionResult(success: false, output: localized("executor.cancelled"))
             }
 
             // 删除已存在的文件夹
@@ -305,7 +305,7 @@ class CommandExecutor: CommandExecutorProtocol {
             // 在 Finder 中显示新创建的文件夹
             NSWorkspace.shared.activateFileViewerSelecting([folderURL])
 
-            return ExecutionResult(success: true, output: "已创建: \(folderName)")
+            return ExecutionResult(success: true, output: localized("executor.created", with: folderName))
         } catch {
             throw ExecutionError.executionFailed(error.localizedDescription)
         }
@@ -325,7 +325,7 @@ class CommandExecutor: CommandExecutorProtocol {
         let url = URL(fileURLWithPath: path)
         NSWorkspace.shared.open(url)
 
-        return ExecutionResult(success: true, output: "已在 Finder 中打开: \(path)")
+        return ExecutionResult(success: true, output: localized("executor.opened_in_finder", with: path))
     }
 
     // MARK: - 打开应用
@@ -339,7 +339,7 @@ class CommandExecutor: CommandExecutorProtocol {
 
         try await NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
 
-        return ExecutionResult(success: true, output: "已打开应用")
+        return ExecutionResult(success: true, output: localized("executor.app_opened"))
     }
 
     // MARK: - Bitwarden 密码搜索
@@ -353,20 +353,20 @@ class CommandExecutor: CommandExecutorProtocol {
         }
 
         guard !query.isEmpty else {
-            return ExecutionResult(success: false, output: "搜索已取消")
+            return ExecutionResult(success: false, output: localized("executor.search_cancelled"))
         }
 
         // 搜索密码
         let items = try await BitwardenService.shared.searchPasswords(query: query)
 
         if items.isEmpty {
-            return ExecutionResult(success: true, output: "未找到匹配的密码")
+            return ExecutionResult(success: true, output: localized("executor.no_matching_passwords"))
         }
 
         // 如果只有一个结果，直接复制
         if items.count == 1, let item = items.first, let login = item.login, let password = login.password {
             copyToClipboard(password)
-            return ExecutionResult(success: true, output: "已复制 \(item.name) 的密码")
+            return ExecutionResult(success: true, output: localized("executor.copied_password", with: item.name))
         }
 
         // 多个结果，弹出选择
@@ -378,10 +378,10 @@ class CommandExecutor: CommandExecutorProtocol {
 
         if let item = selectedItem, let login = item.login, let password = login.password {
             copyToClipboard(password)
-            return ExecutionResult(success: true, output: "已复制 \(item.name) 的密码")
+            return ExecutionResult(success: true, output: localized("executor.copied_password", with: item.name))
         }
 
-        return ExecutionResult(success: false, output: "未选择或密码为空")
+        return ExecutionResult(success: false, output: localized("executor.not_selected"))
     }
 
     private func copyToClipboard(_ text: String) {

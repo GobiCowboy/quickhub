@@ -20,7 +20,7 @@ struct ItemEditorSheet: View {
         VStack(spacing: 0) {
             // 标题栏
             HStack {
-                Text("编辑项目")
+                Text(localized("editor.title"))
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -39,26 +39,26 @@ struct ItemEditorSheet: View {
                 VStack(alignment: .leading, spacing: 20) {
                     // 名称
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("名称")
+                        Text(localized("editor.field.name"))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        TextField("输入名称", text: $name)
+                        TextField(localized("editor.field.name_placeholder"), text: $name)
                             .textFieldStyle(.roundedBorder)
                     }
 
                     // 图标
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("图标")
+                        Text(localized("editor.field.icon"))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         HStack {
-                            TextField("SF Symbol 名称", text: $icon)
+                            TextField(localized("editor.field.icon_placeholder"), text: $icon)
                                 .textFieldStyle(.roundedBorder)
-                            Button("浏览...") {
+                            Button(localized("editor.field.icon_browse")) {
                                 openIconPicker()
                             }
                         }
-                        Text("示例: doc.text, terminal, folder.fill, swift")
+                        Text(localized("editor.field.icon_example"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -67,10 +67,10 @@ struct ItemEditorSheet: View {
                     switch item {
                     case .template:
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("文件扩展名")
+                            Text(localized("editor.field.extension"))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            TextField("如: txt, md, swift", text: $fileExtension)
+                            TextField(localized("editor.field.extension_placeholder"), text: $fileExtension)
                                 .textFieldStyle(.roundedBorder)
                         }
 
@@ -79,35 +79,35 @@ struct ItemEditorSheet: View {
 
                     case .app, .folder:
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("路径")
+                            Text(localized("editor.field.path"))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            TextField("文件或文件夹路径", text: $targetPath)
+                            TextField(localized("common.placeholder.path"), text: $targetPath)
                                 .textFieldStyle(.roundedBorder)
                         }
 
                     case .shell:
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("命令")
+                            Text(localized("editor.field.command"))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                             TextEditor(text: $command)
                                 .frame(height: 100)
                                 .font(.system(.body, design: .monospaced))
                                 .border(Color.secondary.opacity(0.3), width: 1)
-                            Text("占位符: {path}, {dir}, {filename}")
+                            Text(localized("editor.field.placeholder"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
 
-                        Toggle("在终端中执行", isOn: $openInTerminal)
+                        Toggle(localized("editor.execute_in_terminal"), isOn: $openInTerminal)
 
                     case .bitwardenSearch:
-                        Text("Bitwarden 搜索无需配置")
+                        Text(localized("editor.bitwarden_no_config"))
                             .foregroundColor(.secondary)
 
                     case .copyPath:
-                        Text("复制路径无需配置")
+                        Text(localized("editor.copy_path_no_config"))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -118,7 +118,7 @@ struct ItemEditorSheet: View {
 
             // 按钮栏
             HStack {
-                Button("删除") {
+                Button(localized("editor.delete")) {
                     deleteItem()
                     dismiss()
                 }
@@ -126,12 +126,12 @@ struct ItemEditorSheet: View {
 
                 Spacer()
 
-                Button("取消") {
+                Button(localized("editor.cancel")) {
                     dismiss()
                 }
                 .keyboardShortcut(.cancelAction)
 
-                Button("保存") {
+                Button(localized("editor.save")) {
                     saveChanges()
                     dismiss()
                 }

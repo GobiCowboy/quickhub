@@ -8,23 +8,23 @@ struct OpenFolderSettingsView: View {
     @State private var customFolderPath = ""
 
     private let presetFolders: [FolderPreset] = [
-        FolderPreset(name: "桌面", path: "~/Desktop", icon: "desktopcomputer"),
-        FolderPreset(name: "下载", path: "~/Downloads", icon: "arrow.down.circle.fill"),
-        FolderPreset(name: "文档", path: "~/Documents", icon: "doc.fill"),
-        FolderPreset(name: "项目", path: "~/Projects", icon: "folder.fill"),
-        FolderPreset(name: "应用", path: "~/Applications", icon: "app.fill"),
-        FolderPreset(name: "图片", path: "~/Pictures", icon: "photo.fill"),
-        FolderPreset(name: "音乐", path: "~/Music", icon: "music.note"),
-        FolderPreset(name: "影片", path: "~/Movies", icon: "film.fill")
+        FolderPreset(name: "open_folder.desktop", path: "~/Desktop", icon: "desktopcomputer"),
+        FolderPreset(name: "open_folder.downloads", path: "~/Downloads", icon: "arrow.down.circle.fill"),
+        FolderPreset(name: "open_folder.documents", path: "~/Documents", icon: "doc.fill"),
+        FolderPreset(name: "open_folder.projects", path: "~/Projects", icon: "folder.fill"),
+        FolderPreset(name: "open_folder.applications", path: "~/Applications", icon: "app.fill"),
+        FolderPreset(name: "open_folder.pictures", path: "~/Pictures", icon: "photo.fill"),
+        FolderPreset(name: "open_folder.music", path: "~/Music", icon: "music.note"),
+        FolderPreset(name: "open_folder.movies", path: "~/Movies", icon: "film.fill")
     ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("打开文件夹")
+            Text(localized("open_folder.title"))
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("选择在右键菜单中显示的快捷目录")
+            Text(localized("open_folder.desc"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -35,7 +35,7 @@ struct OpenFolderSettingsView: View {
 
             if !enabledFolders.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("已启用", systemImage: "checkmark.circle.fill")
+                    Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
                         .font(.headline)
                         .foregroundColor(.green)
 
@@ -43,7 +43,7 @@ struct OpenFolderSettingsView: View {
                         ForEach(enabledFolders) { item in
                             EnabledChip(
                                 icon: item.icon.isEmpty ? "folder.fill" : item.icon,
-                                name: item.name,
+                                name: DefaultItemNameMapping.localizedItemName(item.name),
                                 onEdit: { onEdit(.folder(item)) },
                                 onDelete: { deleteFolder(item) }
                             )
@@ -55,7 +55,7 @@ struct OpenFolderSettingsView: View {
             }
 
             // 可添加
-            Text("预设目录")
+            Text(localized("open_folder.preset_folders"))
                 .font(.headline)
 
             ScrollView {
@@ -63,7 +63,7 @@ struct OpenFolderSettingsView: View {
                     ForEach(getAvailableFolders()) { folder in
                         AddableChip(
                             icon: folder.icon,
-                            name: folder.name,
+                            name: localized(folder.name),
                             onAdd: { addFolder(folder) }
                         )
                     }
@@ -73,19 +73,19 @@ struct OpenFolderSettingsView: View {
             Divider()
 
             // 自定义文件夹
-            Text("添加自定义文件夹")
+            Text(localized("open_folder.add_custom"))
                 .font(.headline)
 
             HStack {
-                TextField("文件夹路径，如 ~/MyFolder", text: $customFolderPath)
+                TextField(localized("open_folder.folder_path_placeholder"), text: $customFolderPath)
                     .textFieldStyle(.roundedBorder)
 
-                Button("浏览...") {
+                Button(localized("open_folder.browse")) {
                     browseFolder()
                 }
             }
 
-            Button("添加文件夹") {
+            Button(localized("open_folder.add_folder")) {
                 addCustomFolder()
             }
             .disabled(customFolderPath.isEmpty)

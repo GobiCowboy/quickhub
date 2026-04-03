@@ -14,14 +14,14 @@ enum UserInputHelper {
     static func promptFileName(extension ext: String, directory: String, completion: @escaping (String?) -> Void) {
         DispatchQueue.main.async {
             let alert = NSAlert()
-            alert.messageText = "新建文件"
-            alert.informativeText = "请输入文件名："
-            alert.addButton(withTitle: "创建")
-            alert.addButton(withTitle: "取消")
+            alert.messageText = localized("input.new_file.title")
+            alert.informativeText = localized("input.new_file.prompt")
+            alert.addButton(withTitle: localized("common.create"))
+            alert.addButton(withTitle: localized("common.cancel"))
 
             let inputField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-            inputField.stringValue = "Untitled"
-            inputField.placeholderString = "文件名"
+            inputField.stringValue = localized("input.new_file.default")
+            inputField.placeholderString = localized("input.new_file.placeholder")
             alert.accessoryView = inputField
 
             // 激活应用
@@ -37,7 +37,7 @@ enum UserInputHelper {
             alert.beginSheetModal(for: tempWindow) { response in
                 if response == .alertFirstButtonReturn {
                     let fileName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                    completion(fileName.isEmpty ? "Untitled" : fileName)
+                    completion(fileName.isEmpty ? localized("input.new_file.default") : fileName)
                 } else {
                     completion(nil)
                 }
@@ -58,14 +58,14 @@ enum UserInputHelper {
     static func promptFolderName(directory: String, completion: @escaping (String?) -> Void) {
         DispatchQueue.main.async {
             let alert = NSAlert()
-            alert.messageText = "新建文件夹"
-            alert.informativeText = "请输入文件夹名称："
-            alert.addButton(withTitle: "创建")
-            alert.addButton(withTitle: "取消")
+            alert.messageText = localized("input.new_folder.title")
+            alert.informativeText = localized("input.new_folder.prompt")
+            alert.addButton(withTitle: localized("common.create"))
+            alert.addButton(withTitle: localized("common.cancel"))
 
             let inputField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-            inputField.stringValue = "Untitled Folder"
-            inputField.placeholderString = "文件夹名称"
+            inputField.stringValue = localized("input.new_folder.default")
+            inputField.placeholderString = localized("input.new_folder.placeholder")
             alert.accessoryView = inputField
 
             // 激活应用
@@ -81,7 +81,7 @@ enum UserInputHelper {
             alert.beginSheetModal(for: tempWindow) { response in
                 if response == .alertFirstButtonReturn {
                     let folderName = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
-                    completion(folderName.isEmpty ? "Untitled Folder" : folderName)
+                    completion(folderName.isEmpty ? localized("input.new_folder.default") : folderName)
                 } else {
                     completion(nil)
                 }
@@ -99,13 +99,13 @@ enum UserInputHelper {
     static func promptBitwardenSearch(completion: @escaping (String?) -> Void) {
         DispatchQueue.main.async {
             let alert = NSAlert()
-            alert.messageText = "搜索密码"
-            alert.informativeText = "请输入搜索关键词："
-            alert.addButton(withTitle: "搜索")
-            alert.addButton(withTitle: "取消")
+            alert.messageText = localized("input.bitwarden_search.title")
+            alert.informativeText = localized("input.bitwarden_search.prompt")
+            alert.addButton(withTitle: localized("bitwarden.search_button"))
+            alert.addButton(withTitle: localized("common.cancel"))
 
             let inputField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-            inputField.placeholderString = "搜索 Bitwarden..."
+            inputField.placeholderString = localized("input.bitwarden_search.placeholder")
             alert.accessoryView = inputField
 
             alert.beginSheetModal(for: NSApp.keyWindow ?? NSWindow()) { response in
@@ -127,7 +127,7 @@ enum UserInputHelper {
             )
 
             let panel = NSPanel(contentViewController: hostingController)
-            panel.title = "搜索结果"
+            panel.title = localized("input.bitwarden_results.title")
             panel.styleMask = [.titled, .closable, .fullSizeContentView]
             panel.setContentSize(NSSize(width: 400, height: 300))
             panel.center()
@@ -147,7 +147,7 @@ struct BitwardenResultsView: View {
     var body: some View {
         VStack(spacing: 0) {
             if items.isEmpty {
-                Text("未找到匹配的密码")
+                Text(localized("bitwarden.no_results"))
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -179,7 +179,7 @@ struct BitwardenResultsView: View {
 
             HStack {
                 Spacer()
-                Button("取消") {
+                Button(localized("common.cancel")) {
                     onSelect(nil)
                 }
                 .keyboardShortcut(.cancelAction)

@@ -8,7 +8,7 @@ struct NewFileSettingsView: View {
     @State private var customExt = ""
 
     private let templateCategories: [(name: String, icon: String, items: [FileTemplatePreset])] = [
-        ("办公", "doc.text", [
+        ("new_file.category.office", "doc.text", [
             FileTemplatePreset(name: "空白文本", ext: "txt", icon: "doc.text"),
             FileTemplatePreset(name: "Word", ext: "docx", icon: "doc.fill"),
             FileTemplatePreset(name: "Excel", ext: "xlsx", icon: "tablecells"),
@@ -18,7 +18,7 @@ struct NewFileSettingsView: View {
             FileTemplatePreset(name: "Keynote", ext: "key", icon: "play.rectangle.fill"),
             FileTemplatePreset(name: "Markdown", ext: "md", icon: "doc.richtext")
         ]),
-        ("编程", "chevron.left.forwardslash.chevron.right", [
+        ("new_file.category.coding", "chevron.left.forwardslash.chevron.right", [
             FileTemplatePreset(name: "Swift", ext: "swift", icon: "swift"),
             FileTemplatePreset(name: "Python", ext: "py", icon: "p.square"),
             FileTemplatePreset(name: "JavaScript", ext: "js", icon: "curlybraces"),
@@ -31,7 +31,7 @@ struct NewFileSettingsView: View {
             FileTemplatePreset(name: "Rust", ext: "rs", icon: "gearshape"),
             FileTemplatePreset(name: "Shell", ext: "sh", icon: "terminal")
         ]),
-        ("设计", "paintpalette", [
+        ("new_file.category.design", "paintpalette", [
             FileTemplatePreset(name: "PSD", ext: "psd", icon: "photo"),
             FileTemplatePreset(name: "AI", ext: "ai", icon: "pencil.and.outline"),
             FileTemplatePreset(name: "Sketch", ext: "sketch", icon: "pencil.tip"),
@@ -46,11 +46,11 @@ struct NewFileSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("新建文件模板")
+            Text(localized("new_file.title"))
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("选择要在右键菜单中显示的文件模板")
+            Text(localized("new_file.desc"))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
@@ -61,7 +61,7 @@ struct NewFileSettingsView: View {
 
             if !enabledTemplates.isEmpty || !enabledFolderItems.isEmpty {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("已启用", systemImage: "checkmark.circle.fill")
+                    Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
                         .font(.headline)
                         .foregroundColor(.green)
 
@@ -70,7 +70,7 @@ struct NewFileSettingsView: View {
                         ForEach(enabledFolderItems) { item in
                             EnabledChip(
                                 icon: item.icon.isEmpty ? "folder.fill" : item.icon,
-                                name: item.name,
+                                name: DefaultItemNameMapping.localizedItemName(item.name),
                                 onEdit: { onEdit(.folderItem(item)) },
                                 onDelete: { deleteFolderItem(item) }
                             )
@@ -79,7 +79,7 @@ struct NewFileSettingsView: View {
                         ForEach(enabledTemplates) { item in
                             EnabledChip(
                                 icon: item.icon.isEmpty ? "doc" : item.icon,
-                                name: item.name,
+                                name: DefaultItemNameMapping.localizedItemName(item.name),
                                 onEdit: { onEdit(.template(item)) },
                                 onDelete: { deleteTemplate(item) }
                             )
@@ -96,14 +96,14 @@ struct NewFileSettingsView: View {
                     // 新建文件夹
                     if enabledFolderItems.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
-                            Label("文件夹", systemImage: "folder.fill")
+                            Label(localized("new_file.category.folder"), systemImage: "folder.fill")
                                 .font(.headline)
                                 .foregroundColor(.accentColor)
 
                             FlowLayout(spacing: 8) {
                                 AddableChip(
                                     icon: "folder.fill",
-                                    name: "新建文件夹",
+                                    name: localized("new_file.new_folder"),
                                     onAdd: { addNewFolder() }
                                 )
                             }
@@ -115,7 +115,7 @@ struct NewFileSettingsView: View {
                         let availablePresets = getAvailablePresets(for: category)
                         if !availablePresets.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
-                                Label(category.name, systemImage: category.icon)
+                                Label(localized(category.name), systemImage: category.icon)
                                     .font(.headline)
                                     .foregroundColor(.accentColor)
 
@@ -134,21 +134,21 @@ struct NewFileSettingsView: View {
 
                     // 自定义文件
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("自定义", systemImage: "plus.square.dashed")
+                        Label(localized("new_file.custom"), systemImage: "plus.square.dashed")
                             .font(.headline)
                             .foregroundColor(.accentColor)
 
                         HStack {
-                            TextField("扩展名，如 env, gitignore", text: $customExt)
+                            TextField(localized("new_file.custom_ext_placeholder"), text: $customExt)
                                 .textFieldStyle(.roundedBorder)
 
-                            Button("添加") {
+                            Button(localized("new_file.add")) {
                                 addCustomFile()
                             }
                             .disabled(customExt.isEmpty)
                         }
 
-                        Text("提示: 会自动生成 . 符号，如输入 env 会创建 .env 文件")
+                        Text(localized("new_file.tip.auto_dot"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

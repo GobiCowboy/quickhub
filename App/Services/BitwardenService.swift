@@ -80,13 +80,13 @@ enum BitwardenError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .searchFailed(let message):
-            return "搜索失败: \(message)"
+            return localized("bitwarden.error.search_failed", with: message)
         case .itemNotFound:
-            return "项目不存在"
+            return localized("bitwarden.error.item_not_found")
         case .executionFailed(let message):
-            return "执行失败: \(message)"
+            return localized("bitwarden.error.execution_failed", with: message)
         case .notUnlocked:
-            return "Bitwarden 未解锁，请先解锁"
+            return localized("bitwarden.error.not_unlocked")
         }
     }
 }

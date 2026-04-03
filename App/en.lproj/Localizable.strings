@@ -1,0 +1,295 @@
+/* Common */
+"common.cancel" = "Cancel";
+"common.confirm" = "Confirm";
+"common.delete" = "Delete";
+"common.save" = "Save";
+"common.close" = "Close";
+"common.clear" = "Clear";
+"common.add" = "Add";
+"common.create" = "Create";
+"common.cancel" = "Cancel";
+"common.browse" = "Browse...";
+"common.enabled" = "Enabled";
+"common.tip" = "Tip";
+"common.warning" = "Warning";
+"common.error" = "Error";
+"common.success" = "Success";
+"common.search" = "Search...";
+"common.no_results" = "No matching commands";
+"common.settings" = "Settings...";
+"common.path" = "Path";
+"common.name" = "Name";
+"common.icon" = "Icon";
+"common.command" = "Command";
+"common.placeholder.path" = "File or folder path";
+"common.placeholder.name" = "Name";
+"common.placeholder.filename" = "Filename";
+"common.placeholder.command" = "Command content, e.g.: git status";
+"common.placeholder.ext" = "Extension, e.g.: env, gitignore";
+"common.placeholder.search_icon" = "Search icon...";
+
+/* Group Names */
+"group.new_file_folder" = "New File/Folder";
+"group.open_folder" = "Open Folder";
+"group.open_app" = "Open App";
+"group.commands" = "Commands";
+"group.password_management" = "Password Management";
+
+/* Welcome View */
+"welcome.title" = "Welcome to QuickHub";
+"welcome.subtitle" = "Minimal, fast macOS super toolbox";
+"welcome.feature1.title" = "Quick Activation (⌥⇧Q)";
+"welcome.feature1.desc" = "Select a file in Finder, hold the shortcut. The panel instantly appears at mouse position, faster than right-click menu.";
+"welcome.feature2.title" = "Search as You Type";
+"welcome.feature2.desc" = "After the panel pops up, just type (like 'T'), then press Enter. No need to move the mouse at all.";
+"welcome.feature3.title" = "Fully Customizable";
+"welcome.feature3.desc" = "In Settings ⚙️, you can define shell scripts, file templates, and change shortcuts as you like.";
+"welcome.button" = "Got it, start using";
+
+/* Popover View */
+"popover.search_placeholder" = "Quick search commands...";
+"popover.no_results" = "No matching commands";
+
+/* General Settings View */
+"settings.general.section.language" = "Language";
+"settings.general.language" = "Language";
+"settings.general.section.startup" = "Startup";
+"settings.general.launch_at_login" = "Launch at login";
+"settings.general.section.notifications" = "Notifications";
+"settings.general.show_notifications" = "Show notification after command execution";
+"settings.general.section.shortcut" = "Shortcut";
+"settings.general.open_panel" = "Open Panel";
+"settings.general.section.about" = "About";
+"settings.general.version" = "Version";
+"settings.general.github" = "GitHub Project";
+"settings.general.feedback" = "Report Issue";
+"settings.general.section.advanced" = "Advanced";
+"settings.general.open_config_dir" = "Open Config Directory";
+"settings.general.reset_all" = "Reset All Settings to Default";
+"settings.general.launch_at_login_failed" = "Failed to set launch at login: %@";
+
+/* App Settings View */
+"settings.category.new_file" = "New File/Folder";
+"settings.category.open_folder" = "Open Folder";
+"settings.category.open_app" = "Open App";
+"settings.category.shell" = "Commands";
+"settings.category.menu_sort" = "Menu Sort";
+"settings.category.general" = "General Settings";
+
+/* Item Editor Sheet */
+"editor.title" = "Edit Item";
+"editor.field.name" = "Name";
+"editor.field.name_placeholder" = "Enter name";
+"editor.field.icon" = "Icon";
+"editor.field.icon_placeholder" = "SF Symbol name";
+"editor.field.icon_example" = "Example: doc.text, terminal, folder.fill, swift";
+"editor.field.icon_browse" = "Browse...";
+"editor.field.path" = "Path";
+"editor.field.extension" = "File Extension";
+"editor.field.extension_placeholder" = "e.g.: txt, md, swift";
+"editor.field.command" = "Command";
+"editor.field.placeholder" = "Placeholders: {path}, {dir}, {filename}";
+"editor.execute_in_terminal" = "Execute in Terminal";
+"editor.bitwarden_no_config" = "Bitwarden search requires no configuration";
+"editor.copy_path_no_config" = "Copy path requires no configuration";
+"editor.delete" = "Delete";
+"editor.cancel" = "Cancel";
+"editor.save" = "Save";
+
+/* Open App Settings */
+"open_app.title" = "Open App";
+"open_app.desc" = "Select apps to show in right-click menu";
+"open_app.category.office" = "Office";
+"open_app.category.design" = "Design";
+"open_app.category.dev" = "Development";
+"open_app.category.video" = "Video";
+"open_app.category.ai" = "AI";
+"open_app.custom" = "Custom";
+"open_app.add_custom" = "Add Custom App";
+"open_app.app_path_placeholder" = "App path, e.g. /Applications/xxx.app";
+"open_app.add_app" = "Add App";
+"open_app.tip.wrong_path" = "Tip: If file location is wrong or not downloaded, please set via custom method";
+"open_app.error.app_not_found" = "%@ file location is wrong or not downloaded, please set via custom method";
+"open_app.error.app_not_exist" = "App does not exist, please check if path is correct";
+
+/* Bitwarden Settings */
+"bitwarden.title" = "Password Management";
+"bitwarden.desc" = "Show Bitwarden password search in right-click menu";
+"bitwarden.add_title" = "Add Bitwarden Search";
+"bitwarden.add_button" = "Search Bitwarden Passwords";
+"bitwarden.tip" = "Use Bitwarden CLI (bw) to search passwords in vault";
+"bitwarden.search_placeholder" = "Enter search keyword:";
+"bitwarden.search_button" = "Search";
+"bitwarden.no_results" = "No matching passwords found";
+"bitwarden.search_title" = "Search Results";
+
+/* New File Settings */
+"new_file.title" = "New File Templates";
+"new_file.desc" = "Select file templates to show in right-click menu";
+"new_file.category.folder" = "Folder";
+"new_file.add_folder" = "New Folder";
+"new_file.new_folder" = "New Folder";
+"new_file.category.office" = "Office";
+"new_file.category.coding" = "Coding";
+"new_file.category.design" = "Design";
+"new_file.custom" = "Custom";
+"new_file.custom_ext_placeholder" = "Extension, e.g.: env, gitignore";
+"new_file.add" = "Add";
+"new_file.tip.auto_dot" = "Tip: . will be auto-generated, e.g. entering env will create .env file";
+"new_file.custom_file" = "Custom File";
+"new_file.enabled_templates" = "Enabled Templates";
+"new_file.enabled_folders" = "Enabled Folders";
+
+/* Open Folder Settings */
+"open_folder.title" = "Open Folder";
+"open_folder.desc" = "Select folders to show in right-click menu";
+"open_folder.preset_folders" = "Preset Folders";
+"open_folder.add_custom" = "Add Custom Folder";
+"open_folder.folder_path_placeholder" = "Folder path, e.g. ~/MyFolder";
+"open_folder.add_folder" = "Add Folder";
+"open_folder.browse" = "Browse...";
+"open_folder.desktop" = "Desktop";
+"open_folder.downloads" = "Downloads";
+"open_folder.documents" = "Documents";
+"open_folder.projects" = "Projects";
+"open_folder.applications" = "Applications";
+"open_folder.pictures" = "Pictures";
+"open_folder.music" = "Music";
+"open_folder.movies" = "Movies";
+
+/* Shell Command Settings */
+"shell.title" = "Shell Commands";
+"shell.desc" = "Select commands to show in right-click menu";
+"shell.preset_commands" = "Preset Commands";
+"shell.add_custom" = "Add Custom Command";
+"shell.command_name_placeholder" = "Command name";
+"shell.command_content_placeholder" = "Command content, e.g.: git status";
+"shell.tip.placeholders" = "Tip: Use {path} for selected file path, {dir} for directory, {filename} for filename";
+"shell.examples" = "Examples:";
+"shell.example.copy_path" = "Copy path: echo -n '{path}' | pbcopy";
+"shell.example.terminal" = "Open in Terminal: open -a Terminal '{dir}'";
+"shell.example.iterm" = "iTerm2: open -a iTerm '{dir}'";
+"shell.example.vscode" = "VSCode: cd '{dir}' && code .";
+"shell.add_command" = "Add Command";
+"shell.copy_path" = "Copy Path";
+"shell.open_in_terminal" = "Open in Terminal";
+"shell.open_in_iterm" = "Open in iTerm2";
+"shell.open_in_vscode" = "Open in VS Code";
+
+/* Menu Sort Settings */
+"menu_sort.title" = "Menu Sort";
+"menu_sort.desc" = "Drag up/down to adjust the order of groups in the right-click panel";
+
+/* Hotkey Recorder View */
+"hotkey.click_to_set" = "Click to set shortcut";
+"hotkey.press_shortcut" = "Press shortcut...";
+"hotkey.tip.accessibility" = "Tip: Global shortcut requires Accessibility permission";
+"hotkey.cleared" = "Shortcut cleared";
+
+/* Icon Picker Sheet */
+"icon_picker.title" = "Select Icon";
+"icon_picker.search_placeholder" = "Search icons...";
+
+/* User Input Helper */
+"input.new_file.title" = "New File";
+"input.new_file.prompt" = "Please enter filename:";
+"input.new_file.placeholder" = "Filename";
+"input.new_file.default" = "Untitled";
+"input.new_folder.title" = "New Folder";
+"input.new_folder.prompt" = "Please enter folder name:";
+"input.new_folder.placeholder" = "Folder name";
+"input.new_folder.default" = "Untitled Folder";
+"input.bitwarden_search.title" = "Search Passwords";
+"input.bitwarden_search.prompt" = "Please enter search keyword:";
+"input.bitwarden_search.placeholder" = "Search Bitwarden...";
+"input.bitwarden_results.title" = "Search Results";
+"input.file_exists.title" = "File Exists";
+"input.file_exists.message" = "%@ already exists. Do you want to replace it?";
+"input.file_exists.replace" = "Replace";
+"input.folder_exists.title" = "Folder Exists";
+"input.folder_exists.message" = "%@ already exists. Do you want to replace it?";
+
+/* Service Protocols */
+"error.missing_command" = "Command not set";
+"error.missing_template" = "Template not set";
+"error.missing_path" = "Path not set";
+"error.command_failed" = "Command execution failed: %@";
+"error.execution_failed" = "Execution failed: %@";
+
+/* Bitwarden Service */
+"bitwarden.error.search_failed" = "Search failed: %@";
+"bitwarden.error.item_not_found" = "Item not found";
+"bitwarden.error.execution_failed" = "Execution failed: %@";
+"bitwarden.error.not_unlocked" = "Bitwarden is locked. Please unlock first.";
+
+/* Command Executor */
+"executor.copied" = "Copied: %@";
+"executor.vscode_opened" = "Opened in VS Code";
+"executor.terminal_executed" = "Executed in Terminal";
+"executor.created" = "Created: %@";
+"executor.opened_in_finder" = "Opened in Finder: %@";
+"executor.app_opened" = "App opened";
+"executor.search_cancelled" = "Search cancelled";
+"executor.no_matching_passwords" = "No matching passwords found";
+"executor.copied_password" = "Copied password for %@";
+"executor.not_selected" = "Not selected or password is empty";
+"executor.path_empty" = "Path is empty";
+"executor.cancelled" = "Cancelled";
+
+/* Storage Service */
+"storage.save_failed" = "Failed to save config: %@";
+"storage.load_failed" = "Failed to load config: %@";
+
+/* App Delegate */
+"app.accessibility.title" = "Accessibility Permission Required";
+"app.accessibility.message" = "Global shortcuts require accessibility permission. Please enable QuickHub's accessibility permission in System Settings, then restart the app.";
+"app.accessibility.open_settings" = "Open System Settings";
+"app.accessibility.later" = "Later";
+"app.settings.title" = "QuickHub Settings";
+"app.finder.permission_success" = "Finder permission acquired";
+"app.finder.permission_failed" = "Failed to get Finder permission: %@";
+
+/* Command Item Row */
+"command_type.shell" = "Shell";
+"command_type.copy_path" = "Path";
+"command_type.create_file" = "File";
+"command_type.create_folder" = "Folder";
+"command_type.open_finder" = "Directory";
+"command_type.open_app" = "App";
+"command_type.bitwarden" = "Password";
+
+/* Notifications */
+"notification.execution_failed" = "Execution Failed";
+
+/* New File Presets */
+"new_file.new_folder" = "New Folder";
+"new_file.blank_text" = "Blank Text";
+"new_file.word" = "Word";
+"new_file.excel" = "Excel";
+"new_file.ppt" = "PPT";
+"new_file.pages" = "Pages";
+"new_file.numbers" = "Numbers";
+"new_file.keynote" = "Keynote";
+"new_file.markdown" = "Markdown";
+"new_file.swift" = "Swift";
+"new_file.python" = "Python";
+"new_file.javascript" = "JavaScript";
+"new_file.typescript" = "TypeScript";
+"new_file.html" = "HTML";
+"new_file.css" = "CSS";
+"new_file.json" = "JSON";
+"new_file.yaml" = "YAML";
+"new_file.go" = "Go";
+"new_file.rust" = "Rust";
+"new_file.shell" = "Shell";
+"new_file.psd" = "PSD";
+"new_file.ai" = "AI";
+"new_file.sketch" = "Sketch";
+"new_file.figma" = "Figma";
+"new_file.custom_file" = "Custom File";
+"new_file.folder" = "Folder";
+
+/* App Presets */
+"app.terminal" = "Terminal";
+"app.iterm" = "iTerm";
+"app.vscode" = "VS Code";

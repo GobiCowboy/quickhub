@@ -30,12 +30,13 @@ struct PopoverView: View {
     @State private var hoveredItemIndex: Int?
     @FocusState private var isSearching: Bool
     @StateObject private var configObserver = ConfigObserver.shared
+    @State private var refreshTrigger = false  // 用于触发视图刷新
 
     // 面板过滤逻辑 - 使用计算属性（SwiftUI 标准推荐）
     private var filteredGroups: [CommandGroup] {
         let groups = configObserver.config.groups.filter { $0.enabled }
         if searchText.isEmpty { return groups }
-        
+
         return groups.map { group in
             var filteredGroup = group
             filteredGroup.items = group.items.filter { item in
@@ -48,7 +49,7 @@ struct PopoverView: View {
     var body: some View {
         VStack(spacing: 0) {
             // 搜索输入
-            TextField("快速搜索命令...", text: $searchText)
+            TextField(localized("popover.search_placeholder"), text: $searchText)
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
                 .padding(.horizontal, 14)
@@ -69,7 +70,7 @@ struct PopoverView: View {
 
                     if groups.isEmpty {
                         VStack(spacing: 6) {
-                            Text("暂无匹配命令")
+                            Text(localized("popover.no_results"))
                                 .font(.system(size: 12))
                                 .foregroundColor(.secondary)
                         }
@@ -96,14 +97,14 @@ struct PopoverView: View {
                 .padding(.vertical, 6)
             }
             .scrollContentBackground(.hidden)
-            
+
             Divider()
-            
+
             // 底部设置栏
             HStack {
                 Spacer()
                 Button(action: { openSettings() }) {
-                    Label("设置...", systemImage: "gear")
+                    Label(localized("common.settings"), systemImage: "gear")
                         .font(.system(size: 12))
                         .foregroundColor(.primary)
                 }
@@ -122,24 +123,32 @@ struct PopoverView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 isSearching = true
             }
+            // 监听语言切换
+            NotificationCenter.default.addObserver(
+                forName: .languageChanged,
+                object: nil,
+                queue: .main
+            ) { [self] _ in
+                refreshTrigger.toggle()
+            }
         }
     }
 
     private func executeFirstItem() {
         guard let firstItem = filteredGroups.first?.items.first else { return }
-        
+
         let paths = (NSApp.delegate as? AppDelegate)?.getSavedFinderSelection() ?? []
         let context = ExecutionContext(
             filePath: paths.first?.path,
             directory: paths.first?.deletingLastPathComponent().path ?? FileManager.default.homeDirectoryForCurrentUser.path
         )
-        
+
         Task {
             do {
                 _ = try await CommandExecutor.shared.execute(firstItem, context: context)
                 onClose?()
             } catch {
-                print("[PopoverView] 快速执行失败")
+                print(localized("[PopoverView] popover.no_results"))
             }
         }
     }

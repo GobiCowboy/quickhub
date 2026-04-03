@@ -1,9 +1,12 @@
 import SwiftUI
 
+// MARK: - 设置视图
+
 struct AppSettingsView: View {
     @State private var selectedCategory: SettingsCategory = .newFile
     @State private var config = StorageService.shared.loadConfig()
     @State private var editingItem: EditableItem?
+    @State private var refreshTrigger = false  // 用于触发视图刷新
 
     var body: some View {
         HSplitView {
@@ -42,6 +45,17 @@ struct AppSettingsView: View {
                 config = StorageService.shared.loadConfig()
                 ConfigObserver.shared.refresh()
             })
+        }
+        .onAppear {
+            // 监听语言切换
+            NotificationCenter.default.addObserver(
+                forName: .languageChanged,
+                object: nil,
+                queue: .main
+            ) { [self] _ in
+                // 重新加载配置以刷新视图
+                config = StorageService.shared.loadConfig()
+            }
         }
     }
 }
@@ -82,12 +96,12 @@ enum SettingsCategory: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .newFile: return "新建文件/文件夹"
-        case .openFolder: return "打开文件夹"
-        case .openApp: return "打开应用"
-        case .shell: return "命令"
-        case .menuSort: return "菜单排序"
-        case .general: return "通用设置"
+        case .newFile: return localized("settings.category.new_file")
+        case .openFolder: return localized("settings.category.open_folder")
+        case .openApp: return localized("settings.category.open_app")
+        case .shell: return localized("settings.category.shell")
+        case .menuSort: return localized("settings.category.menu_sort")
+        case .general: return localized("settings.category.general")
         }
     }
 

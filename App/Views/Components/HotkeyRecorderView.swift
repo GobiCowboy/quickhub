@@ -8,7 +8,7 @@ struct HotkeyRecorderView: View {
     @State private var conflicts: [String] = []
     @State private var showConflictWarning = false
     @State private var localMonitor: Any?
-    @State private var displayText: String = "点击设置快捷键"
+    @State private var displayText: String = String(localized: "hotkey.click_to_set")
     var onSave: (() -> Void)?
 
     var body: some View {
@@ -26,11 +26,11 @@ struct HotkeyRecorderView: View {
                 }) {
                     HStack {
                         if isRecording {
-                            Text("按下快捷键...")
+                            Text(localized("hotkey.press_shortcut"))
                                 .foregroundColor(.orange)
                         } else {
                             Text(displayText)
-                                .foregroundColor(displayText == "点击设置快捷键" ? .secondary : .primary)
+                                .foregroundColor(displayText == localized("hotkey.click_to_set") ? .secondary : .primary)
                         }
                     }
                     .font(.system(.body, design: .monospaced))
@@ -51,7 +51,7 @@ struct HotkeyRecorderView: View {
                     Button(action: {
                         hotkey = nil
                         conflicts = []
-                        displayText = "点击设置快捷键"
+                        displayText = localized("hotkey.click_to_set")
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.secondary)
@@ -75,7 +75,7 @@ struct HotkeyRecorderView: View {
 
             // 权限提示
             if !isRecording && hotkey == nil {
-                Text("提示：全局快捷键需要辅助功能权限")
+                Text(localized("hotkey.tip.accessibility"))
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
@@ -97,7 +97,7 @@ struct HotkeyRecorderView: View {
             displayText = HotkeyUtil.encode(config)
             print("[HotkeyRecorder] 更新显示: \(displayText)")
         } else {
-            displayText = "点击设置快捷键"
+            displayText = localized("hotkey.click_to_set")
         }
     }
 
@@ -110,7 +110,7 @@ struct HotkeyRecorderView: View {
         if let config = currentHotkey, !config.isEmpty {
             displayText = HotkeyUtil.encode(config)
         } else {
-            displayText = "点击设置快捷键"
+            displayText = localized("hotkey.click_to_set")
         }
 
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
@@ -147,7 +147,7 @@ struct HotkeyRecorderView: View {
                     if let config = self.hotkey, !config.isEmpty {
                         self.displayText = HotkeyUtil.encode(config)
                     } else {
-                        self.displayText = "点击设置快捷键"
+                        self.displayText = localized("hotkey.click_to_set")
                     }
                 }
                 return nil

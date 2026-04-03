@@ -13,7 +13,7 @@ struct GroupSectionView: View {
         VStack(alignment: .leading, spacing: 1) {
             // 分组标题（原生的段落标题通常非常低调）
             if !group.name.isEmpty {
-                Text(group.name)
+                Text(groupName)
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 14)
@@ -46,5 +46,10 @@ struct GroupSectionView: View {
             }
             .padding(.horizontal, 6)
         }
+    }
+
+    /// 本地化的组名
+    private var groupName: String {
+        DefaultGroupNameMapping.localizedGroupName(group.name)
     }
 }

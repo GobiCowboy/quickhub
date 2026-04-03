@@ -9,20 +9,20 @@ struct ShellCommandSettingsView: View {
     @State private var customCommandName = ""
 
     private let presetCommands: [ShellPreset] = [
-        ShellPreset(name: "复制路径", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
-        ShellPreset(name: "在终端打开", command: "open -a Terminal '{dir}'", icon: "terminal", openTerminal: false),
-        ShellPreset(name: "在 iTerm2 打开", command: "open -a iTerm '{dir}'", icon: "terminal", openTerminal: false),
-        ShellPreset(name: "在 VS Code 打开", command: "cd '{dir}' && code .", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false)
+        ShellPreset(name: "shell.copy_path", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
+        ShellPreset(name: "shell.open_in_terminal", command: "open -a Terminal '{dir}'", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "shell.open_in_iterm", command: "open -a iTerm '{dir}'", icon: "terminal", openTerminal: false),
+        ShellPreset(name: "shell.open_in_vscode", command: "cd '{dir}' && code .", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false)
     ]
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("命令行工具")
+                Text(localized("shell.title"))
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("选择在右键菜单中显示的命令")
+                Text(localized("shell.desc"))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
@@ -33,7 +33,7 @@ struct ShellCommandSettingsView: View {
 
                 if !enabledCommands.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("已启用", systemImage: "checkmark.circle.fill")
+                        Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
                             .font(.headline)
                             .foregroundColor(.green)
 
@@ -41,7 +41,7 @@ struct ShellCommandSettingsView: View {
                             ForEach(enabledCommands) { item in
                                 EnabledChip(
                                     icon: item.icon.isEmpty ? "command" : item.icon,
-                                    name: item.name,
+                                name: localized(item.name),
                                     onEdit: { onEdit(.shell(item)) },
                                     onDelete: { deleteCommand(item) }
                                 )
@@ -53,7 +53,7 @@ struct ShellCommandSettingsView: View {
                 }
 
                 // 可添加
-                Text("预设命令")
+                Text(localized("shell.preset_commands"))
                     .font(.headline)
 
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -61,7 +61,7 @@ struct ShellCommandSettingsView: View {
                         ForEach(getAvailableCommands()) { cmd in
                             AddableChip(
                                 icon: cmd.icon,
-                                name: cmd.name,
+                                name: localized(cmd.name),
                                 onAdd: { addCommand(cmd) }
                             )
                         }
@@ -72,39 +72,39 @@ struct ShellCommandSettingsView: View {
                 Divider()
 
                 // 自定义命令
-                Text("添加自定义命令")
+                Text(localized("shell.add_custom"))
                     .font(.headline)
 
                 VStack(spacing: 12) {
-                    TextField("命令名称", text: $customCommandName)
+                    TextField(localized("shell.command_name_placeholder"), text: $customCommandName)
                         .textFieldStyle(.roundedBorder)
 
-                    TextField("命令内容，如: git status", text: $customCommand)
+                    TextField(localized("shell.command_content_placeholder"), text: $customCommand)
                         .textFieldStyle(.roundedBorder)
 
-                    Text("提示: 使用 {path} 表示选中文件路径，{dir} 表示目录，{filename} 表示文件名")
+                    Text(localized("shell.tip.placeholders"))
                         .font(.caption)
                         .foregroundColor(.secondary)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("示例:")
+                        Text(localized("shell.examples"))
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("复制路径: echo -n '{path}' | pbcopy")
+                        Text(localized("shell.example.copy_path"))
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("终端打开: open -a Terminal '{dir}'")
+                        Text(localized("shell.example.terminal"))
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("iTerm2: open -a iTerm '{dir}'")
+                        Text(localized("shell.example.iterm"))
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text("VSCode: cd '{dir}' && code .")
+                        Text(localized("shell.example.vscode"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
 
-                    Button("添加命令") {
+                    Button(localized("shell.add_command")) {
                         addCustomCommand()
                     }
                     .disabled(customCommand.isEmpty || customCommandName.isEmpty)

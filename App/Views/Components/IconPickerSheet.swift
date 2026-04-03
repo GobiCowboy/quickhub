@@ -61,7 +61,7 @@ struct IconPickerSheet: View {
         VStack(spacing: 0) {
             // 标题栏
             HStack {
-                Text("选择图标")
+                Text(localized("icon_picker.title"))
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -79,7 +79,7 @@ struct IconPickerSheet: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
-                TextField("搜索图标...", text: $searchText)
+                TextField(localized("icon_picker.search_placeholder"), text: $searchText)
                     .textFieldStyle(.plain)
                 if !searchText.isEmpty {
                     Button(action: { searchText = "" }) {
