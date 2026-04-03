@@ -161,8 +161,8 @@ class StorageService: StorageServiceProtocol {
                     CommandItem(
                         name: "复制路径",
                         icon: "doc.on.doc",
-                        type: .shell,
-                        command: "echo -n '{path}' | pbcopy",
+                        type: .copyPath,
+                        command: nil,
                         openInTerminal: false
                     ),
                     CommandItem(

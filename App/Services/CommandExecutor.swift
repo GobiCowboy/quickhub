@@ -12,6 +12,8 @@ class CommandExecutor: CommandExecutorProtocol {
         switch item.type {
         case .shell:
             return try await executeShell(item, context: context)
+        case .copyPath:
+            return executeCopyPath(context)
         case .createFile:
             return try await executeCreateFile(item, context: context)
         case .createFolder:
@@ -51,6 +53,18 @@ class CommandExecutor: CommandExecutorProtocol {
         } else {
             return try await executeSilently(expandedCommand)
         }
+    }
+
+    private func executeCopyPath(_ context: ExecutionContext) -> ExecutionResult {
+        guard let filePath = context.filePath else {
+            return ExecutionResult(success: false, output: "路径为空")
+        }
+
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(filePath, forType: .string)
+        print("[CommandExecutor] 复制路径到剪贴板: \(filePath)")
+        return ExecutionResult(success: true, output: "已复制: \(filePath)")
     }
 
     private func expandCommand(_ command: String, context: ExecutionContext) -> String {
@@ -134,12 +148,8 @@ class CommandExecutor: CommandExecutorProtocol {
     }
 
     private func executeInTerminal(_ command: String, directory: String) async throws -> ExecutionResult {
-        let script: String
-        if directory.isEmpty {
-            script = command
-        } else {
-            script = "cd '\(directory)' && \(command)"
-        }
+        // 命令已经通过 expandCommand 替换了 {dir}，直接使用
+        let script = command
 
         // 安全转义 AppleScript 中的字符串（处理反斜杠和双引号）
         let appleScriptEscapedScript = script

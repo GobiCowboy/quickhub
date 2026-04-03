@@ -28,6 +28,8 @@
     <string>NSApplication</string>
     <key>LSUIElement</key>
     <true/>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.utilities</string>
     <key>NSAppleEventsUsageDescription</key>
     <string>QuickHub 需要访问 Finder 以获取当前选中的文件和目录信息，从而在正确的位置创建文件或文件夹。</string>
 </dict>

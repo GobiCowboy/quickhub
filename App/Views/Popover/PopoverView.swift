@@ -66,7 +66,7 @@ struct PopoverView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 3) {
                     let groups = filteredGroups
-                    
+
                     if groups.isEmpty {
                         VStack(spacing: 6) {
                             Text("暂无匹配命令")
@@ -84,7 +84,7 @@ struct PopoverView: View {
                                 hoveredItemIndex: $hoveredItemIndex,
                                 onClose: onClose
                             )
-                            
+
                             if group.id != groups.last?.id {
                                 Divider()
                                     .padding(.horizontal, 8)
@@ -95,6 +95,7 @@ struct PopoverView: View {
                 }
                 .padding(.vertical, 6)
             }
+            .scrollContentBackground(.hidden)
             
             Divider()
             
@@ -112,7 +113,7 @@ struct PopoverView: View {
             }
             .padding(.bottom, 2)
         }
-        .frame(width: 240, height: 350)
+        .frame(width: 240, height: 400)
         .background(VisualEffectBackground())
         .cornerRadius(8)
         .onAppear {

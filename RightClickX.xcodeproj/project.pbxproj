@@ -55,7 +55,7 @@
 		7CECCE928194BF8F237796D0 /* HotkeyRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRecorderView.swift; sourceTree = "<group>"; };
 		8376DFBE60B5134502D963E5 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
 		865B7CDAA1F1F3E818463B1C /* OpenAppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAppSettingsView.swift; sourceTree = "<group>"; };
-		9767AF9790EABEC7F1A9F7F4 /* RightClickX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RightClickX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9767AF9790EABEC7F1A9F7F4 /* QuickHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E2AAE41F1B4E4AA4255B3AE /* HotkeyUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyUtil.swift; sourceTree = "<group>"; };
 		A1858E8260357FA5A7D8AEB4 /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		A2D8211C0F5F66F5B3B5139A /* FinderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderService.swift; sourceTree = "<group>"; };
@@ -206,7 +206,7 @@
 		92FD4EE9B33F4AC98C7F38D4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9767AF9790EABEC7F1A9F7F4 /* RightClickX.app */,
+				9767AF9790EABEC7F1A9F7F4 /* QuickHub.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -240,7 +240,7 @@
 			packageProductDependencies = (
 			);
 			productName = RightClickX;
-			productReference = 9767AF9790EABEC7F1A9F7F4 /* RightClickX.app */;
+			productReference = 9767AF9790EABEC7F1A9F7F4 /* QuickHub.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -334,9 +334,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/RightClickX.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4UNNXY925R;
 				INFOPLIST_FILE = App/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
 				PRODUCT_NAME = QuickHub;
 				SDKROOT = macosx;
@@ -408,9 +415,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/RightClickX.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 4UNNXY925R;
 				INFOPLIST_FILE = App/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
 				PRODUCT_NAME = QuickHub;
 				SDKROOT = macosx;

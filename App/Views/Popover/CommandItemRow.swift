@@ -59,6 +59,8 @@ struct CommandItemRow: View {
         switch item.type {
         case .shell:
             return "Shell"
+        case .copyPath:
+            return "路径"
         case .createFile:
             return "文件"
         case .createFolder:

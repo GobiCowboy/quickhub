@@ -54,6 +54,7 @@ enum EditableItem: Identifiable, Equatable {
     case app(CommandItem)
     case folder(CommandItem)
     case shell(CommandItem)
+    case copyPath(CommandItem)
     case bitwardenSearch(CommandItem)
 
     var id: UUID {
@@ -63,6 +64,7 @@ enum EditableItem: Identifiable, Equatable {
         case .app(let item): return item.id
         case .folder(let item): return item.id
         case .shell(let item): return item.id
+        case .copyPath(let item): return item.id
         case .bitwardenSearch(let item): return item.id
         }
     }

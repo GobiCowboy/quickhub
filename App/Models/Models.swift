@@ -62,6 +62,7 @@ struct CommandItem: Identifiable, Codable, Hashable {
 // MARK: - 命令类型
 enum CommandType: String, Codable, CaseIterable {
     case shell = "shell"              // Shell 命令
+    case copyPath = "copy_path"        // 复制路径
     case createFile = "create_file"    // 新建文件
     case createFolder = "create_folder" // 新建文件夹
     case openFinder = "open_finder"    // 打开目录

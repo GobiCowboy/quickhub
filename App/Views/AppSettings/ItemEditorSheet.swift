@@ -105,6 +105,10 @@ struct ItemEditorSheet: View {
                     case .bitwardenSearch:
                         Text("Bitwarden 搜索无需配置")
                             .foregroundColor(.secondary)
+
+                    case .copyPath:
+                        Text("复制路径无需配置")
+                            .foregroundColor(.secondary)
                     }
                 }
                 .padding(20)
@@ -171,6 +175,10 @@ struct ItemEditorSheet: View {
         case .bitwardenSearch(let cmdItem):
             name = cmdItem.name
             icon = cmdItem.icon
+
+        case .copyPath(let cmdItem):
+            name = cmdItem.name
+            icon = cmdItem.icon
         }
     }
 
@@ -187,6 +195,8 @@ struct ItemEditorSheet: View {
         case .shell(let cmdItem):
             updateItem(cmdItem)
         case .bitwardenSearch(let cmdItem):
+            updateItem(cmdItem)
+        case .copyPath(let cmdItem):
             updateItem(cmdItem)
         }
         onSave()
@@ -205,6 +215,8 @@ struct ItemEditorSheet: View {
         case .shell(let cmdItem):
             deleteFromConfig(cmdItem)
         case .bitwardenSearch(let cmdItem):
+            deleteFromConfig(cmdItem)
+        case .copyPath(let cmdItem):
             deleteFromConfig(cmdItem)
         }
         onSave()
@@ -242,6 +254,8 @@ struct ItemEditorSheet: View {
                 case .shell:
                     updatedItem.command = command
                     updatedItem.openInTerminal = openInTerminal
+                case .copyPath:
+                    break
                 case .bitwardenSearch:
                     break
                 }
