@@ -21,6 +21,7 @@
 "common.name" = "名称";
 "common.icon" = "图标";
 "common.command" = "命令";
+"common.quit" = "退出";
 "common.placeholder.path" = "文件或文件夹路径";
 "common.placeholder.name" = "输入名称";
 "common.placeholder.filename" = "文件名";

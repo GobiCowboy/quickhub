@@ -102,7 +102,17 @@ struct PopoverView: View {
 
             // 底部设置栏
             HStack {
+                Button(action: { quitApp() }) {
+                    Label(localized("common.quit"), systemImage: "power")
+                        .font(.system(size: 12))
+                        .foregroundColor(.primary)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+
                 Spacer()
+
                 Button(action: { openSettings() }) {
                     Label(localized("common.settings"), systemImage: "gear")
                         .font(.system(size: 12))
@@ -158,6 +168,11 @@ struct PopoverView: View {
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.openSettings()
         }
+    }
+
+    private func quitApp() {
+        onClose?()
+        NSApplication.shared.terminate(nil)
     }
 }
 

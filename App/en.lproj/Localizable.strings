@@ -21,6 +21,7 @@
 "common.name" = "Name";
 "common.icon" = "Icon";
 "common.command" = "Command";
+"common.quit" = "Quit";
 "common.placeholder.path" = "File or folder path";
 "common.placeholder.name" = "Name";
 "common.placeholder.filename" = "Filename";
