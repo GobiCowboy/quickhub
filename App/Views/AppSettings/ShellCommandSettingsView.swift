@@ -79,8 +79,18 @@ struct ShellCommandSettingsView: View {
                     TextField(localized("shell.command_name_placeholder"), text: $customCommandName)
                         .textFieldStyle(.roundedBorder)
 
-                    TextField(localized("shell.command_content_placeholder"), text: $customCommand)
-                        .textFieldStyle(.roundedBorder)
+                    HStack(spacing: 8) {
+                        TextField(localized("shell.command_content_placeholder"), text: $customCommand)
+                            .textFieldStyle(.roundedBorder)
+                        Button {
+                            if let content = NSPasteboard.general.string(forType: .string) {
+                                customCommand = content
+                            }
+                        } label: {
+                            Image(systemName: "doc.on.clipboard")
+                        }
+                        .help(localized("common.paste_from_clipboard"))
+                    }
 
                     Text(localized("shell.tip.placeholders"))
                         .font(.caption)

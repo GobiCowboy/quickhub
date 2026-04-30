@@ -42,8 +42,18 @@ struct ItemEditorSheet: View {
                         Text(localized("editor.field.name"))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        TextField(localized("editor.field.name_placeholder"), text: $name)
-                            .textFieldStyle(.roundedBorder)
+                        HStack {
+                            TextField(localized("editor.field.name_placeholder"), text: $name)
+                                .textFieldStyle(.roundedBorder)
+                            Button {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    name = content
+                                }
+                            } label: {
+                                Image(systemName: "doc.on.clipboard")
+                            }
+                            .help(localized("common.paste_from_clipboard"))
+                        }
                     }
 
                     // 图标
@@ -54,6 +64,14 @@ struct ItemEditorSheet: View {
                         HStack {
                             TextField(localized("editor.field.icon_placeholder"), text: $icon)
                                 .textFieldStyle(.roundedBorder)
+                            Button {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    icon = content
+                                }
+                            } label: {
+                                Image(systemName: "doc.on.clipboard")
+                            }
+                            .help(localized("common.paste_from_clipboard"))
                             Button(localized("editor.field.icon_browse")) {
                                 openIconPicker()
                             }
@@ -70,8 +88,18 @@ struct ItemEditorSheet: View {
                             Text(localized("editor.field.extension"))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            TextField(localized("editor.field.extension_placeholder"), text: $fileExtension)
-                                .textFieldStyle(.roundedBorder)
+                            HStack {
+                                TextField(localized("editor.field.extension_placeholder"), text: $fileExtension)
+                                    .textFieldStyle(.roundedBorder)
+                                Button {
+                                    if let content = NSPasteboard.general.string(forType: .string) {
+                                        fileExtension = content
+                                    }
+                                } label: {
+                                    Image(systemName: "doc.on.clipboard")
+                                }
+                                .help(localized("common.paste_from_clipboard"))
+                            }
                         }
 
                     case .folderItem:
@@ -82,15 +110,36 @@ struct ItemEditorSheet: View {
                             Text(localized("editor.field.path"))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
-                            TextField(localized("common.placeholder.path"), text: $targetPath)
-                                .textFieldStyle(.roundedBorder)
+                            HStack {
+                                TextField(localized("common.placeholder.path"), text: $targetPath)
+                                    .textFieldStyle(.roundedBorder)
+                                Button {
+                                    if let content = NSPasteboard.general.string(forType: .string) {
+                                        targetPath = content
+                                    }
+                                } label: {
+                                    Image(systemName: "doc.on.clipboard")
+                                }
+                                .help(localized("common.paste_from_clipboard"))
+                            }
                         }
 
                     case .shell:
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(localized("editor.field.command"))
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                            HStack {
+                                Text(localized("editor.field.command"))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                                Button {
+                                    if let content = NSPasteboard.general.string(forType: .string) {
+                                        command = content
+                                    }
+                                } label: {
+                                    Image(systemName: "doc.on.clipboard")
+                                }
+                                .help(localized("common.paste_from_clipboard"))
+                            }
                             TextEditor(text: $command)
                                 .frame(height: 100)
                                 .font(.system(.body, design: .monospaced))

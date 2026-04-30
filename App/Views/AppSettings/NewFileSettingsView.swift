@@ -141,7 +141,14 @@ struct NewFileSettingsView: View {
                         HStack {
                             TextField(localized("new_file.custom_ext_placeholder"), text: $customExt)
                                 .textFieldStyle(.roundedBorder)
-
+                            Button {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customExt = content
+                                }
+                            } label: {
+                                Image(systemName: "doc.on.clipboard")
+                            }
+                            .help(localized("common.paste_from_clipboard"))
                             Button(localized("new_file.add")) {
                                 addCustomFile()
                             }

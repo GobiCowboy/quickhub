@@ -28,6 +28,7 @@
 "common.placeholder.command" = "命令内容，如: git status";
 "common.placeholder.ext" = "扩展名，如 env, gitignore";
 "common.placeholder.search_icon" = "搜索图标...";
+"common.paste_from_clipboard" = "从剪贴板粘贴";
 
 /* Group Names */
 "group.new_file_folder" = "新建文件/文件夹";

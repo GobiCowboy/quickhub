@@ -28,6 +28,7 @@
 "common.placeholder.command" = "Command content, e.g.: git status";
 "common.placeholder.ext" = "Extension, e.g.: env, gitignore";
 "common.placeholder.search_icon" = "Search icon...";
+"common.paste_from_clipboard" = "Paste from Clipboard";
 
 /* Group Names */
 "group.new_file_folder" = "New File/Folder";

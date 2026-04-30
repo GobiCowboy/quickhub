@@ -144,7 +144,14 @@ struct OpenAppSettingsView: View {
                         HStack {
                             TextField(localized("open_app.app_path_placeholder"), text: $customAppPath)
                                 .textFieldStyle(.roundedBorder)
-
+                            Button {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customAppPath = content
+                                }
+                            } label: {
+                                Image(systemName: "doc.on.clipboard")
+                            }
+                            .help(localized("common.paste_from_clipboard"))
                             Button(localized("common.browse")) {
                                 browseFolder()
                             }

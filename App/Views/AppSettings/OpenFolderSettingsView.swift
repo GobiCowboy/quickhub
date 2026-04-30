@@ -79,7 +79,14 @@ struct OpenFolderSettingsView: View {
             HStack {
                 TextField(localized("open_folder.folder_path_placeholder"), text: $customFolderPath)
                     .textFieldStyle(.roundedBorder)
-
+                Button {
+                    if let content = NSPasteboard.general.string(forType: .string) {
+                        customFolderPath = content
+                    }
+                } label: {
+                    Image(systemName: "doc.on.clipboard")
+                }
+                .help(localized("common.paste_from_clipboard"))
                 Button(localized("open_folder.browse")) {
                     browseFolder()
                 }
