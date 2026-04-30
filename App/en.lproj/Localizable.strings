@@ -173,6 +173,7 @@
 "shell.example.iterm" = "iTerm2: open -a iTerm '{dir}'";
 "shell.example.vscode" = "VSCode: cd '{dir}' && code .";
 "shell.add_command" = "Add Command";
+"shell.get_info" = "Quick Info";
 "shell.copy_path" = "Copy Path";
 "shell.open_in_terminal" = "Open in Terminal";
 "shell.open_in_iterm" = "Open in iTerm2";

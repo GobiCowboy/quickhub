@@ -9,6 +9,7 @@ struct ShellCommandSettingsView: View {
     @State private var customCommandName = ""
 
     private let presetCommands: [ShellPreset] = [
+        ShellPreset(name: "shell.get_info", command: "/usr/local/bin/getinfo", icon: "info.circle", openTerminal: false),
         ShellPreset(name: "shell.copy_path", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
         ShellPreset(name: "shell.open_in_terminal", command: "open -a Terminal '{dir}'", icon: "terminal", openTerminal: false),
         ShellPreset(name: "shell.open_in_iterm", command: "open -a iTerm '{dir}'", icon: "terminal", openTerminal: false),

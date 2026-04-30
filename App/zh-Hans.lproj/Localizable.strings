@@ -173,6 +173,7 @@
 "shell.example.iterm" = "iTerm2: open -a iTerm '{dir}'";
 "shell.example.vscode" = "VSCode: cd '{dir}' && code .";
 "shell.add_command" = "添加命令";
+"shell.get_info" = "快速信息";
 "shell.copy_path" = "复制路径";
 "shell.open_in_terminal" = "在终端打开";
 "shell.open_in_iterm" = "在 iTerm2 打开";
