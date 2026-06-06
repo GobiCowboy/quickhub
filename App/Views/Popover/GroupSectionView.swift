@@ -11,17 +11,16 @@ struct GroupSectionView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
-            // 分组标题（原生的段落标题通常非常低调）
             if !group.name.isEmpty {
                 Text(groupName)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 14)
-                    .padding(.top, 3)
-                    .padding(.bottom, 3)
+                    .font(.system(size: 9, weight: .semibold))
+                    .textCase(.uppercase)
+                    .foregroundColor(.secondary.opacity(0.78))
+                    .padding(.horizontal, 12)
+                    .padding(.top, 5)
+                    .padding(.bottom, 2)
             }
 
-            // 命令项
             VStack(spacing: 0) {
                 ForEach(Array(group.items.filter { $0.enabled }.enumerated()), id: \.element.id) { index, item in
                     if searchText.isEmpty || PinyinMatcher.match(item.name, query: searchText) {
@@ -44,7 +43,7 @@ struct GroupSectionView: View {
                     }
                 }
             }
-            .padding(.horizontal, 6)
+            .padding(.horizontal, 7)
         }
     }
 

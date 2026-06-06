@@ -1,6 +1,8 @@
 #!/usr/bin/env swift
 
 import AppKit
+import AVFoundation
+import ImageIO
 import UniformTypeIdentifiers
 
 // MARK: - 获取 Finder 选中文件
@@ -48,6 +50,121 @@ func formatDate(_ date: Date) -> String {
     formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
     formatter.locale = Locale(identifier: "zh_CN")
     return formatter.string(from: date)
+}
+
+// MARK: - 媒体类型判断
+
+let mediaExtensions: Set<String> = [
+    "mp4", "mov", "mkv", "avi", "wmv", "flv", "webm", "m4v", "mpg", "mpeg", "ts", "vob",
+    "mp3", "m4a", "flac", "wav", "aac", "ogg", "wma", "opus", "aiff", "ape"
+]
+
+let imageExtensions: Set<String> = [
+    "png", "jpg", "jpeg", "heic", "heif", "tiff", "tif", "webp", "bmp", "gif", "svg", "ico", "raw", "cr2", "nef", "arw", "dng"
+]
+
+func isMediaFile(_ ext: String) -> Bool {
+    mediaExtensions.contains(ext.lowercased())
+}
+
+func isImageFile(_ ext: String) -> Bool {
+    imageExtensions.contains(ext.lowercased())
+}
+
+// MARK: - 媒体元数据
+
+struct MediaInfo {
+    var duration: String?
+    var codec: String?
+    var bitrate: String?
+}
+
+func getMediaMetadata(url: URL) -> MediaInfo {
+    let asset = AVURLAsset(url: url)
+    var info = MediaInfo()
+
+    // 同步加载 duration（独立进程，无 UI 阻塞问题）
+    let durationSemaphore = DispatchSemaphore(value: 0)
+    var loadedDuration: CMTime?
+    asset.loadValuesAsynchronously(forKeys: ["duration"]) {
+        loadedDuration = asset.duration
+        durationSemaphore.signal()
+    }
+    durationSemaphore.wait()
+
+    if let duration = loadedDuration, duration.isValid && !duration.isIndefinite {
+        let totalSeconds = CMTimeGetSeconds(duration)
+        let hours = Int(totalSeconds) / 3600
+        let minutes = (Int(totalSeconds) % 3600) / 60
+        let seconds = Int(totalSeconds) % 60
+        if hours > 0 {
+            info.duration = String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            info.duration = String(format: "%d:%02d", minutes, seconds)
+        }
+    }
+
+    // 同步加载 tracks（编码 + 比特率）
+    let tracksSemaphore = DispatchSemaphore(value: 0)
+    var loadedTracks: [AVAssetTrack] = []
+    asset.loadValuesAsynchronously(forKeys: ["tracks"]) {
+        loadedTracks = asset.tracks
+        tracksSemaphore.signal()
+    }
+    tracksSemaphore.wait()
+
+    if !loadedTracks.isEmpty {
+        // 比特率
+        let totalBitrate = loadedTracks.compactMap { $0.estimatedDataRate }.reduce(0, +)
+        if totalBitrate > 0 {
+            let kbps = Int(totalBitrate / 1000)
+            info.bitrate = "\(kbps) kbps"
+        }
+
+        // 编码 — 取第一个 track 的格式描述
+        if let desc = loadedTracks.first?.formatDescriptions.first {
+            let formatDescription = desc as! CMFormatDescription
+            let codecType = CMFormatDescriptionGetMediaSubType(formatDescription)
+            let fourCC = UTCreateStringForOSType(codecType).takeUnretainedValue() as String
+            info.codec = fourCC
+        }
+    }
+
+    return info
+}
+
+struct ImageInfo {
+    var dimensions: String?
+    var dpi: String?
+}
+
+func getImageMetadata(url: URL) -> ImageInfo {
+    var info = ImageInfo()
+    guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { return info }
+
+    guard let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any] else { return info }
+
+    // 尺寸
+    if let width = props[kCGImagePropertyPixelWidth as String] as? Int,
+       let height = props[kCGImagePropertyPixelHeight as String] as? Int {
+        info.dimensions = "\(width) × \(height) px"
+    }
+
+    // DPI
+    let dpiX = props[kCGImagePropertyDPIWidth as String] as? Double ?? 0
+    let dpiY = props[kCGImagePropertyDPIHeight as String] as? Double ?? 0
+    if dpiX > 0 && dpiY > 0 {
+        info.dpi = "\(Int(dpiX)) × \(Int(dpiY))"
+    }
+
+    return info
+}
+
+// MARK: - 目录文件数
+
+func countDirectoryItems(_ path: String) -> Int {
+    guard let items = try? FileManager.default.contentsOfDirectory(atPath: path) else { return 0 }
+    return items.count
 }
 
 // MARK: - 浮窗
@@ -116,7 +233,7 @@ func showInfoPanel(at mouseLocation: NSPoint, fileURL: URL) {
         l.font = .systemFont(ofSize: 11)
         l.textColor = .secondaryLabelColor
         l.alignment = .right
-        l.widthAnchor.constraint(equalToConstant: 52).isActive = true
+        l.widthAnchor.constraint(equalToConstant: 54).isActive = true
 
         let v = NSTextField(labelWithString: value)
         v.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
@@ -129,13 +246,35 @@ func showInfoPanel(at mouseLocation: NSPoint, fileURL: URL) {
         return stack
     }
 
-    let details: [(String, String)] = [
+    var details: [(String, String)] = [
         ("类型", fileType),
+        ("路径", path),
         ("大小", sizeStr),
         ("创建", formatDate(created)),
         ("修改", formatDate(modified)),
         ("权限", "(\(permStr))"),
     ]
+
+    // 目录：文件数
+    if isDir {
+        let count = countDirectoryItems(path)
+        details.insert(("文件数", "\(count) 个项目"), at: 1)
+    }
+
+    // 图片：尺寸 + DPI
+    if !isDir, isImageFile(ext) {
+        let imgInfo = getImageMetadata(url: fileURL)
+        if let dims = imgInfo.dimensions { details.append(("尺寸", dims)) }
+        if let dpi = imgInfo.dpi { details.append(("DPI", dpi)) }
+    }
+
+    // 音频/视频：时长 + 编码 + 比特率
+    if !isDir, isMediaFile(ext) {
+        let mediaInfo = getMediaMetadata(url: fileURL)
+        if let dur = mediaInfo.duration { details.append(("时长", dur)) }
+        if let codec = mediaInfo.codec { details.append(("编码", codec)) }
+        if let bitrate = mediaInfo.bitrate { details.append(("比特率", bitrate)) }
+    }
 
     let stack = NSStackView()
     stack.orientation = .vertical
@@ -246,7 +385,10 @@ class WindowDelegate: NSObject, NSWindowDelegate {
 
 // MARK: - 入口
 
-let selection = getFinderSelection()
+let argumentPaths = CommandLine.arguments.dropFirst()
+let selection = argumentPaths.isEmpty
+    ? getFinderSelection()
+    : argumentPaths.map { URL(fileURLWithPath: ($0 as NSString).expandingTildeInPath) }
 guard let fileURL = selection.first else {
     print("未在 Finder 中选中文件")
     exit(0)

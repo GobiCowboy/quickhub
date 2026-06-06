@@ -113,17 +113,22 @@ struct DefaultItemNameMapping {
         "自定义文件": "new_file.custom_file",
         // Shell 命令
         "复制路径": "shell.copy_path",
+        "文件信息": "shell.file_info",
         "在终端打开": "shell.open_in_terminal",
         "在 iTerm2 打开": "shell.open_in_iterm",
         "在 VS Code 打开": "shell.open_in_vscode",
+        "在 Atom 打开": "shell.open_in_atom",
         "shell.copy_path": "shell.copy_path",
+        "shell.file_info": "shell.file_info",
         "shell.open_in_terminal": "shell.open_in_terminal",
         "shell.open_in_iterm": "shell.open_in_iterm",
         "shell.open_in_vscode": "shell.open_in_vscode",
+        "shell.open_in_atom": "shell.open_in_atom",
         // 打开应用
         "终端": "app.terminal",
         "iTerm": "app.iterm",
         "Visual Studio Code": "app.vscode",
+        "Atom": "app.atom",
         // 打开文件夹
         "open_folder.desktop": "open_folder.desktop",
         "open_folder.downloads": "open_folder.downloads",

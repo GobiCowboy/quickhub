@@ -6,7 +6,11 @@ struct HotkeyConfiguration: Codable, Equatable {
     var keyCode: UInt16
     var modifiers: UInt
 
-    static let defaultHotkey = HotkeyConfiguration(keyCode: 12, modifiers: 655360) // ⌥⇧Q
+    static let defaultHotkey = HotkeyConfiguration(keyCode: 12, modifiers: NSEvent.ModifierFlags.option.rawValue) // ⌥Q
+    static let legacyDefaultHotkey = HotkeyConfiguration(
+        keyCode: 12,
+        modifiers: NSEvent.ModifierFlags.option.rawValue | NSEvent.ModifierFlags.shift.rawValue
+    ) // ⌥⇧Q
 
     static let empty = HotkeyConfiguration(keyCode: 0, modifiers: 0)
 
@@ -109,8 +113,24 @@ struct AppSettings: Codable {
     var hotkey: HotkeyConfiguration?
     var launchAtLogin: Bool = false
     var showNotifications: Bool = true
+    var interceptRightClick: Bool = true
 
     init() {}
+
+    enum CodingKeys: String, CodingKey {
+        case hotkey
+        case launchAtLogin
+        case showNotifications
+        case interceptRightClick
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        hotkey = try container.decodeIfPresent(HotkeyConfiguration.self, forKey: .hotkey)
+        launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
+        showNotifications = try container.decodeIfPresent(Bool.self, forKey: .showNotifications) ?? true
+        interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? true
+    }
 }
 
 // MARK: - Bitwarden 数据模型

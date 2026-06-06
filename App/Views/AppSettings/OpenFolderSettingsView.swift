@@ -5,6 +5,7 @@ import SwiftUI
 struct OpenFolderSettingsView: View {
     @Binding var config: AppConfig
     var onEdit: (EditableItem) -> Void
+    @State private var customFolderName = ""
     @State private var customFolderPath = ""
 
     private let presetFolders: [FolderPreset] = [
@@ -19,87 +20,86 @@ struct OpenFolderSettingsView: View {
     ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(localized("open_folder.title"))
-                .font(.title2)
-                .fontWeight(.semibold)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                SettingsPageHeader(
+                    title: localized("open_folder.title"),
+                    subtitle: localized("open_folder.desc"),
+                    icon: "folder"
+                )
 
-            Text(localized("open_folder.desc"))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                let enabledFolders = getEnabledFolders()
 
-            Divider()
+                SettingsSurface(title: localized("common.enabled"), systemImage: "checkmark.circle.fill") {
+                    if enabledFolders.isEmpty {
+                        Text(localized("settings.empty.enabled"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                    } else {
+                        FlowLayout(spacing: 8) {
+                            ForEach(enabledFolders) { item in
+                                EnabledChip(
+                                    icon: item.icon.isEmpty ? "folder.fill" : item.icon,
+                                    name: DefaultItemNameMapping.localizedItemName(item.name),
+                                    item: item,
+                                    onEdit: { onEdit(.folder(item)) },
+                                    onDelete: { deleteFolder(item) }
+                                )
+                            }
+                        }
+                    }
+                }
 
-            // 已启用
-            let enabledFolders = getEnabledFolders()
-
-            if !enabledFolders.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
-                        .font(.headline)
-                        .foregroundColor(.green)
-
+                SettingsSurface(title: localized("open_folder.preset_folders"), systemImage: "plus.circle") {
                     FlowLayout(spacing: 8) {
-                        ForEach(enabledFolders) { item in
-                            EnabledChip(
-                                icon: item.icon.isEmpty ? "folder.fill" : item.icon,
-                                name: DefaultItemNameMapping.localizedItemName(item.name),
-                                onEdit: { onEdit(.folder(item)) },
-                                onDelete: { deleteFolder(item) }
+                        ForEach(getAvailableFolders()) { folder in
+                            AddableChip(
+                                icon: folder.icon,
+                                name: localized(folder.name),
+                                item: folder.toCommandItem(),
+                                onAdd: { addFolder(folder) }
                             )
                         }
                     }
                 }
 
-                Divider()
-            }
+                SettingsSurface(title: localized("open_folder.add_custom"), systemImage: "folder.badge.plus") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 8) {
+                            TextField(localized("editor.field.name_placeholder"), text: $customFolderName)
+                                .textFieldStyle(.roundedBorder)
+                            SettingsPasteButton {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customFolderName = content
+                                }
+                            }
+                        }
 
-            // 可添加
-            Text(localized("open_folder.preset_folders"))
-                .font(.headline)
+                        HStack(spacing: 8) {
+                            TextField(localized("open_folder.folder_path_placeholder"), text: $customFolderPath)
+                                .textFieldStyle(.roundedBorder)
+                            SettingsPasteButton {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customFolderPath = content
+                                }
+                            }
+                            Button(localized("open_folder.browse")) {
+                                browseFolder()
+                            }
+                        }
 
-            ScrollView {
-                FlowLayout(spacing: 8) {
-                    ForEach(getAvailableFolders()) { folder in
-                        AddableChip(
-                            icon: folder.icon,
-                            name: localized(folder.name),
-                            onAdd: { addFolder(folder) }
-                        )
+                        HStack {
+                            Spacer()
+                            Button(localized("open_folder.add_folder")) {
+                                addCustomFolder()
+                            }
+                            .disabled(customFolderPath.isEmpty)
+                        }
                     }
                 }
             }
-
-            Divider()
-
-            // 自定义文件夹
-            Text(localized("open_folder.add_custom"))
-                .font(.headline)
-
-            HStack {
-                TextField(localized("open_folder.folder_path_placeholder"), text: $customFolderPath)
-                    .textFieldStyle(.roundedBorder)
-                Button {
-                    if let content = NSPasteboard.general.string(forType: .string) {
-                        customFolderPath = content
-                    }
-                } label: {
-                    Image(systemName: "doc.on.clipboard")
-                }
-                .help(localized("common.paste_from_clipboard"))
-                Button(localized("open_folder.browse")) {
-                    browseFolder()
-                }
-            }
-
-            Button(localized("open_folder.add_folder")) {
-                addCustomFolder()
-            }
-            .disabled(customFolderPath.isEmpty)
-
-            Spacer()
+            .padding(22)
         }
-        .padding(20)
     }
 
     private func getEnabledFolders() -> [CommandItem] {
@@ -123,8 +123,9 @@ struct OpenFolderSettingsView: View {
     }
 
     private func addCustomFolder() {
-        let path = (customFolderPath as NSString).expandingTildeInPath
-        let name = URL(fileURLWithPath: path).lastPathComponent
+        let path = (customFolderPath.trimmingCharacters(in: .whitespacesAndNewlines) as NSString).expandingTildeInPath
+        let trimmedName = customFolderName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = trimmedName.isEmpty ? URL(fileURLWithPath: path).lastPathComponent : trimmedName
 
         ensureGroup(name: "打开文件夹", icon: "folder")
         if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开文件夹" }) {
@@ -132,6 +133,7 @@ struct OpenFolderSettingsView: View {
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()
+            customFolderName = ""
             customFolderPath = ""
         }
     }
@@ -152,6 +154,9 @@ struct OpenFolderSettingsView: View {
 
         if panel.runModal() == .OK, let url = panel.url {
             customFolderPath = url.path
+            if customFolderName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                customFolderName = url.lastPathComponent
+            }
         }
     }
 

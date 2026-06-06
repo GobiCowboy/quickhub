@@ -29,6 +29,7 @@
 "common.placeholder.ext" = "Extension, e.g.: env, gitignore";
 "common.placeholder.search_icon" = "Search icon...";
 "common.paste_from_clipboard" = "Paste from Clipboard";
+"common.paste" = "Paste";
 
 /* Group Names */
 "group.new_file_folder" = "New File/Folder";
@@ -40,8 +41,8 @@
 /* Welcome View */
 "welcome.title" = "Welcome to QuickHub";
 "welcome.subtitle" = "Minimal, fast macOS super toolbox";
-"welcome.feature1.title" = "Quick Activation (⌥⇧Q)";
-"welcome.feature1.desc" = "Select a file in Finder, hold the shortcut. The panel instantly appears at mouse position, faster than right-click menu.";
+"welcome.feature1.title" = "Quick Activation (⌥Q / Right Click)";
+"welcome.feature1.desc" = "Select a file in Finder, press the shortcut or right-click. The panel instantly appears at mouse position, faster than a traditional context menu.";
 "welcome.feature2.title" = "Search as You Type";
 "welcome.feature2.desc" = "After the panel pops up, just type (like 'T'), then press Enter. No need to move the mouse at all.";
 "welcome.feature3.title" = "Fully Customizable";
@@ -53,13 +54,17 @@
 "popover.no_results" = "No matching commands";
 
 /* General Settings View */
+"settings.general.desc" = "Language, startup, shortcuts, and app maintenance";
 "settings.general.section.language" = "Language";
+"settings.subtitle" = "Right-click commands and shortcuts";
+"settings.empty.enabled" = "No enabled commands yet";
 "settings.general.language" = "Language";
 "settings.general.section.startup" = "Startup";
 "settings.general.launch_at_login" = "Launch at login";
 "settings.general.section.notifications" = "Notifications";
 "settings.general.show_notifications" = "Show notification after command execution";
 "settings.general.section.shortcut" = "Shortcut";
+"settings.general.intercept_right_click" = "Open QuickHub panel on right click";
 "settings.general.open_panel" = "Open Panel";
 "settings.general.section.about" = "About";
 "settings.general.version" = "Version";
@@ -107,6 +112,7 @@
 "open_app.category.video" = "Video";
 "open_app.category.ai" = "AI";
 "open_app.custom" = "Custom";
+"open_app.preset_apps" = "Preset Apps";
 "open_app.add_custom" = "Add Custom App";
 "open_app.app_path_placeholder" = "App path, e.g. /Applications/xxx.app";
 "open_app.add_app" = "Add App";
@@ -169,15 +175,17 @@
 "shell.tip.placeholders" = "Tip: Use {path} for selected file path, {dir} for directory, {filename} for filename";
 "shell.examples" = "Examples:";
 "shell.example.copy_path" = "Copy path: echo -n '{path}' | pbcopy";
-"shell.example.terminal" = "Open in Terminal: open -a Terminal '{dir}'";
-"shell.example.iterm" = "iTerm2: open -a iTerm '{dir}'";
-"shell.example.vscode" = "VSCode: cd '{dir}' && code .";
+"shell.example.terminal" = "Open in Terminal: open -b com.apple.Terminal '{dir}'";
+"shell.example.iterm" = "iTerm2: open -b com.googlecode.iterm2 '{dir}'";
+"shell.example.vscode" = "VSCode: open -b com.microsoft.VSCode '{dir}'";
 "shell.add_command" = "Add Command";
-"shell.get_info" = "Quick Info";
+"shell.get_info" = "File Info";
+"shell.file_info" = "File Info";
 "shell.copy_path" = "Copy Path";
 "shell.open_in_terminal" = "Open in Terminal";
 "shell.open_in_iterm" = "Open in iTerm2";
 "shell.open_in_vscode" = "Open in VS Code";
+"shell.open_in_atom" = "Open in Atom";
 
 /* Menu Sort Settings */
 "menu_sort.title" = "Menu Sort";
@@ -232,6 +240,7 @@
 "executor.created" = "Created: %@";
 "executor.opened_in_finder" = "Opened in Finder: %@";
 "executor.app_opened" = "App opened";
+"executor.file_info_shown" = "File info opened";
 "executor.search_cancelled" = "Search cancelled";
 "executor.no_matching_passwords" = "No matching passwords found";
 "executor.copied_password" = "Copied password for %@";
@@ -245,7 +254,7 @@
 
 /* App Delegate */
 "app.accessibility.title" = "Accessibility Permission Required";
-"app.accessibility.message" = "Global shortcuts require accessibility permission. Please enable QuickHub's accessibility permission in System Settings, then restart the app.";
+"app.accessibility.message" = "Global shortcuts and right-click interception require Accessibility permission; reading Finder selection also requires allowing QuickHub to control Finder. Please enable the relevant permissions in System Settings, then restart the app.";
 "app.accessibility.open_settings" = "Open System Settings";
 "app.accessibility.later" = "Later";
 "app.settings.title" = "QuickHub Settings";
@@ -260,6 +269,16 @@
 "command_type.open_finder" = "Directory";
 "command_type.open_app" = "App";
 "command_type.bitwarden" = "Password";
+"command_type.file_info" = "Info";
+
+/* File Info */
+"file_info.type" = "Type";
+"file_info.size" = "Size";
+"file_info.created" = "Created";
+"file_info.modified" = "Modified";
+"file_info.permissions" = "Permissions";
+"file_info.extra" = "More";
+"file_info.items" = "%@ items";
 
 /* Notifications */
 "notification.execution_failed" = "Execution Failed";
@@ -296,3 +315,4 @@
 "app.terminal" = "Terminal";
 "app.iterm" = "iTerm";
 "app.vscode" = "VS Code";
+"app.atom" = "Atom";

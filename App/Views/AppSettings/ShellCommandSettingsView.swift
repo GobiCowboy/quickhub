@@ -8,120 +8,101 @@ struct ShellCommandSettingsView: View {
     @State private var customCommand = ""
     @State private var customCommandName = ""
 
-    private let presetCommands: [ShellPreset] = [
-        ShellPreset(name: "shell.get_info", command: "/usr/local/bin/getinfo", icon: "info.circle", openTerminal: false),
-        ShellPreset(name: "shell.copy_path", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
-        ShellPreset(name: "shell.open_in_terminal", command: "open -a Terminal '{dir}'", icon: "terminal", openTerminal: false),
-        ShellPreset(name: "shell.open_in_iterm", command: "open -a iTerm '{dir}'", icon: "terminal", openTerminal: false),
-        ShellPreset(name: "shell.open_in_vscode", command: "cd '{dir}' && code .", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false)
-    ]
+    private var presetCommands: [ShellPreset] {
+        [
+            ShellPreset(name: "shell.file_info", command: InternalShellCommand.fileInfo, icon: "info.circle", openTerminal: false),
+            ShellPreset(name: "shell.copy_path", command: "echo -n '{path}' | pbcopy", icon: "doc.on.doc", openTerminal: false),
+            ShellPreset(name: "shell.open_in_terminal", command: "open -b com.apple.Terminal '{dir}'", icon: "terminal", openTerminal: false),
+            ShellPreset(name: "shell.open_in_iterm", command: "open -b com.googlecode.iterm2 '{dir}'", icon: "terminal", openTerminal: false),
+            ShellPreset(name: "shell.open_in_vscode", command: "open -b com.microsoft.VSCode '{dir}'", icon: "chevron.left.forwardslash.chevron.right", openTerminal: false),
+            ShellPreset(name: "shell.open_in_atom", command: "open -b com.github.atom '{dir}'", icon: "circle.grid.3x3.fill", openTerminal: false)
+        ]
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(localized("shell.title"))
-                    .font(.title2)
-                    .fontWeight(.semibold)
+                SettingsPageHeader(
+                    title: localized("shell.title"),
+                    subtitle: localized("shell.desc"),
+                    icon: "terminal"
+                )
 
-                Text(localized("shell.desc"))
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                Divider()
-
-                // 已启用
                 let enabledCommands = getEnabledCommands()
 
-                if !enabledCommands.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(.green)
-
-                        FlowLayout(spacing: 8) {
+                SettingsSurface(title: localized("common.enabled"), systemImage: "checkmark.circle.fill") {
+                    if enabledCommands.isEmpty {
+                        Text(localized("settings.empty.enabled"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        VStack(spacing: 7) {
                             ForEach(enabledCommands) { item in
-                                EnabledChip(
-                                    icon: item.icon.isEmpty ? "command" : item.icon,
-                                name: localized(item.name),
+                                CommandSettingRow(
+                                    item: item,
+                                    name: localized(item.name),
                                     onEdit: { onEdit(.shell(item)) },
                                     onDelete: { deleteCommand(item) }
                                 )
                             }
                         }
                     }
-
-                    Divider()
                 }
 
-                // 可添加
-                Text(localized("shell.preset_commands"))
-                    .font(.headline)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    FlowLayout(spacing: 8) {
-                        ForEach(getAvailableCommands()) { cmd in
-                            AddableChip(
-                                icon: cmd.icon,
-                                name: localized(cmd.name),
-                                onAdd: { addCommand(cmd) }
-                            )
-                        }
-                    }
-                }
-                .frame(height: 40)
-
-                Divider()
-
-                // 自定义命令
-                Text(localized("shell.add_custom"))
-                    .font(.headline)
-
-                VStack(spacing: 12) {
-                    TextField(localized("shell.command_name_placeholder"), text: $customCommandName)
-                        .textFieldStyle(.roundedBorder)
-
-                    HStack(spacing: 8) {
-                        TextField(localized("shell.command_content_placeholder"), text: $customCommand)
-                            .textFieldStyle(.roundedBorder)
-                        Button {
-                            if let content = NSPasteboard.general.string(forType: .string) {
-                                customCommand = content
+                SettingsSurface(title: localized("shell.preset_commands"), systemImage: "plus.circle") {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        FlowLayout(spacing: 8) {
+                            ForEach(getAvailableCommands()) { cmd in
+                                AddableChip(
+                                    icon: cmd.icon,
+                                    name: localized(cmd.name),
+                                    item: cmd.toCommandItem(),
+                                    onAdd: { addCommand(cmd) }
+                                )
                             }
-                        } label: {
-                            Image(systemName: "doc.on.clipboard")
                         }
-                        .help(localized("common.paste_from_clipboard"))
                     }
+                    .frame(minHeight: 40)
+                }
 
-                    Text(localized("shell.tip.placeholders"))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                SettingsSurface(title: localized("shell.add_custom"), systemImage: "square.and.pencil") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 8) {
+                            TextField(localized("shell.command_name_placeholder"), text: $customCommandName)
+                                .textFieldStyle(.roundedBorder)
+                            SettingsPasteButton {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customCommandName = content
+                                }
+                            }
+                        }
 
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(localized("shell.examples"))
+                        HStack(spacing: 8) {
+                            TextField(localized("shell.command_content_placeholder"), text: $customCommand)
+                                .textFieldStyle(.roundedBorder)
+                            SettingsPasteButton {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customCommand = content
+                                }
+                            }
+                        }
+
+                        Text(localized("shell.tip.placeholders"))
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text(localized("shell.example.copy_path"))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(localized("shell.example.terminal"))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(localized("shell.example.iterm"))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(localized("shell.example.vscode"))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+
+                        HStack {
+                            Spacer()
+                            Button(localized("shell.add_command")) {
+                                addCustomCommand()
+                            }
+                            .disabled(customCommand.isEmpty || customCommandName.isEmpty)
+                        }
                     }
-
-                    Button(localized("shell.add_command")) {
-                        addCustomCommand()
-                    }
-                    .disabled(customCommand.isEmpty || customCommandName.isEmpty)
                 }
             }
-            .padding(20)
+            .padding(22)
         }
     }
 
@@ -134,7 +115,7 @@ struct ShellCommandSettingsView: View {
 
     private func getAvailableCommands() -> [ShellPreset] {
         let enabledNames = Set(getEnabledCommands().map { $0.name })
-        let result = presetCommands.filter { !enabledNames.contains($0.name) }
+        let result = presetCommands.filter { !$0.command.isEmpty && !enabledNames.contains($0.name) && $0.isAvailable }
         print("[ShellCommandSettings] getAvailableCommands: enabledNames=\(enabledNames), available=\(result.map { $0.name }))")
         return result
     }

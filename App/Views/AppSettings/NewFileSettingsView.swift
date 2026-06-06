@@ -5,6 +5,7 @@ import SwiftUI
 struct NewFileSettingsView: View {
     @Binding var config: AppConfig
     var onEdit: (EditableItem) -> Void
+    @State private var customName = ""
     @State private var customExt = ""
 
     private let templateCategories: [(name: String, icon: String, items: [FileTemplatePreset])] = [
@@ -45,110 +46,106 @@ struct NewFileSettingsView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(localized("new_file.title"))
-                .font(.title2)
-                .fontWeight(.semibold)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                SettingsPageHeader(
+                    title: localized("new_file.title"),
+                    subtitle: localized("new_file.desc"),
+                    icon: "doc.badge.plus"
+                )
 
-            Text(localized("new_file.desc"))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                let enabledTemplates = getEnabledTemplates()
 
-            Divider()
-
-            // 已启用项目
-            let enabledTemplates = getEnabledTemplates()
-
-            if !enabledTemplates.isEmpty || !enabledFolderItems.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
-                        .font(.headline)
-                        .foregroundColor(.green)
-
-                    FlowLayout(spacing: 8) {
-                        // 新建文件夹
-                        ForEach(enabledFolderItems) { item in
-                            EnabledChip(
-                                icon: item.icon.isEmpty ? "folder.fill" : item.icon,
-                                name: DefaultItemNameMapping.localizedItemName(item.name),
-                                onEdit: { onEdit(.folderItem(item)) },
-                                onDelete: { deleteFolderItem(item) }
-                            )
-                        }
-                        // 新建文件
-                        ForEach(enabledTemplates) { item in
-                            EnabledChip(
-                                icon: item.icon.isEmpty ? "doc" : item.icon,
-                                name: DefaultItemNameMapping.localizedItemName(item.name),
-                                onEdit: { onEdit(.template(item)) },
-                                onDelete: { deleteTemplate(item) }
-                            )
-                        }
-                    }
-                }
-
-                Divider()
-            }
-
-            // 可添加项目
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // 新建文件夹
-                    if enabledFolderItems.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Label(localized("new_file.category.folder"), systemImage: "folder.fill")
-                                .font(.headline)
-                                .foregroundColor(.accentColor)
-
-                            FlowLayout(spacing: 8) {
-                                AddableChip(
-                                    icon: "folder.fill",
-                                    name: localized("new_file.new_folder"),
-                                    onAdd: { addNewFolder() }
+                SettingsSurface(title: localized("common.enabled"), systemImage: "checkmark.circle.fill") {
+                    if enabledTemplates.isEmpty && enabledFolderItems.isEmpty {
+                        Text(localized("settings.empty.enabled"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                    } else {
+                        FlowLayout(spacing: 8) {
+                            ForEach(enabledFolderItems) { item in
+                                EnabledChip(
+                                    icon: item.icon.isEmpty ? "folder.fill" : item.icon,
+                                    name: DefaultItemNameMapping.localizedItemName(item.name),
+                                    item: item,
+                                    onEdit: { onEdit(.folderItem(item)) },
+                                    onDelete: { deleteFolderItem(item) }
+                                )
+                            }
+                            ForEach(enabledTemplates) { item in
+                                EnabledChip(
+                                    icon: item.icon.isEmpty ? "doc" : item.icon,
+                                    name: DefaultItemNameMapping.localizedItemName(item.name),
+                                    item: item,
+                                    onEdit: { onEdit(.template(item)) },
+                                    onDelete: { deleteTemplate(item) }
                                 )
                             }
                         }
                     }
+                }
 
-                    // 预设分类
-                    ForEach(templateCategories, id: \.name) { category in
-                        let availablePresets = getAvailablePresets(for: category)
-                        if !availablePresets.isEmpty {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Label(localized(category.name), systemImage: category.icon)
-                                    .font(.headline)
-                                    .foregroundColor(.accentColor)
-
+                SettingsSurface(title: localized("new_file.add"), systemImage: "plus.circle") {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if enabledFolderItems.isEmpty {
+                            SettingsChipSection(
+                                title: localized("new_file.category.folder"),
+                                icon: "folder.fill"
+                            ) {
                                 FlowLayout(spacing: 8) {
-                                    ForEach(availablePresets) { preset in
-                                        AddableChip(
-                                            icon: preset.icon,
-                                            name: preset.name,
-                                            onAdd: { addTemplate(preset) }
-                                        )
+                                    AddableChip(
+                                        icon: "folder.fill",
+                                        name: localized("new_file.new_folder"),
+                                        item: CommandItem(name: "新建文件夹", icon: "folder.fill", type: .createFolder),
+                                        onAdd: { addNewFolder() }
+                                    )
+                                }
+                            }
+                        }
+
+                        ForEach(templateCategories, id: \.name) { category in
+                            let availablePresets = getAvailablePresets(for: category)
+                            if !availablePresets.isEmpty {
+                                SettingsChipSection(
+                                    title: localized(category.name),
+                                    icon: category.icon
+                                ) {
+                                    FlowLayout(spacing: 8) {
+                                        ForEach(availablePresets) { preset in
+                                            AddableChip(
+                                                icon: preset.icon,
+                                                name: preset.name,
+                                                item: preset.toCommandItem(),
+                                                onAdd: { addTemplate(preset) }
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }
 
-                    // 自定义文件
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label(localized("new_file.custom"), systemImage: "plus.square.dashed")
-                            .font(.headline)
-                            .foregroundColor(.accentColor)
+                SettingsSurface(title: localized("new_file.custom"), systemImage: "plus.square.dashed") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 8) {
+                            TextField(localized("editor.field.name_placeholder"), text: $customName)
+                                .textFieldStyle(.roundedBorder)
+                            SettingsPasteButton {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customName = content
+                                }
+                            }
+                        }
 
-                        HStack {
+                        HStack(spacing: 8) {
                             TextField(localized("new_file.custom_ext_placeholder"), text: $customExt)
                                 .textFieldStyle(.roundedBorder)
-                            Button {
+                            SettingsPasteButton {
                                 if let content = NSPasteboard.general.string(forType: .string) {
                                     customExt = content
                                 }
-                            } label: {
-                                Image(systemName: "doc.on.clipboard")
                             }
-                            .help(localized("common.paste_from_clipboard"))
                             Button(localized("new_file.add")) {
                                 addCustomFile()
                             }
@@ -160,12 +157,9 @@ struct NewFileSettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                .padding(.vertical, 8)
             }
-
-            Spacer()
+            .padding(22)
         }
-        .padding(20)
     }
 
     private func getEnabledTemplates() -> [CommandItem] {
@@ -215,8 +209,11 @@ struct NewFileSettingsView: View {
     }
 
     private func addCustomFile() {
-        let ext = customExt.hasPrefix(".") ? String(customExt.dropFirst()) : customExt
-        let name = ext.isEmpty ? "自定义文件" : ".\(ext)"
+        let ext = customExt.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix(".")
+            ? String(customExt.trimmingCharacters(in: .whitespacesAndNewlines).dropFirst())
+            : customExt.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedName = customName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = trimmedName.isEmpty ? (ext.isEmpty ? "自定义文件" : ".\(ext)") : trimmedName
         let icon = ext.isEmpty ? "doc" : "doc.fill"
 
         ensureGroup(name: "新建文件/文件夹", icon: "folder.badge.plus")
@@ -225,6 +222,7 @@ struct NewFileSettingsView: View {
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()
+            customName = ""
             customExt = ""
         }
     }

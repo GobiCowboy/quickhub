@@ -1,7 +1,44 @@
 import AppKit
+import ApplicationServices
+import OSLog
 import SwiftUI
 
+fileprivate func rightClickEventTapCallback(
+    proxy: CGEventTapProxy,
+    type: CGEventType,
+    event: CGEvent,
+    userInfo: UnsafeMutableRawPointer?
+) -> Unmanaged<CGEvent>? {
+    guard let userInfo else {
+        return Unmanaged.passUnretained(event)
+    }
+
+    let appDelegate = Unmanaged<AppDelegate>.fromOpaque(userInfo).takeUnretainedValue()
+
+    if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+        if let eventTap = appDelegate.rightClickEventTap {
+            CGEvent.tapEnable(tap: eventTap, enable: true)
+        }
+        return Unmanaged.passUnretained(event)
+    }
+
+    if type == .rightMouseUp {
+        return nil
+    }
+
+    guard type == .rightMouseDown else {
+        return Unmanaged.passUnretained(event)
+    }
+
+    DispatchQueue.main.async {
+        appDelegate.handleInterceptedRightClick()
+    }
+
+    return nil
+}
+
 class AppDelegate: NSObject, NSApplicationDelegate {
+    private let logger = Logger(subsystem: "com.rightclickx.app", category: "RightClick")
     static var shared: AppDelegate? {
         return NSApp.delegate as? AppDelegate
     }
@@ -12,8 +49,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var eventMonitor: Any?
     private var settingsHostingController: NSHostingController<AppSettingsView>?
     private var globalHotkeyMonitor: Any?
-    private var clickOutsideMonitor: Any?
+    private var panelDismissMonitor: Any?
     private var debugMonitor: Any?
+    fileprivate var rightClickEventTap: CFMachPort?
+    private var rightClickRunLoopSource: CFRunLoopSource?
     private var welcomeWindow: NSWindow?
     // 保存当前 Finder 选中项，在面板打开时获取
     private var currentFinderSelection: [URL] = []
@@ -48,6 +87,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 初始化存储服务
         _ = StorageService.shared
 
+        // 提供标准编辑菜单，保证文本框里 ⌘V / ⌘C / ⌘A 等快捷键可用。
+        setupEditMenu()
+
         // 创建菜单栏按钮
         setupStatusItem()
 
@@ -60,6 +102,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 监听全局快捷键
         setupGlobalHotKey()
 
+        // 监听全局右键，用 QuickHub 面板替代系统右键菜单
+        setupRightClickInterceptor()
+
         // 调试：监听 Ctrl+Option+Command+D 打印 Finder 选择
         setupDebugHotkey()
 
@@ -70,16 +115,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             queue: .main
         ) { [weak self] _ in
             self?.setupGlobalHotKey()
+            self?.setupRightClickInterceptor()
         }
 
         // 隐藏 Dock 图标（菜单栏应用）
         NSApp.setActivationPolicy(.accessory)
 
-        // 请求 Finder 自动化权限
-        requestFinderAccess()
-
         // 检查是否是首次运行
         checkFirstRun()
+    }
+
+    private func setupEditMenu() {
+        let mainMenu = NSMenu()
+
+        let appMenuItem = NSMenuItem()
+        let appMenu = NSMenu()
+        appMenu.addItem(
+            withTitle: LocaleManager.shared.localized("app.settings.title"),
+            action: #selector(openSettingsFromMenu),
+            keyEquivalent: ","
+        )
+        appMenu.addItem(.separator())
+        appMenu.addItem(
+            withTitle: "Quit QuickHub",
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        )
+        appMenuItem.submenu = appMenu
+        mainMenu.addItem(appMenuItem)
+
+        let editMenuItem = NSMenuItem()
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenuItem.submenu = editMenu
+        mainMenu.addItem(editMenuItem)
+
+        NSApp.mainMenu = mainMenu
+    }
+
+    @objc private func openSettingsFromMenu() {
+        openSettings()
     }
 
     private func checkFirstRun() {
@@ -117,6 +195,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 检查辅助功能权限（全局快捷键需要）
     private func checkAccessibilityPermission() {
+        let promptKey = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
+        let options = [promptKey: true] as CFDictionary
+        _ = AXIsProcessTrustedWithOptions(options)
+
         // 先检查是否已有权限（不弹出系统对话框）
         let trusted = AXIsProcessTrusted()
         print("[AppDelegate] 辅助功能权限检查: AXIsProcessTrusted() = \(trusted)")
@@ -150,26 +232,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// 请求 Finder 自动化权限
-    private func requestFinderAccess() {
-        let script = """
-        tell application "Finder"
-            return name of it
-        end tell
-        """
-
-        var error: NSDictionary?
-        if let appleScript = NSAppleScript(source: script) {
-            // 尝试执行脚本，这会触发权限请求
-            let result = appleScript.executeAndReturnError(&error)
-            if result.stringValue != nil {
-                print(localized("[AppDelegate] app.finder.permission_success"))
-            } else if let error = error {
-                print(localized("app.finder.permission_failed", with: error.description))
-            }
-        }
-    }
-
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
@@ -191,7 +253,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         })
 
         let newPanel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 240, height: 400),
+            contentRect: NSRect(x: 0, y: 0, width: 292, height: 390),
             styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -208,11 +270,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         newPanel.hasShadow = true
         newPanel.titlebarAppearsTransparent = true
         newPanel.titleVisibility = .hidden
-        newPanel.setContentSize(NSSize(width: 240, height: 400))
+        newPanel.setContentSize(NSSize(width: 292, height: 390))
 
-        // 保存位置（仅当已存在面板时）
         if panel != nil {
             let oldFrame = panel.frame
+            panel.orderOut(nil)
             panel = newPanel
             panel.setFrame(oldFrame, display: true)
         } else {
@@ -260,6 +322,75 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func setupRightClickInterceptor() {
+        stopRightClickInterceptor()
+
+        let enabled = StorageService.shared.loadConfig().settings.interceptRightClick
+        guard enabled else {
+            print("[RightClick] 右键拦截已关闭")
+            logger.info("Right click interception disabled")
+            return
+        }
+
+        guard AXIsProcessTrusted() else {
+            print("[RightClick] 辅助功能权限未授予，无法拦截右键")
+            logger.error("Accessibility permission missing; cannot install right click event tap")
+            return
+        }
+
+        let eventMask =
+            CGEventMask(1 << CGEventType.rightMouseDown.rawValue) |
+            CGEventMask(1 << CGEventType.rightMouseUp.rawValue) |
+            CGEventMask(1 << CGEventType.tapDisabledByTimeout.rawValue) |
+            CGEventMask(1 << CGEventType.tapDisabledByUserInput.rawValue)
+
+        let userInfo = Unmanaged.passUnretained(self).toOpaque()
+        guard let eventTap = CGEvent.tapCreate(
+            tap: .cghidEventTap,
+            place: .headInsertEventTap,
+            options: .defaultTap,
+            eventsOfInterest: eventMask,
+            callback: rightClickEventTapCallback,
+            userInfo: userInfo
+        ) else {
+            print("[RightClick] 创建右键事件 Tap 失败，请检查辅助功能/输入监控权限")
+            logger.error("Failed to create right click event tap")
+            return
+        }
+
+        rightClickEventTap = eventTap
+        rightClickRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+
+        if let source = rightClickRunLoopSource {
+            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+            CGEvent.tapEnable(tap: eventTap, enable: true)
+            print("[RightClick] 右键拦截已启用")
+            logger.info("Right click interception enabled")
+        }
+    }
+
+    private func stopRightClickInterceptor() {
+        if let eventTap = rightClickEventTap {
+            CGEvent.tapEnable(tap: eventTap, enable: false)
+        }
+
+        if let source = rightClickRunLoopSource {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
+            rightClickRunLoopSource = nil
+        }
+
+        rightClickEventTap = nil
+    }
+
+    fileprivate func handleInterceptedRightClick() {
+        let selection = syncGetFinderSelection()
+        currentFinderSelection = selection
+        print("[RightClick] 右键打开面板，Finder 选择: \(selection.map { $0.lastPathComponent })")
+        logger.info("Right click intercepted; opening panel")
+        closePanel()
+        showPanel()
+    }
+
     /// 同步获取 Finder 选择（阻塞直到完成）
     private func syncGetFinderSelection() -> [URL] {
         let script = """
@@ -291,6 +422,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     .filter { !$0.isEmpty }
                     .map { URL(fileURLWithPath: $0) }
                 return paths
+            } else if let error = error {
+                print(localized("app.finder.permission_failed", with: error.description))
             }
         }
         return []
@@ -360,30 +493,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel.makeKeyAndOrderFront(nil)
         panel.orderFrontRegardless()
 
-        // 开始监听点击事件，用于点击外部关闭
-        startClickOutsideMonitor()
+        startPanelDismissMonitor()
     }
 
     private func closePanel() {
         panel.orderOut(nil)
-        stopClickOutsideMonitor()
+        stopPanelDismissMonitor()
     }
 
-    // MARK: - 点击外部关闭
+    // MARK: - 面板关闭
 
-    private func startClickOutsideMonitor() {
-        stopClickOutsideMonitor()
+    private func startPanelDismissMonitor() {
+        stopPanelDismissMonitor()
 
-        clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+        panelDismissMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .keyDown]) { [weak self] event in
             guard let self = self, self.panel.isVisible else { return }
 
-            // 获取鼠标位置
-            let mouseLocation = NSEvent.mouseLocation
+            if event.type == .keyDown {
+                DispatchQueue.main.async {
+                    self.closePanel()
+                }
+                return
+            }
 
-            // 检查点击位置是否在面板范围内
-            let panelFrame = self.panel.frame
-            if !NSPointInRect(mouseLocation, panelFrame) {
-                // 点击在面板外部，关闭面板
+            let mouseLocation = NSEvent.mouseLocation
+            if !NSPointInRect(mouseLocation, self.panel.frame) {
                 DispatchQueue.main.async {
                     self.closePanel()
                 }
@@ -391,10 +525,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private func stopClickOutsideMonitor() {
-        if let monitor = clickOutsideMonitor {
+    private func stopPanelDismissMonitor() {
+        if let monitor = panelDismissMonitor {
             NSEvent.removeMonitor(monitor)
-            clickOutsideMonitor = nil
+            panelDismissMonitor = nil
         }
     }
 
@@ -406,13 +540,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let hostingController = NSHostingController(rootView: settingsView)
 
         settingsWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 700, height: 500),
+            contentRect: NSRect(x: 0, y: 0, width: 860, height: 620),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
 
         settingsWindow.title = LocaleManager.shared.localized("app.settings.title")
+        settingsWindow.titlebarAppearsTransparent = true
+        settingsWindow.backgroundColor = .clear
+        settingsWindow.isOpaque = false
         settingsWindow.contentViewController = hostingController
         settingsWindow.center()
         settingsWindow.makeKeyAndOrderFront(nil)

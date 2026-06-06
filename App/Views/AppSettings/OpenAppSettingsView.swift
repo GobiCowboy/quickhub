@@ -5,6 +5,7 @@ import SwiftUI
 struct OpenAppSettingsView: View {
     @Binding var config: AppConfig
     var onEdit: (EditableItem) -> Void
+    @State private var customAppName = ""
     @State private var customAppPath = ""
     @State private var errorMessage: String?
 
@@ -28,6 +29,7 @@ struct OpenAppSettingsView: View {
         ]),
         ("open_app.category.dev", "chevron.left.forwardslash.chevron.right", [
             AppPreset(name: "Visual Studio Code", path: "/Applications/Visual Studio Code.app", icon: "p.square.fill"),
+            AppPreset(name: "Atom", path: "/Applications/Atom.app", icon: "circle.grid.3x3.fill"),
             AppPreset(name: "Xcode", path: "/Applications/Xcode.app", icon: "hammer.fill"),
             AppPreset(name: "Sublime Text", path: "/Applications/Sublime Text.app", icon: "doc.text"),
             AppPreset(name: "Typora", path: "/Applications/Typora.app", icon: "doc.richtext"),
@@ -56,123 +58,121 @@ struct OpenAppSettingsView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(localized("open_app.title"))
-                .font(.title2)
-                .fontWeight(.semibold)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                SettingsPageHeader(
+                    title: localized("open_app.title"),
+                    subtitle: localized("open_app.desc"),
+                    icon: "app"
+                )
 
-            Text(localized("open_app.desc"))
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                let enabledApps = getEnabledApps()
 
-            Divider()
-
-            // 已启用
-            let enabledApps = getEnabledApps()
-
-            if !enabledApps.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Label(localized("common.enabled"), systemImage: "checkmark.circle.fill")
-                        .font(.headline)
-                        .foregroundColor(.green)
-
-                    FlowLayout(spacing: 8) {
-                        ForEach(enabledApps) { item in
-                            EnabledChip(
-                                icon: item.icon.isEmpty ? "app" : item.icon,
-                                name: DefaultItemNameMapping.localizedItemName(item.name),
-                                onEdit: { onEdit(.app(item)) },
-                                onDelete: { deleteApp(item) }
-                            )
+                SettingsSurface(title: localized("common.enabled"), systemImage: "checkmark.circle.fill") {
+                    if enabledApps.isEmpty {
+                        Text(localized("settings.empty.enabled"))
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                    } else {
+                        FlowLayout(spacing: 8) {
+                            ForEach(enabledApps) { item in
+                                EnabledChip(
+                                    icon: item.icon.isEmpty ? "app" : item.icon,
+                                    name: DefaultItemNameMapping.localizedItemName(item.name),
+                                    item: item,
+                                    onEdit: { onEdit(.app(item)) },
+                                    onDelete: { deleteApp(item) }
+                                )
+                            }
                         }
                     }
                 }
 
-                Divider()
-            }
-
-            // 错误信息
-            if let error = errorMessage {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(.orange)
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Button(localized("common.clear")) {
-                        errorMessage = nil
+                if let error = errorMessage {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Button(localized("common.clear")) {
+                            errorMessage = nil
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundColor(.accentColor)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundColor(.accentColor)
+                    .padding(10)
+                    .background(Color.orange.opacity(0.10))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
-                .padding(8)
-                .background(Color.orange.opacity(0.1))
-                .cornerRadius(6)
-            }
 
-            // 可添加 - 按分类展示（包含在 ScrollView 内）
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    ForEach(presetCategories, id: \.name) { category in
-                        let availableApps = getAvailableApps(for: category.apps)
-                        if !availableApps.isEmpty {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Label(localized(category.name), systemImage: category.icon)
-                                    .font(.headline)
-                                    .foregroundColor(.accentColor)
-
-                                FlowLayout(spacing: 8) {
-                                    ForEach(availableApps) { app in
-                                        AddableChip(
-                                            icon: app.icon,
-                                            name: app.name,
-                                            onAdd: { addApp(app) }
-                                        )
+                SettingsSurface(title: localized("open_app.preset_apps"), systemImage: "plus.circle") {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ForEach(presetCategories, id: \.name) { category in
+                            let availableApps = getAvailableApps(for: category.apps)
+                            if !availableApps.isEmpty {
+                                SettingsChipSection(
+                                    title: localized(category.name),
+                                    icon: category.icon
+                                ) {
+                                    FlowLayout(spacing: 8) {
+                                        ForEach(availableApps) { app in
+                                            AddableChip(
+                                                icon: app.icon,
+                                                name: app.name,
+                                                item: app.toCommandItem(),
+                                                onAdd: { addApp(app) }
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                }
 
-                    // 自定义应用（放在 ScrollView 内）
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label(localized("open_app.custom"), systemImage: "plus.square.dashed")
-                            .font(.headline)
-                            .foregroundColor(.accentColor)
+                SettingsSurface(title: localized("open_app.custom"), systemImage: "plus.square.dashed") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(spacing: 8) {
+                            TextField(localized("editor.field.name_placeholder"), text: $customAppName)
+                                .textFieldStyle(.roundedBorder)
+                            SettingsPasteButton {
+                                if let content = NSPasteboard.general.string(forType: .string) {
+                                    customAppName = content
+                                }
+                            }
+                        }
 
-                        HStack {
+                        HStack(spacing: 8) {
                             TextField(localized("open_app.app_path_placeholder"), text: $customAppPath)
                                 .textFieldStyle(.roundedBorder)
-                            Button {
+                            SettingsPasteButton {
                                 if let content = NSPasteboard.general.string(forType: .string) {
                                     customAppPath = content
                                 }
-                            } label: {
-                                Image(systemName: "doc.on.clipboard")
                             }
-                            .help(localized("common.paste_from_clipboard"))
                             Button(localized("common.browse")) {
                                 browseFolder()
                             }
                         }
 
-                        Button(localized("open_app.add_app")) {
-                            addCustomApp()
-                        }
-                        .disabled(customAppPath.isEmpty)
-
                         Text(localized("open_app.tip.wrong_path"))
                             .font(.caption)
                             .foregroundColor(.secondary)
+
+                        HStack {
+                            Spacer()
+                            Button(localized("open_app.add_app")) {
+                                addCustomApp()
+                            }
+                            .disabled(customAppPath.isEmpty)
+                        }
                     }
                 }
-                .padding(.vertical, 8)
             }
-
-            Spacer()
+            .padding(22)
         }
-        .padding(20)
         .onAppear {
             checkForMissingApps()
         }
@@ -188,6 +188,9 @@ struct OpenAppSettingsView: View {
 
         if panel.runModal() == .OK, let url = panel.url {
             customAppPath = url.path
+            if customAppName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                customAppName = url.deletingPathExtension().lastPathComponent
+            }
         }
     }
 
@@ -198,12 +201,31 @@ struct OpenAppSettingsView: View {
 
     private func getAvailableApps(for apps: [AppPreset]) -> [AppPreset] {
         let enabledNames = Set(getEnabledApps().map { $0.name })
-        return apps.filter { !enabledNames.contains($0.name) }
+        return apps.filter { !enabledNames.contains($0.name) && isAppAvailable($0) }
+    }
+
+    private func isAppAvailable(_ app: AppPreset) -> Bool {
+        if FileManager.default.fileExists(atPath: (app.path as NSString).expandingTildeInPath) {
+            return true
+        }
+
+        switch app.name {
+        case "Visual Studio Code":
+            return AppAvailability.isInstalled(bundleIdentifiers: ["com.microsoft.VSCode", "com.microsoft.VSCodeInsiders"])
+        case "Atom":
+            return AppAvailability.isInstalled(bundleIdentifier: "com.github.atom")
+        case "iTerm":
+            return AppAvailability.isInstalled(bundleIdentifier: "com.googlecode.iterm2")
+        case "Terminal":
+            return AppAvailability.isInstalled(bundleIdentifier: "com.apple.Terminal")
+        default:
+            return false
+        }
     }
 
     private func addApp(_ app: AppPreset) {
         // 检查应用是否存在
-        if !FileManager.default.fileExists(atPath: app.path) {
+        if !isAppAvailable(app) {
             errorMessage = localized("open_app.error.app_not_found", with: app.name)
             return
         }
@@ -218,7 +240,7 @@ struct OpenAppSettingsView: View {
     }
 
     private func addCustomApp() {
-        let path = customAppPath
+        let path = customAppPath.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // 检查应用是否存在
         if !FileManager.default.fileExists(atPath: path) {
@@ -226,7 +248,8 @@ struct OpenAppSettingsView: View {
             return
         }
 
-        let name = URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent
+        let trimmedName = customAppName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = trimmedName.isEmpty ? URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent : trimmedName
 
         ensureGroup(name: "打开应用", icon: "app")
         if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开应用" }) {
@@ -234,6 +257,7 @@ struct OpenAppSettingsView: View {
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()
+            customAppName = ""
             customAppPath = ""
             errorMessage = nil
         }

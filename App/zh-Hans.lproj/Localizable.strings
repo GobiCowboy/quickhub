@@ -29,6 +29,7 @@
 "common.placeholder.ext" = "扩展名，如 env, gitignore";
 "common.placeholder.search_icon" = "搜索图标...";
 "common.paste_from_clipboard" = "从剪贴板粘贴";
+"common.paste" = "粘贴";
 
 /* Group Names */
 "group.new_file_folder" = "新建文件/文件夹";
@@ -40,8 +41,8 @@
 /* Welcome View */
 "welcome.title" = "欢迎使用 QuickHub";
 "welcome.subtitle" = "极简、极速的 macOS 超级工具箱";
-"welcome.feature1.title" = "快捷唤醒 (⌥⇧Q)";
-"welcome.feature1.desc" = "选中 Finder 文件，按住快捷键。面板会瞬时出现在鼠标位置，比右键菜单更快。";
+"welcome.feature1.title" = "快捷唤醒 (⌥Q / 右键)";
+"welcome.feature1.desc" = "选中 Finder 文件，按下快捷键或右键。面板会瞬时出现在鼠标位置，比传统右键菜单更快。";
 "welcome.feature2.title" = "呼出即搜索";
 "welcome.feature2.desc" = "面板弹出后直接打字（如输入 'T'），然后按回车。全程无需挪动鼠标。";
 "welcome.feature3.title" = "自由定制";
@@ -53,13 +54,17 @@
 "popover.no_results" = "暂无匹配命令";
 
 /* General Settings View */
+"settings.general.desc" = "语言、启动、快捷键与应用维护";
 "settings.general.section.language" = "语言";
+"settings.subtitle" = "右键命令与快捷操作";
+"settings.empty.enabled" = "还没有启用的命令";
 "settings.general.language" = "语言";
 "settings.general.section.startup" = "启动";
 "settings.general.launch_at_login" = "开机自动启动";
 "settings.general.section.notifications" = "通知";
 "settings.general.show_notifications" = "执行命令后显示通知";
 "settings.general.section.shortcut" = "快捷键";
+"settings.general.intercept_right_click" = "右键打开 QuickHub 面板";
 "settings.general.open_panel" = "打开面板";
 "settings.general.section.about" = "关于";
 "settings.general.version" = "版本";
@@ -107,6 +112,7 @@
 "open_app.category.video" = "视频";
 "open_app.category.ai" = "AI";
 "open_app.custom" = "自定义";
+"open_app.preset_apps" = "预设应用";
 "open_app.add_custom" = "添加自定义应用";
 "open_app.app_path_placeholder" = "应用路径，如 /Applications/xxx.app";
 "open_app.add_app" = "添加应用";
@@ -169,15 +175,17 @@
 "shell.tip.placeholders" = "提示: 使用 {path} 表示选中文件路径，{dir} 表示目录，{filename} 表示文件名";
 "shell.examples" = "示例:";
 "shell.example.copy_path" = "复制路径: echo -n '{path}' | pbcopy";
-"shell.example.terminal" = "终端打开: open -a Terminal '{dir}'";
-"shell.example.iterm" = "iTerm2: open -a iTerm '{dir}'";
-"shell.example.vscode" = "VSCode: cd '{dir}' && code .";
+"shell.example.terminal" = "终端打开: open -b com.apple.Terminal '{dir}'";
+"shell.example.iterm" = "iTerm2: open -b com.googlecode.iterm2 '{dir}'";
+"shell.example.vscode" = "VSCode: open -b com.microsoft.VSCode '{dir}'";
 "shell.add_command" = "添加命令";
-"shell.get_info" = "快速信息";
+"shell.get_info" = "文件信息";
+"shell.file_info" = "文件信息";
 "shell.copy_path" = "复制路径";
 "shell.open_in_terminal" = "在终端打开";
 "shell.open_in_iterm" = "在 iTerm2 打开";
 "shell.open_in_vscode" = "在 VS Code 打开";
+"shell.open_in_atom" = "在 Atom 打开";
 
 /* Menu Sort Settings */
 "menu_sort.title" = "菜单排序";
@@ -232,6 +240,7 @@
 "executor.created" = "已创建: %@";
 "executor.opened_in_finder" = "已在 Finder 中打开: %@";
 "executor.app_opened" = "已打开应用";
+"executor.file_info_shown" = "已打开文件信息";
 "executor.search_cancelled" = "搜索已取消";
 "executor.no_matching_passwords" = "未找到匹配的密码";
 "executor.copied_password" = "已复制 %@ 的密码";
@@ -245,7 +254,7 @@
 
 /* App Delegate */
 "app.accessibility.title" = "需要辅助功能权限";
-"app.accessibility.message" = "全局快捷键需要辅助功能权限。请在系统设置中启用 QuickHub 的辅助功能权限，然后重启应用。";
+"app.accessibility.message" = "全局快捷键和右键拦截需要辅助功能权限；读取 Finder 选区还需要允许 QuickHub 控制 Finder。请在系统设置中开启对应权限，然后重启应用。";
 "app.accessibility.open_settings" = "打开系统设置";
 "app.accessibility.later" = "稍后";
 "app.settings.title" = "QuickHub 设置";
@@ -260,6 +269,16 @@
 "command_type.open_finder" = "目录";
 "command_type.open_app" = "应用";
 "command_type.bitwarden" = "密码";
+"command_type.file_info" = "信息";
+
+/* File Info */
+"file_info.type" = "类型";
+"file_info.size" = "大小";
+"file_info.created" = "创建时间";
+"file_info.modified" = "修改时间";
+"file_info.permissions" = "权限";
+"file_info.extra" = "更多";
+"file_info.items" = "%@ 个项目";
 
 /* Notifications */
 "notification.execution_failed" = "执行失败";
@@ -296,3 +315,4 @@
 "app.terminal" = "终端";
 "app.iterm" = "iTerm";
 "app.vscode" = "VS Code";
+"app.atom" = "Atom";

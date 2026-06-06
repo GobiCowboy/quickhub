@@ -9,37 +9,57 @@ struct AppSettingsView: View {
     @State private var refreshTrigger = false  // 用于触发视图刷新
 
     var body: some View {
-        HSplitView {
-            // 左侧分类导航
-            List(selection: $selectedCategory) {
-                ForEach(SettingsCategory.allCases, id: \.self) { category in
-                    Label(category.title, systemImage: category.icon)
-                        .tag(category)
-                }
-            }
-            .listStyle(.sidebar)
-            .frame(width: 160)
+        ZStack {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea()
 
-            // 右侧内容区
-            Group {
-                switch selectedCategory {
-                case .newFile:
-                    NewFileSettingsView(config: $config, onEdit: { editingItem = $0 })
-                case .openApp:
-                    OpenAppSettingsView(config: $config, onEdit: { editingItem = $0 })
-                case .openFolder:
-                    OpenFolderSettingsView(config: $config, onEdit: { editingItem = $0 })
-                case .shell:
-                    ShellCommandSettingsView(config: $config, onEdit: { editingItem = $0 })
-                case .menuSort:
-                    MenuSortSettingsView(config: $config)
-                case .general:
-                    GeneralSettingsView()
+            HSplitView {
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Label("QuickHub", systemImage: "command.circle.fill")
+                            .font(.system(size: 17, weight: .semibold))
+
+                        Text(localized("settings.subtitle"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.top, 16)
+
+                    List(selection: $selectedCategory) {
+                        ForEach(SettingsCategory.allCases, id: \.self) { category in
+                            Label(category.title, systemImage: category.icon)
+                                .font(.system(size: 13))
+                                .tag(category)
+                        }
+                    }
+                    .listStyle(.sidebar)
+                    .scrollContentBackground(.hidden)
                 }
+                .frame(width: 180)
+                .background(.regularMaterial)
+
+                Group {
+                    switch selectedCategory {
+                    case .newFile:
+                        NewFileSettingsView(config: $config, onEdit: { editingItem = $0 })
+                    case .openApp:
+                        OpenAppSettingsView(config: $config, onEdit: { editingItem = $0 })
+                    case .openFolder:
+                        OpenFolderSettingsView(config: $config, onEdit: { editingItem = $0 })
+                    case .shell:
+                        ShellCommandSettingsView(config: $config, onEdit: { editingItem = $0 })
+                    case .menuSort:
+                        MenuSortSettingsView(config: $config)
+                    case .general:
+                        GeneralSettingsView()
+                    }
+                }
+                .frame(minWidth: 520)
             }
-            .frame(minWidth: 400)
         }
-        .frame(minWidth: 700, minHeight: 500)
+        .frame(minWidth: 820, minHeight: 560)
         .sheet(item: $editingItem) { item in
             ItemEditorSheet(item: item, onSave: {
                 config = StorageService.shared.loadConfig()
@@ -57,6 +77,158 @@ struct AppSettingsView: View {
                 config = StorageService.shared.loadConfig()
             }
         }
+    }
+}
+
+struct SettingsPageHeader: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .fill(.thinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 9, style: .continuous)
+                            .fill(Color.accentColor.opacity(0.12))
+                    )
+
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+            }
+            .frame(width: 38, height: 38)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.system(size: 20, weight: .semibold))
+
+                Text(subtitle)
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+    }
+}
+
+struct SettingsSurface<Content: View>: View {
+    let title: String
+    var systemImage: String? = nil
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                if let systemImage {
+                    Image(systemName: systemImage)
+                        .foregroundStyle(.secondary)
+                }
+
+                Text(title)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.primary)
+
+                Spacer()
+            }
+
+            content
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color.white.opacity(0.16), lineWidth: 1)
+        )
+        .shadow(color: Color.black.opacity(0.08), radius: 12, y: 5)
+    }
+}
+
+struct SettingsChipSection<Content: View>: View {
+    let title: String
+    let icon: String
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: icon)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.secondary)
+
+            content
+        }
+    }
+}
+
+struct SettingsPasteButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(localized("common.paste"), systemImage: "doc.on.clipboard")
+                .labelStyle(.iconOnly)
+                .frame(width: 28, height: 24)
+        }
+        .buttonStyle(.borderless)
+        .help(localized("common.paste_from_clipboard"))
+    }
+}
+
+struct CommandSettingRow: View {
+    let item: CommandItem
+    let name: String
+    var onEdit: () -> Void
+    var onDelete: () -> Void
+
+    var body: some View {
+        HStack(spacing: 11) {
+            CommandIconChip(item: item, size: 24)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(name)
+                    .font(.system(size: 13, weight: .medium))
+                    .lineLimit(1)
+
+                Text(CommandVisualStyle.hint(for: item))
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+
+            Spacer()
+
+            Button(action: onEdit) {
+                Image(systemName: "square.and.pencil")
+                    .font(.system(size: 12, weight: .semibold))
+                    .frame(width: 24, height: 22)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(Color.primary.opacity(0.055))
+                    )
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+
+            Button(action: onDelete) {
+                Image(systemName: "xmark")
+                    .frame(width: 24, height: 22)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 9)
+        .padding(.vertical, 7)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.primary.opacity(0.035))
+        )
     }
 }
 

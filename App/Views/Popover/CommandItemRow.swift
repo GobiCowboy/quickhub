@@ -10,41 +10,28 @@ struct CommandItemRow: View {
     var onHover: ((Bool) -> Void)?
     var onClose: (() -> Void)?
     @State private var isExecuting = false
+    private let hoverTint = Color(red: 0.28, green: 0.28, blue: 0.30)
 
     var body: some View {
-        HStack(spacing: 6) {
-            itemIcon
-                .font(.system(size: 13))
-                .foregroundColor(isHovered ? .white : .primary)
-                .frame(width: 16)
+        HStack(spacing: 8) {
+            CommandIconChip(item: item, isSelected: isHovered, size: 20)
 
             Text(DefaultItemNameMapping.localizedItemName(item.name))
-                .font(.system(size: 12))
-                .foregroundColor(isHovered ? .white : .primary)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
 
             Spacer()
-
-            // 命令类型标签（在原生菜单往往省略，或者做得很淡）
-            Text(commandTypeLabel)
-                .font(.system(size: 9))
-                .foregroundColor(isHovered ? .white.opacity(0.8) : .secondary)
-                .padding(.horizontal, 4)
-                .padding(.vertical, 2)
-                .background(isHovered ? Color.white.opacity(0.2) : Color.secondary.opacity(0.1))
-                .cornerRadius(4)
 
             if isExecuting {
                 ProgressView()
                     .controlSize(.small)
-                    .colorScheme(isHovered ? .dark : .light)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 3)
-        .background(
-            RoundedRectangle(cornerRadius: 4)
-                .fill(isHovered ? Color.accentColor : Color.clear)
-        )
+        .padding(.horizontal, 9)
+        .padding(.vertical, 4)
+        .background(hoverGlassBackground)
+        .overlay(hoverGlassStroke)
         .contentShape(Rectangle())
         .onHover { hovering in
             onHover?(hovering)
@@ -53,42 +40,26 @@ struct CommandItemRow: View {
             executeCommand()
         }
         .disabled(isExecuting)
+        .animation(.easeOut(duration: 0.12), value: isHovered)
     }
 
-    private var commandTypeLabel: String {
-        switch item.type {
-        case .shell:
-            return localized("command_type.shell")
-        case .copyPath:
-            return localized("command_type.copy_path")
-        case .createFile:
-            return localized("command_type.create_file")
-        case .createFolder:
-            return localized("command_type.create_folder")
-        case .openFinder:
-            return localized("command_type.open_finder")
-        case .openApp:
-            return localized("command_type.open_app")
-        case .bitwardenSearch:
-            return localized("command_type.bitwarden")
+    @ViewBuilder
+    private var hoverGlassBackground: some View {
+        if isHovered {
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .fill(hoverTint.opacity(0.22))
+        } else {
+            Color.clear
         }
     }
 
     @ViewBuilder
-    private var itemIcon: some View {
-        if item.icon.hasPrefix("/") {
-            // 图标是文件路径
-            if let image = NSImage(contentsOfFile: item.icon) {
-                Image(nsImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-            } else {
-                Image(systemName: "questionmark")
-            }
-        } else {
-            // 图标是 SF Symbol
-            Image(systemName: item.icon)
-        }
+    private var hoverGlassStroke: some View {
+        RoundedRectangle(cornerRadius: 7, style: .continuous)
+            .stroke(
+                isHovered ? Color.white.opacity(0.08) : Color.clear,
+                lineWidth: 1
+            )
     }
 
     private func executeCommand() {

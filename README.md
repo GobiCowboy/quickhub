@@ -52,6 +52,14 @@ xcodebuild -scheme RightClickX build
 - macOS 13.0 (Ventura) or later
 - Xcode 15.0 or later
 
+### Distribution Notes
+
+- This app is currently built for Apple Silicon (`arm64`) only.
+- First launch requires Accessibility permission for the global hotkey and right-click interception.
+- Reading Finder selection also requires allowing the app to control Finder.
+- For smooth distribution outside your machine, notarize the released app before sharing it.
+- The release script is `./scripts/release_arm64.sh` after setting your Notary profile.
+
 ### Language Support
 
 QuickHub supports **English** and **Chinese**. You can switch languages in **Settings → General → Language**.
@@ -105,6 +113,14 @@ xcodebuild -scheme RightClickX build
 
 - macOS 13.0 (Ventura) 或更高版本
 - Xcode 15.0 或更高版本
+
+### 分发说明
+
+- 当前版本只面向 Apple Silicon（`arm64`）机器。
+- 首次启动需要开启辅助功能权限，用于全局快捷键和右键拦截。
+- 读取 Finder 选区还需要允许应用控制 Finder。
+- 如果要发给别人，建议先完成公证再分享。
+- 发布脚本是 `./scripts/release_arm64.sh`，先配置好 Notary profile。
 
 ### 语言支持
 

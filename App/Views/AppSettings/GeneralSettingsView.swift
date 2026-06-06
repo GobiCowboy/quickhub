@@ -6,71 +6,114 @@ import Carbon
 struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var showNotifications = true
+    @State private var interceptRightClick = true
     @StateObject private var hotkeyRecorder = HotkeyRecorderViewModel()
     @StateObject private var localeManager = LocaleManager.shared
 
     var body: some View {
-        Form {
-            Section(localized("settings.general.section.language")) {
-                Picker(localized("settings.general.language"), selection: $localeManager.currentLanguage) {
-                    ForEach(LocaleManager.Language.allCases, id: \.self) { language in
-                        Text(language.rawValue).tag(language)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                SettingsPageHeader(
+                    title: localized("settings.category.general"),
+                    subtitle: localized("settings.general.desc"),
+                    icon: "gear"
+                )
+
+                SettingsSurface(title: localized("settings.general.section.language"), systemImage: "globe") {
+                    SettingsValueRow(title: localized("settings.general.language"), icon: "character.bubble") {
+                        Picker("", selection: $localeManager.currentLanguage) {
+                            ForEach(LocaleManager.Language.allCases, id: \.self) { language in
+                                Text(language.rawValue).tag(language)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 150)
+                        .onChange(of: localeManager.currentLanguage) { _ in
+                            // 语言切换后刷新视图
+                        }
                     }
                 }
-                .onChange(of: localeManager.currentLanguage) { _ in
-                    // 语言切换后刷新视图
-                }
-            }
 
-            Section(localized("settings.general.section.startup")) {
-                Toggle(localized("settings.general.launch_at_login"), isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _ in
+                SettingsSurface(title: localized("settings.general.section.startup"), systemImage: "power") {
+                    SettingsToggleRow(
+                        title: localized("settings.general.launch_at_login"),
+                        icon: "arrow.up.forward.app",
+                        isOn: $launchAtLogin
+                    ) {
                         saveSettings()
                     }
-            }
+                }
 
-            Section(localized("settings.general.section.notifications")) {
-                Toggle(localized("settings.general.show_notifications"), isOn: $showNotifications)
-                    .onChange(of: showNotifications) { _ in
-                        saveSettings()
-                    }
-            }
-
-            Section(localized("settings.general.section.shortcut")) {
-                HStack {
-                    Text(localized("settings.general.open_panel"))
-                    Spacer()
-                    HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey) {
+                SettingsSurface(title: localized("settings.general.section.notifications"), systemImage: "bell") {
+                    SettingsToggleRow(
+                        title: localized("settings.general.show_notifications"),
+                        icon: "bell.badge",
+                        isOn: $showNotifications
+                    ) {
                         saveSettings()
                     }
                 }
-            }
 
-            Section(localized("settings.general.section.about")) {
-                HStack {
-                    Text(localized("settings.general.version"))
-                    Spacer()
-                    Text("1.0.0")
-                        .foregroundColor(.secondary)
+                SettingsSurface(title: localized("settings.general.section.shortcut"), systemImage: "keyboard") {
+                    VStack(spacing: 8) {
+                        SettingsToggleRow(
+                            title: localized("settings.general.intercept_right_click"),
+                            icon: "cursorarrow.click.2",
+                            isOn: $interceptRightClick
+                        ) {
+                            saveSettings()
+                        }
+
+                        Divider()
+
+                        SettingsValueRow(title: localized("settings.general.open_panel"), icon: "keyboard.badge.eye") {
+                            HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey) {
+                                saveSettings()
+                            }
+                        }
+                    }
                 }
 
-                Link(localized("settings.general.github"), destination: URL(string: "https://github.com/your-repo")!)
+                SettingsSurface(title: localized("settings.general.section.about"), systemImage: "info.circle") {
+                    VStack(spacing: 8) {
+                        SettingsValueRow(title: localized("settings.general.version"), icon: "app.badge") {
+                            Text("1.0.0")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                        }
 
-                Link(localized("settings.general.feedback"), destination: URL(string: "https://github.com/your-repo/issues")!)
-            }
+                        Divider()
 
-            Section(localized("settings.general.section.advanced")) {
-                Button(localized("settings.general.open_config_dir")) {
-                    openConfigDirectory()
+                        SettingsLinkRow(title: localized("settings.general.github"), icon: "link", url: URL(string: "https://github.com/your-repo")!)
+
+                        Divider()
+
+                        SettingsLinkRow(title: localized("settings.general.feedback"), icon: "exclamationmark.bubble", url: URL(string: "https://github.com/your-repo/issues")!)
+                    }
                 }
 
-                Button(localized("settings.general.reset_all")) {
-                    resetToDefaults()
+                SettingsSurface(title: localized("settings.general.section.advanced"), systemImage: "wrench.and.screwdriver") {
+                    VStack(spacing: 8) {
+                        SettingsActionRow(
+                            title: localized("settings.general.open_config_dir"),
+                            icon: "folder"
+                        ) {
+                            openConfigDirectory()
+                        }
+
+                        Divider()
+
+                        SettingsActionRow(
+                            title: localized("settings.general.reset_all"),
+                            icon: "arrow.counterclockwise"
+                        ) {
+                            resetToDefaults()
+                        }
+                    }
                 }
             }
+            .padding(22)
         }
-        .formStyle(.grouped)
-        .padding(20)
         .onAppear {
             loadSettings()
         }
@@ -81,6 +124,7 @@ struct GeneralSettingsView: View {
         hotkeyRecorder.hotkey = settings.hotkey ?? HotkeyConfiguration.defaultHotkey
         launchAtLogin = settings.launchAtLogin
         showNotifications = settings.showNotifications
+        interceptRightClick = settings.interceptRightClick
     }
 
     private func saveSettings() {
@@ -88,6 +132,7 @@ struct GeneralSettingsView: View {
         config.settings.hotkey = hotkeyRecorder.hotkey
         config.settings.launchAtLogin = launchAtLogin
         config.settings.showNotifications = showNotifications
+        config.settings.interceptRightClick = interceptRightClick
         StorageService.shared.saveConfig(config)
 
         // 更新开机自动启动状态
@@ -121,6 +166,80 @@ struct GeneralSettingsView: View {
         StorageService.shared.saveConfig(AppConfig(groups: StorageService.defaultGroups()))
         ConfigObserver.shared.refresh()
         loadSettings()
+    }
+}
+
+private struct SettingsValueRow<Trailing: View>: View {
+    let title: String
+    let icon: String
+    @ViewBuilder var trailing: Trailing
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .frame(width: 22)
+
+            Text(title)
+                .font(.system(size: 13, weight: .medium))
+
+            Spacer()
+
+            trailing
+        }
+        .padding(.vertical, 3)
+    }
+}
+
+private struct SettingsToggleRow: View {
+    let title: String
+    let icon: String
+    @Binding var isOn: Bool
+    let onChange: () -> Void
+
+    var body: some View {
+        SettingsValueRow(title: title, icon: icon) {
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .onChange(of: isOn) { _ in
+                    onChange()
+                }
+        }
+    }
+}
+
+private struct SettingsActionRow: View {
+    let title: String
+    let icon: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            SettingsValueRow(title: title, icon: icon) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct SettingsLinkRow: View {
+    let title: String
+    let icon: String
+    let url: URL
+
+    var body: some View {
+        Link(destination: url) {
+            SettingsValueRow(title: title, icon: icon) {
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -48,20 +48,36 @@ struct PopoverView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // 搜索输入
-            TextField(localized("popover.search_placeholder"), text: $searchText)
-                .textFieldStyle(.plain)
-                .font(.system(size: 13))
-                .padding(.horizontal, 14)
-                .padding(.top, 12)
-                .padding(.bottom, 8)
-                .focused($isSearching)
-                .onSubmit {
-                    executeFirstItem()
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(.secondary)
+
+                TextField(localized("popover.search_placeholder"), text: $searchText)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13, weight: .regular))
+                    .focused($isSearching)
+                    .onSubmit {
+                        executeFirstItem()
+                    }
+
+                if !searchText.isEmpty {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.tertiary)
+                    }
+                    .buttonStyle(.plain)
                 }
+            }
+            .padding(.horizontal, 11)
+            .padding(.vertical, 9)
+            .background(Color.primary.opacity(0.018))
 
             Divider()
-                .padding(.horizontal, 8)
+                .opacity(0.65)
 
             // 命令列表
             ScrollView {
@@ -69,13 +85,17 @@ struct PopoverView: View {
                     let groups = filteredGroups
 
                     if groups.isEmpty {
-                        VStack(spacing: 6) {
+                        VStack(spacing: 8) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 22))
+                                .foregroundColor(.secondary.opacity(0.7))
+
                             Text(localized("popover.no_results"))
-                                .font(.system(size: 12))
+                                .font(.system(size: 13))
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 20)
+                        .padding(.top, 44)
                     } else {
                         ForEach(groups) { group in
                             GroupSectionView(
@@ -88,7 +108,7 @@ struct PopoverView: View {
 
                             if group.id != groups.last?.id {
                                 Divider()
-                                    .padding(.horizontal, 8)
+                                    .padding(.horizontal, 12)
                                     .padding(.vertical, 3)
                             }
                         }
@@ -99,34 +119,28 @@ struct PopoverView: View {
             .scrollContentBackground(.hidden)
 
             Divider()
+                .opacity(0.65)
 
-            // 底部设置栏
             HStack {
-                Button(action: { quitApp() }) {
-                    Label(localized("common.quit"), systemImage: "power")
-                        .font(.system(size: 12))
-                        .foregroundColor(.primary)
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
+                Text("QuickHub")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.secondary)
 
                 Spacer()
 
-                Button(action: { openSettings() }) {
-                    Label(localized("common.settings"), systemImage: "gear")
-                        .font(.system(size: 12))
-                        .foregroundColor(.primary)
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 6)
+                footerButton(systemName: "gearshape", action: openSettings)
+                footerButton(systemName: "power", action: quitApp)
             }
-            .padding(.bottom, 2)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
         }
-        .frame(width: 240, height: 400)
+        .frame(width: 292, height: 390)
         .background(VisualEffectBackground())
-        .cornerRadius(8)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Color.white.opacity(0.07), lineWidth: 1)
+        )
         .onAppear {
             configObserver.refresh()
             // 确保窗口显示后搜索框立即激活，增加一个小延时防止由于 NSPanel 层级导致的焦点丢失
@@ -173,6 +187,20 @@ struct PopoverView: View {
     private func quitApp() {
         onClose?()
         NSApplication.shared.terminate(nil)
+    }
+
+    private func footerButton(systemName: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.secondary)
+                .frame(width: 24, height: 22)
+                .background(
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        .fill(Color.primary.opacity(0.035))
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
 

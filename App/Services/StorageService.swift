@@ -29,6 +29,8 @@ class StorageService: StorageServiceProtocol {
         if config.groups.isEmpty {
             config.groups = Self.defaultGroups()
         }
+
+        migrateSettingsIfNeeded()
     }
 
     // MARK: - 公开方法
@@ -40,6 +42,19 @@ class StorageService: StorageServiceProtocol {
     func saveConfig(_ config: AppConfig) {
         self.config = config
         saveToDisk()
+    }
+
+    private func migrateSettingsIfNeeded() {
+        var changed = false
+
+        if config.settings.hotkey == HotkeyConfiguration.legacyDefaultHotkey {
+            config.settings.hotkey = HotkeyConfiguration.defaultHotkey
+            changed = true
+        }
+
+        if changed {
+            saveToDisk()
+        }
     }
 
     func addGroup(_ group: CommandGroup) {
@@ -156,22 +171,50 @@ class StorageService: StorageServiceProtocol {
             CommandGroup(
                 name: "命令",
                 icon: "terminal",
-                items: [
-                    CommandItem(
-                        name: "复制路径",
-                        icon: "doc.on.doc",
-                        type: .copyPath,
-                        command: nil,
-                        openInTerminal: false
-                    ),
-                    CommandItem(
-                        name: "在 VS Code 打开",
-                        icon: "chevron.left.forwardslash.chevron.right",
-                        type: .shell,
-                        command: "cd '{dir}' && code .",
-                        openInTerminal: false
-                    )
-                ]
+                items: {
+                    var items: [CommandItem] = [
+                        CommandItem(
+                            name: "文件信息",
+                            icon: "info.circle",
+                            type: .shell,
+                            command: InternalShellCommand.fileInfo,
+                            openInTerminal: false
+                        ),
+                        CommandItem(
+                            name: "复制路径",
+                            icon: "doc.on.doc",
+                            type: .copyPath,
+                            command: nil,
+                            openInTerminal: false
+                        )
+                    ]
+
+                    if AppAvailability.isInstalled(bundleIdentifiers: ["com.microsoft.VSCode", "com.microsoft.VSCodeInsiders"], appPaths: ["/Applications/Visual Studio Code.app"]) {
+                        items.append(
+                            CommandItem(
+                                name: "在 VS Code 打开",
+                                icon: "chevron.left.forwardslash.chevron.right",
+                                type: .shell,
+                                command: "open -b com.microsoft.VSCode '{dir}'",
+                                openInTerminal: false
+                            )
+                        )
+                    }
+
+                    if AppAvailability.isInstalled(bundleIdentifiers: ["com.github.atom"], appPaths: ["/Applications/Atom.app"]) {
+                        items.append(
+                            CommandItem(
+                                name: "在 Atom 打开",
+                                icon: "circle.grid.3x3.fill",
+                                type: .shell,
+                                command: "open -b com.github.atom '{dir}'",
+                                openInTerminal: false
+                            )
+                        )
+                    }
+
+                    return items
+                }()
             )
         ]
     }
