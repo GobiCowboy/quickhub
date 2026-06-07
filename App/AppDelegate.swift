@@ -26,7 +26,7 @@ fileprivate func rightClickEventTapCallback(
         return Unmanaged.passUnretained(event)
     }
 
-    guard appDelegate.shouldInterceptRightClick() else {
+    guard appDelegate.shouldInterceptRightClick(at: event.location) else {
         return Unmanaged.passUnretained(event)
     }
 
@@ -375,8 +375,138 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    fileprivate func shouldInterceptRightClick() -> Bool {
-        return NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder"
+    fileprivate func shouldInterceptRightClick(at point: CGPoint) -> Bool {
+        if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder" {
+            return true
+        }
+
+        return isPointOnFinderManagedSurface(at: point)
+    }
+
+    private func isPointOnFinderManagedSurface(at point: CGPoint) -> Bool {
+        guard NSScreen.screens.contains(where: { $0.visibleFrame.contains(point) }) else {
+            logger.debug("Right click point \(point.debugDescription, privacy: .public) is outside visible screen frame")
+            return false
+        }
+
+        if let accessibilityHit = accessibilityHitUnderCursor(at: point) {
+            if accessibilityHit.shouldIntercept {
+                logger.debug(
+                    "Right click accessibility hit owner=\(accessibilityHit.owner, privacy: .public) role=\(accessibilityHit.role, privacy: .public) subrole=\(accessibilityHit.subrole, privacy: .public) title=\(accessibilityHit.title, privacy: .public) description=\(accessibilityHit.description, privacy: .public) point=\(point.debugDescription, privacy: .public) handle=true"
+                )
+                return true
+            }
+
+            logger.debug(
+                "Right click accessibility hit owner=\(accessibilityHit.owner, privacy: .public) role=\(accessibilityHit.role, privacy: .public) subrole=\(accessibilityHit.subrole, privacy: .public) title=\(accessibilityHit.title, privacy: .public) description=\(accessibilityHit.description, privacy: .public) point=\(point.debugDescription, privacy: .public) handle=false"
+            )
+        } else {
+            logger.debug("Right click accessibility hit not available for point \(point.debugDescription, privacy: .public)")
+        }
+
+        let options: CGWindowListOption = [.optionOnScreenOnly]
+        guard let windowList = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] else {
+            logger.debug("Right click point \(point.debugDescription, privacy: .public) could not query window list")
+            return false
+        }
+
+        for window in windowList {
+            guard let boundsDict = window[kCGWindowBounds as String] as? [String: Any],
+                  let bounds = CGRect(dictionaryRepresentation: boundsDict as CFDictionary) else {
+                continue
+            }
+
+            if bounds.contains(point) {
+                let ownerName = window[kCGWindowOwnerName as String] as? String ?? ""
+                let windowName = window[kCGWindowName as String] as? String ?? ""
+                let layer = window[kCGWindowLayer as String] as? Int ?? -1
+
+                let shouldHandleDesktop =
+                    ownerName == "Finder" ||
+                    (ownerName == "Dock" && windowName.localizedCaseInsensitiveContains("Desktop")) ||
+                    (ownerName == "Window Server" && windowName.localizedCaseInsensitiveContains("Desktop"))
+
+                logger.debug(
+                    "Right click hit window owner=\(ownerName, privacy: .public) name=\(windowName, privacy: .public) layer=\(layer, privacy: .public) point=\(point.debugDescription, privacy: .public) handle=\(shouldHandleDesktop, privacy: .public)"
+                )
+                return shouldHandleDesktop
+            }
+        }
+
+        logger.debug("Right click point \(point.debugDescription, privacy: .public) did not hit any on-screen window")
+        return true
+    }
+
+    private struct AccessibilityHit {
+        let owner: String
+        let role: String
+        let subrole: String
+        let title: String
+        let description: String
+        let shouldIntercept: Bool
+    }
+
+    private func accessibilityHitUnderCursor(at point: CGPoint) -> AccessibilityHit? {
+        let systemWide = AXUIElementCreateSystemWide()
+        var element: AXUIElement?
+        let status = AXUIElementCopyElementAtPosition(systemWide, Float(point.x), Float(point.y), &element)
+        guard status == .success, let element else {
+            return nil
+        }
+
+        let owner = accessibilityOwner(for: element)
+        let role = accessibilityStringValue(for: kAXRoleAttribute as CFString, element: element) ?? ""
+        let subrole = accessibilityStringValue(for: kAXSubroleAttribute as CFString, element: element) ?? ""
+        let title = accessibilityStringValue(for: kAXTitleAttribute as CFString, element: element) ?? ""
+        let description = accessibilityStringValue(for: kAXDescriptionAttribute as CFString, element: element) ?? ""
+
+        let normalizedOwner = owner.lowercased()
+        let normalizedRole = role.lowercased()
+        let normalizedSubrole = subrole.lowercased()
+        let normalizedTitle = title.lowercased()
+        let normalizedDescription = description.lowercased()
+
+        let shouldIntercept =
+            normalizedOwner.contains("finder") ||
+            normalizedOwner.contains("dock") ||
+            normalizedRole.contains("desktop") ||
+            normalizedSubrole.contains("desktop") ||
+            normalizedTitle.contains("desktop") ||
+            normalizedDescription.contains("desktop")
+
+        return AccessibilityHit(
+            owner: owner,
+            role: role,
+            subrole: subrole,
+            title: title,
+            description: description,
+            shouldIntercept: shouldIntercept
+        )
+    }
+
+    private func accessibilityOwner(for element: AXUIElement) -> String {
+        var pid: pid_t = 0
+        guard AXUIElementGetPid(element, &pid) == .success,
+              let app = NSRunningApplication(processIdentifier: pid) else {
+            return ""
+        }
+
+        let bundleIdentifier = app.bundleIdentifier ?? ""
+        if !bundleIdentifier.isEmpty {
+            return bundleIdentifier
+        }
+
+        return app.localizedName ?? ""
+    }
+
+    private func accessibilityStringValue(for attribute: CFString, element: AXUIElement) -> String? {
+        var value: CFTypeRef?
+        let status = AXUIElementCopyAttributeValue(element, attribute, &value)
+        guard status == .success else {
+            return nil
+        }
+
+        return value as? String
     }
 
     private func stopRightClickInterceptor() {
