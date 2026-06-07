@@ -27,8 +27,9 @@ xcodebuild -scheme RightClickX build
 
 ### Core Features
 
-- **🚀 Instant Activation**: Select a file in Finder, press `⌥⇧Q`. The panel appears exactly at your cursor position.
+- **🚀 Instant Activation**: Select a file in Finder, press `⌥Q`. The panel appears exactly at your cursor position.
 - **⌨️ Full Keyboard Operation**: Type to search commands after panel appears, press **Enter** to execute. No mouse movement needed.
+- **🖱️ Right Click + Hotkey Sync**: Right click and the global hotkey open the same panel. You can customize either trigger, and both stay in sync.
 - **🛠️ Unlimited Extensions**:
   - **Shell Commands**: Quickly open Terminal/iTerm2, VS Code, copy POSIX paths.
   - **File Templates**: Create Markdown, Swift, Python scripts, etc., with custom content support.
@@ -89,8 +90,9 @@ xcodebuild -scheme RightClickX build
 
 ### 核心特性
 
-- **🚀 瞬时呼出**: 选中 Finder 文件，按 `⌥⇧Q`。面板会精确出现在你的鼠标指针处。
+- **🚀 瞬时呼出**: 选中 Finder 文件，按 `⌥Q`。面板会精确出现在你的鼠标指针处。
 - **⌨️ 全程键盘操作**: 呼出面板后直接打字搜索命令，按 **回车** 立即执行。无需挪动鼠标。
+- **🖱️ 右键与快捷键同步**: 右键和全局快捷键会打开同一个面板。你可以自己分别配置触发方式，它们会保持同步。
 - **🛠️ 无限扩展**:
   - **Shell 命令**: 快速打开终端（Terminal/iTerm2）、VS Code、复制 POSIX 路径。
   - **文件模板**: 快速创建 Markdown、Swift、Python 脚本等，支持自定义内容。

@@ -22,11 +22,11 @@ fileprivate func rightClickEventTapCallback(
         return Unmanaged.passUnretained(event)
     }
 
-    if type == .rightMouseUp {
-        return nil
+    guard type == .rightMouseDown else {
+        return Unmanaged.passUnretained(event)
     }
 
-    guard type == .rightMouseDown else {
+    guard appDelegate.shouldInterceptRightClick() else {
         return Unmanaged.passUnretained(event)
     }
 
@@ -373,6 +373,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             print("[RightClick] 右键拦截已启用")
             logger.info("Right click interception enabled")
         }
+    }
+
+    fileprivate func shouldInterceptRightClick() -> Bool {
+        return NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder"
     }
 
     private func stopRightClickInterceptor() {
