@@ -45,12 +45,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusItem: NSStatusItem!
     private var panel: NSPanel!
-    private var settingsWindow: NSWindow!
+    private var settingsWindow: NSWindow?
     private var eventMonitor: Any?
     private var settingsHostingController: NSHostingController<AppSettingsView>?
     private var globalHotkeyMonitor: Any?
     private var panelDismissMonitor: Any?
     private var debugMonitor: Any?
+    private var languageObserver: NSObjectProtocol?
     fileprivate var rightClickEventTap: CFMachPort?
     private var rightClickRunLoopSource: CFRunLoopSource?
     private var welcomeWindow: NSWindow?
@@ -236,7 +237,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "command.circle.fill", accessibilityDescription: "QuickHub")
+            if let image = NSImage(named: "MenuBarIcon") {
+                image.isTemplate = true
+                button.image = image
+            } else {
+                button.image = NSImage(systemSymbolName: "command.circle.fill", accessibilityDescription: "QuickHub")
+            }
             button.action = #selector(togglePanel)
             button.target = self
         }
@@ -535,36 +541,45 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func openSettings() {
         closePanel()
 
-        // 每次打开设置都创建新的窗口，避免复用问题
-        let settingsView = AppSettingsView()
-        let hostingController = NSHostingController(rootView: settingsView)
+        if settingsWindow == nil {
+            let settingsView = AppSettingsView()
+            let hostingController = NSHostingController(rootView: settingsView)
+            settingsHostingController = hostingController
 
-        settingsWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 860, height: 620),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
-            backing: .buffered,
-            defer: false
-        )
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 860, height: 620),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable],
+                backing: .buffered,
+                defer: false
+            )
 
-        settingsWindow.title = LocaleManager.shared.localized("app.settings.title")
-        settingsWindow.titlebarAppearsTransparent = true
-        settingsWindow.backgroundColor = .clear
-        settingsWindow.isOpaque = false
-        settingsWindow.contentViewController = hostingController
-        settingsWindow.center()
-        settingsWindow.makeKeyAndOrderFront(nil)
+            window.isReleasedWhenClosed = false
+            window.title = LocaleManager.shared.localized("app.settings.title")
+            window.titlebarAppearsTransparent = true
+            window.backgroundColor = .clear
+            window.isOpaque = false
+            window.contentViewController = hostingController
+            window.center()
+            settingsWindow = window
 
-        // 监听语言切换，重新设置窗口标题
-        NotificationCenter.default.addObserver(
-            forName: .languageChanged,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            DispatchQueue.main.async {
-                self?.settingsWindow?.title = LocaleManager.shared.localized("app.settings.title")
+            if languageObserver == nil {
+                languageObserver = NotificationCenter.default.addObserver(
+                    forName: .languageChanged,
+                    object: nil,
+                    queue: .main
+                ) { [weak self] _ in
+                    DispatchQueue.main.async {
+                        self?.settingsWindow?.title = LocaleManager.shared.localized("app.settings.title")
+                    }
+                }
             }
+        } else {
+            settingsHostingController?.rootView = AppSettingsView()
+            settingsWindow?.title = LocaleManager.shared.localized("app.settings.title")
         }
 
+        guard let settingsWindow else { return }
+        settingsWindow.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
