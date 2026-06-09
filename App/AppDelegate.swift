@@ -571,40 +571,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 同步获取 Finder 选择（阻塞直到完成）
     private func syncGetFinderSelection() -> [URL] {
-        let script = """
-        tell application "Finder"
-            try
-                set sel to selection
-                if sel is not {} then
-                    set pathList to ""
-                    repeat with i from 1 to (count sel)
-                        set anItem to item i of sel
-                        set pathList to pathList & POSIX path of (anItem as alias) & linefeed
-                    end repeat
-                    return pathList
-                else
-                    return POSIX path of (target of front Finder window as alias)
-                end if
-            on error
-                return ""
-            end try
-        end tell
-        """
-
-        var error: NSDictionary?
-        if let appleScript = NSAppleScript(source: script) {
-            let result = appleScript.executeAndReturnError(&error)
-            if let pathString = result.stringValue {
-                let paths = pathString.components(separatedBy: "\n")
-                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                    .filter { !$0.isEmpty }
-                    .map { URL(fileURLWithPath: $0) }
-                return paths
-            } else if let error = error {
-                print(localized("app.finder.permission_failed", with: error.description))
-            }
-        }
-        return []
+        return FinderService.shared.getSelectedItems()
     }
 
     /// 在快捷键触发时立即获取 Finder 选择（异步，已废弃）

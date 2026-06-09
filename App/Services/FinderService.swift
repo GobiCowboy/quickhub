@@ -51,21 +51,42 @@ class FinderService: FinderServiceProtocol {
             return []
         }
 
-        guard let pathString = result.stringValue else {
+        let paths = parsePaths(from: result)
+
+        print("[FinderService] 解析后路径数量: \(paths.count)")
+        return paths
+    }
+
+    private func parsePaths(from result: NSAppleEventDescriptor) -> [URL] {
+        if result.numberOfItems > 0 {
+            var paths: [URL] = []
+            for index in 1...result.numberOfItems {
+                guard let descriptor = result.atIndex(index),
+                      let path = descriptor.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !path.isEmpty else {
+                    continue
+                }
+                paths.append(URL(fileURLWithPath: path))
+            }
+
+            if !paths.isEmpty {
+                print("[FinderService] 获取到路径列表: \(paths.map { $0.path })")
+                return paths
+            }
+        }
+
+        guard let pathString = result.stringValue?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !pathString.isEmpty else {
             print("[FinderService] AppleScript 返回空值")
             return []
         }
 
-        print("[FinderService] 获取到路径: \(pathString)")
+        print("[FinderService] 获取到路径文本: \(pathString)")
 
-        // 解析路径列表
-        let paths = pathString.components(separatedBy: "\n")
+        return pathString.components(separatedBy: "\n")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
             .map { URL(fileURLWithPath: $0) }
-
-        print("[FinderService] 解析后路径数量: \(paths.count)")
-        return paths
     }
 
     /// 获取当前目录

@@ -64,7 +64,7 @@ struct PinyinMatcher {
         }
 
         if let targetPath = item.targetPath, !targetPath.isEmpty {
-            candidates.append((targetPath as NSString).lastPathComponent)
+            candidates.append(URL(fileURLWithPath: targetPath).lastPathComponent)
         }
 
         switch item.type {
