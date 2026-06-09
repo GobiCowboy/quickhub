@@ -39,6 +39,22 @@ fileprivate func rightClickEventTapCallback(
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     private let logger = Logger(subsystem: "com.rightclickx.app", category: "RightClick")
+
+    private enum PanelInvocationSource {
+        case menuBar
+        case hotkey
+        case rightClick
+
+        var showsFooterActions: Bool {
+            switch self {
+            case .menuBar:
+                return true
+            case .hotkey, .rightClick:
+                return false
+            }
+        }
+    }
+
     static var shared: AppDelegate? {
         return NSApp.delegate as? AppDelegate
     }
@@ -243,23 +259,44 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 button.image = NSImage(systemSymbolName: "command.circle.fill", accessibilityDescription: "QuickHub")
             }
-            button.action = #selector(togglePanel)
-            button.target = self
+
+            let menu = NSMenu()
+            menu.autoenablesItems = false
+            let settingsItem = menu.addItem(
+                withTitle: LocaleManager.shared.localized("app.settings.title"),
+                action: #selector(openSettingsFromMenu),
+                keyEquivalent: ""
+            )
+            settingsItem.target = self
+            menu.addItem(.separator())
+            let quitItem = menu.addItem(
+                withTitle: localized("common.quit"),
+                action: #selector(NSApplication.terminate(_:)),
+                keyEquivalent: ""
+            )
+            quitItem.target = NSApp
+
+            statusItem.menu = menu
         }
     }
 
     private func setupPanel() {
-        refreshPanelContent()
+        refreshPanelContent(showFooterActions: true, height: 392)
     }
 
-    private func refreshPanelContent() {
+    private func refreshPanelContent(showFooterActions: Bool, height: CGFloat) {
         // 每次刷新都创建新的 PopoverView，确保读取最新配置
-        let panelView = PopoverView(onClose: { [weak self] in
-            self?.closePanel()
-        })
+        let panelView = PopoverView(
+            panelWidth: 280,
+            panelHeight: height,
+            showsFooterActions: showFooterActions,
+            onClose: { [weak self] in
+                self?.closePanel()
+            }
+        )
 
         let newPanel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 292, height: 390),
+            contentRect: NSRect(x: 0, y: 0, width: 280, height: height),
             styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
@@ -276,7 +313,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         newPanel.hasShadow = true
         newPanel.titlebarAppearsTransparent = true
         newPanel.titleVisibility = .hidden
-        newPanel.setContentSize(NSSize(width: 292, height: 390))
+        newPanel.standardWindowButton(.closeButton)?.isHidden = true
+        newPanel.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        newPanel.standardWindowButton(.zoomButton)?.isHidden = true
+        newPanel.setContentSize(NSSize(width: 280, height: height))
 
         if panel != nil {
             let oldFrame = panel.frame
@@ -323,7 +363,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             DispatchQueue.main.async {
                 self?.currentFinderSelection = selection
-                self?.togglePanel()
+                self?.togglePanelFromHotkey()
             }
         }
     }
@@ -528,7 +568,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         print("[RightClick] 右键打开面板，Finder 选择: \(selection.map { $0.lastPathComponent })")
         logger.info("Right click intercepted; opening panel")
         closePanel()
-        showPanel()
+        showPanel(source: .rightClick)
     }
 
     /// 同步获取 Finder 选择（阻塞直到完成）
@@ -574,7 +614,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 旧方法，已被 syncGetFinderSelection 替代
     }
 
-    @objc private func togglePanel() {
+    @objc private func togglePanelFromMenuBar() {
+        togglePanel(source: .menuBar)
+    }
+
+    @objc private func togglePanelFromHotkey() {
+        togglePanel(source: .hotkey)
+    }
+
+    private func togglePanel(source: PanelInvocationSource) {
         if panel.isVisible {
             closePanel()
         } else {
@@ -586,13 +634,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             currentFinderSelection = selection
             print("[AppDelegate] 保存的 Finder 选择: \(currentFinderSelection.map { $0.lastPathComponent })")
 
-            showPanel()
+            showPanel(source: source)
         }
     }
 
-    private func showPanel() {
+    private func showPanel(source: PanelInvocationSource) {
         // 刷新面板内容以获取最新配置
-        refreshPanelContent()
+        let height = preferredPanelHeight(showFooterActions: source.showsFooterActions)
+        refreshPanelContent(showFooterActions: source.showsFooterActions, height: height)
 
         // 获取鼠标位置
         let mouseLocation = NSEvent.mouseLocation
@@ -604,9 +653,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 面板左上角对齐鼠标位置
         // NSPoint.origin 是面板左下角，macOS 坐标系原点在左下角，Y轴向上
         // 要让面板左上角对齐鼠标，panelOrigin.y = mouseLocation.y - panelHeight
+        let verticalLift: CGFloat = 30
         var panelOrigin = NSPoint(
             x: mouseLocation.x,
-            y: mouseLocation.y - panel.frame.height
+            y: mouseLocation.y - panel.frame.height + verticalLift
         )
 
         // 确保面板在屏幕内（右侧边界）
@@ -634,6 +684,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel.orderFrontRegardless()
 
         startPanelDismissMonitor()
+    }
+
+    private func preferredPanelHeight(showFooterActions: Bool) -> CGFloat {
+        let config = StorageService.shared.loadConfig()
+        let enabledGroups = config.groups.filter { $0.enabled }
+
+        let topChrome: CGFloat = 41
+        let divider: CGFloat = 1
+        let footer: CGFloat = showFooterActions ? 31 : 0
+        let outerPadding: CGFloat = 10
+        let groupTitleHeight: CGFloat = 16
+        let rowHeight: CGFloat = 28
+        let groupDivider: CGFloat = 8
+
+        var contentHeight: CGFloat = topChrome + divider + footer + outerPadding
+        for (index, group) in enabledGroups.enumerated() {
+            if !group.name.isEmpty {
+                contentHeight += groupTitleHeight
+            }
+
+            let enabledItems = group.items.filter { $0.enabled }.count
+            contentHeight += CGFloat(enabledItems) * rowHeight
+
+            if index != enabledGroups.count - 1 {
+                contentHeight += groupDivider
+            }
+        }
+
+        let minHeight: CGFloat = showFooterActions ? 392 : 360
+        let maxHeight: CGFloat = showFooterActions ? 560 : 520
+        return min(max(contentHeight, minHeight), maxHeight)
     }
 
     private func closePanel() {
@@ -681,7 +762,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             settingsHostingController = hostingController
 
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 860, height: 620),
+                contentRect: NSRect(x: 0, y: 0, width: 1120, height: 740),
                 styleMask: [.titled, .closable, .miniaturizable, .resizable],
                 backing: .buffered,
                 defer: false
@@ -690,8 +771,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.isReleasedWhenClosed = false
             window.title = LocaleManager.shared.localized("app.settings.title")
             window.titlebarAppearsTransparent = true
-            window.backgroundColor = .clear
-            window.isOpaque = false
+            window.backgroundColor = .windowBackgroundColor
+            window.isOpaque = true
             window.contentViewController = hostingController
             window.center()
             settingsWindow = window
@@ -710,6 +791,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             settingsHostingController?.rootView = AppSettingsView()
             settingsWindow?.title = LocaleManager.shared.localized("app.settings.title")
+            settingsWindow?.backgroundColor = .windowBackgroundColor
+            settingsWindow?.isOpaque = true
         }
 
         guard let settingsWindow else { return }

@@ -10,15 +10,15 @@ struct CommandItemRow: View {
     var onHover: ((Bool) -> Void)?
     var onClose: (() -> Void)?
     @State private var isExecuting = false
-    private let hoverTint = Color(red: 0.28, green: 0.28, blue: 0.30)
+    private let hoverTint = Color(nsColor: .controlAccentColor).opacity(0.92)
 
     var body: some View {
         HStack(spacing: 8) {
-            CommandIconChip(item: item, isSelected: isHovered, size: 20)
+            CommandIconChip(item: item, isSelected: isHovered, size: 16)
 
             Text(DefaultItemNameMapping.localizedItemName(item.name))
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.primary)
+                .font(.system(size: 11.5, weight: .regular))
+                .foregroundStyle(isHovered ? .white : .primary)
                 .lineLimit(1)
 
             Spacer()
@@ -28,10 +28,10 @@ struct CommandItemRow: View {
                     .controlSize(.small)
             }
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 4)
+        .frame(minHeight: 26)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 1.5)
         .background(hoverGlassBackground)
-        .overlay(hoverGlassStroke)
         .contentShape(Rectangle())
         .onHover { hovering in
             onHover?(hovering)
@@ -46,20 +46,11 @@ struct CommandItemRow: View {
     @ViewBuilder
     private var hoverGlassBackground: some View {
         if isHovered {
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(hoverTint.opacity(0.22))
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(hoverTint)
         } else {
             Color.clear
         }
-    }
-
-    @ViewBuilder
-    private var hoverGlassStroke: some View {
-        RoundedRectangle(cornerRadius: 7, style: .continuous)
-            .stroke(
-                isHovered ? Color.white.opacity(0.08) : Color.clear,
-                lineWidth: 1
-            )
     }
 
     private func executeCommand() {

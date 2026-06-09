@@ -113,7 +113,7 @@ struct AppSettings: Codable {
     var hotkey: HotkeyConfiguration?
     var launchAtLogin: Bool = false
     var showNotifications: Bool = true
-    var interceptRightClick: Bool = true
+    var interceptRightClick: Bool = false
 
     init() {}
 
@@ -129,7 +129,7 @@ struct AppSettings: Codable {
         hotkey = try container.decodeIfPresent(HotkeyConfiguration.self, forKey: .hotkey)
         launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         showNotifications = try container.decodeIfPresent(Bool.self, forKey: .showNotifications) ?? true
-        interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? true
+        interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? false
     }
 }
 

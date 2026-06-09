@@ -10,12 +10,11 @@ struct GroupSectionView: View {
     var onClose: (() -> Void)?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 1) {
+        VStack(alignment: .leading, spacing: 0) {
             if !group.name.isEmpty {
                 Text(groupName)
-                    .font(.system(size: 9, weight: .semibold))
-                    .textCase(.uppercase)
-                    .foregroundColor(.secondary.opacity(0.78))
+                    .font(.system(size: 8.5, weight: .semibold))
+                    .foregroundColor(.secondary.opacity(0.75))
                     .padding(.horizontal, 12)
                     .padding(.top, 5)
                     .padding(.bottom, 2)
@@ -43,7 +42,7 @@ struct GroupSectionView: View {
                     }
                 }
             }
-            .padding(.horizontal, 7)
+            .padding(.horizontal, 3)
         }
     }
 

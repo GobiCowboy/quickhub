@@ -9,57 +9,16 @@ struct AppSettingsView: View {
     @State private var refreshTrigger = false  // 用于触发视图刷新
 
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .ignoresSafeArea()
+        HStack(spacing: 0) {
+            sidebar
 
-            HSplitView {
-                VStack(alignment: .leading, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Label("QuickHub", systemImage: "command.circle.fill")
-                            .font(.system(size: 17, weight: .semibold))
+            Divider()
+                .opacity(0.65)
 
-                        Text(localized("settings.subtitle"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.top, 16)
-
-                    List(selection: $selectedCategory) {
-                        ForEach(SettingsCategory.allCases, id: \.self) { category in
-                            Label(category.title, systemImage: category.icon)
-                                .font(.system(size: 13))
-                                .tag(category)
-                        }
-                    }
-                    .listStyle(.sidebar)
-                    .scrollContentBackground(.hidden)
-                }
-                .frame(width: 180)
-                .background(.regularMaterial)
-
-                Group {
-                    switch selectedCategory {
-                    case .newFile:
-                        NewFileSettingsView(config: $config, onEdit: { editingItem = $0 })
-                    case .openApp:
-                        OpenAppSettingsView(config: $config, onEdit: { editingItem = $0 })
-                    case .openFolder:
-                        OpenFolderSettingsView(config: $config, onEdit: { editingItem = $0 })
-                    case .shell:
-                        ShellCommandSettingsView(config: $config, onEdit: { editingItem = $0 })
-                    case .menuSort:
-                        MenuSortSettingsView(config: $config)
-                    case .general:
-                        GeneralSettingsView()
-                    }
-                }
-                .frame(minWidth: 520)
-            }
+            detailPane
         }
-        .frame(minWidth: 820, minHeight: 560)
+        .frame(minWidth: 1020, minHeight: 700)
+        .background(Color(nsColor: .windowBackgroundColor))
         .sheet(item: $editingItem) { item in
             ItemEditorSheet(item: item, onSave: {
                 config = StorageService.shared.loadConfig()
@@ -78,6 +37,56 @@ struct AppSettingsView: View {
             }
         }
     }
+
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Label("QuickHub", systemImage: "command.circle.fill")
+                    .font(.system(size: 18, weight: .semibold))
+
+                Text(localized("settings.subtitle"))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 18)
+
+            List(selection: $selectedCategory) {
+                ForEach(SettingsCategory.allCases, id: \.self) { category in
+                    Label(category.title, systemImage: category.icon)
+                        .font(.system(size: 13, weight: .medium))
+                        .tag(category)
+                        .padding(.vertical, 2)
+                }
+            }
+            .listStyle(.sidebar)
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+        }
+        .frame(width: 250)
+        .background(Color(nsColor: .controlBackgroundColor))
+    }
+
+    private var detailPane: some View {
+        Group {
+            switch selectedCategory {
+            case .newFile:
+                NewFileSettingsView(config: $config, onEdit: { editingItem = $0 })
+            case .openApp:
+                OpenAppSettingsView(config: $config, onEdit: { editingItem = $0 })
+            case .openFolder:
+                OpenFolderSettingsView(config: $config, onEdit: { editingItem = $0 })
+            case .shell:
+                ShellCommandSettingsView(config: $config, onEdit: { editingItem = $0 })
+            case .menuSort:
+                MenuSortSettingsView(config: $config)
+            case .general:
+                GeneralSettingsView()
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(Color(nsColor: .windowBackgroundColor))
+    }
 }
 
 struct SettingsPageHeader: View {
@@ -89,10 +98,10 @@ struct SettingsPageHeader: View {
         HStack(spacing: 12) {
             ZStack {
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
-                    .fill(.thinMaterial)
+                    .fill(Color.accentColor.opacity(0.10))
                     .overlay(
                         RoundedRectangle(cornerRadius: 9, style: .continuous)
-                            .fill(Color.accentColor.opacity(0.12))
+                            .stroke(Color.accentColor.opacity(0.12), lineWidth: 1)
                     )
 
                 Image(systemName: icon)
@@ -140,13 +149,12 @@ struct SettingsSurface<Content: View>: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(.ultraThinMaterial)
+                .fill(Color(nsColor: .windowBackgroundColor))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(Color.white.opacity(0.16), lineWidth: 1)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.08), radius: 12, y: 5)
     }
 }
 
@@ -227,7 +235,11 @@ struct CommandSettingRow: View {
         .padding(.vertical, 7)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color.primary.opacity(0.035))
+                .fill(Color(nsColor: .windowBackgroundColor))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Color.primary.opacity(0.07), lineWidth: 1)
         )
     }
 }

@@ -6,7 +6,7 @@ import Carbon
 struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var showNotifications = true
-    @State private var interceptRightClick = true
+    @State private var interceptRightClick = false
     @StateObject private var hotkeyRecorder = HotkeyRecorderViewModel()
     @StateObject private var localeManager = LocaleManager.shared
 

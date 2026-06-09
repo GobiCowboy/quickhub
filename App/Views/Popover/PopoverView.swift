@@ -23,7 +23,11 @@ class ConfigObserver: ObservableObject {
 // MARK: - PopoverView
 
 struct PopoverView: View {
+    let panelWidth: CGFloat
+    let panelHeight: CGFloat
+    let showsFooterActions: Bool
     var onClose: (() -> Void)?
+    private let panelCornerRadius: CGFloat = 16
 
     @State private var searchText = ""
     @State private var hoveredGroupId: UUID?
@@ -50,12 +54,12 @@ struct PopoverView: View {
         VStack(spacing: 0) {
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.secondary)
 
                 TextField(localized("popover.search_placeholder"), text: $searchText)
                     .textFieldStyle(.plain)
-                    .font(.system(size: 13, weight: .regular))
+                    .font(.system(size: 12, weight: .regular))
                     .focused($isSearching)
                     .onSubmit {
                         executeFirstItem()
@@ -72,30 +76,29 @@ struct PopoverView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 11)
+            .padding(.horizontal, 13)
             .padding(.vertical, 9)
-            .background(Color.primary.opacity(0.018))
 
             Divider()
-                .opacity(0.65)
+                .opacity(0.42)
 
             // 命令列表
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 3) {
+                LazyVStack(alignment: .leading, spacing: 0) {
                     let groups = filteredGroups
 
                     if groups.isEmpty {
-                        VStack(spacing: 8) {
+                        VStack(spacing: 6) {
                             Image(systemName: "magnifyingglass")
-                                .font(.system(size: 22))
+                                .font(.system(size: 20))
                                 .foregroundColor(.secondary.opacity(0.7))
 
                             Text(localized("popover.no_results"))
-                                .font(.system(size: 13))
+                                .font(.system(size: 11.5))
                                 .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 44)
+                        .padding(.top, 36)
                     } else {
                         ForEach(groups) { group in
                             GroupSectionView(
@@ -108,38 +111,42 @@ struct PopoverView: View {
 
                             if group.id != groups.last?.id {
                                 Divider()
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 3)
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 2)
                             }
                         }
                     }
                 }
-                .padding(.vertical, 6)
+                .padding(.vertical, 4)
+                .padding(.horizontal, 3)
             }
             .scrollContentBackground(.hidden)
 
-            Divider()
-                .opacity(0.65)
+            if showsFooterActions {
+                Divider()
+                    .opacity(0.42)
 
-            HStack {
-                Text("QuickHub")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    Spacer()
 
-                Spacer()
+                    footerButton(systemName: "gearshape", accessibilityLabel: localized("app.settings.title")) {
+                        openSettings()
+                    }
 
-                footerButton(systemName: "gearshape", action: openSettings)
-                footerButton(systemName: "power", action: quitApp)
+                    footerButton(systemName: "power", accessibilityLabel: localized("common.quit")) {
+                        quitApp()
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
         }
-        .frame(width: 292, height: 390)
+        .frame(width: panelWidth, height: panelHeight)
         .background(VisualEffectBackground())
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: panelCornerRadius, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.white.opacity(0.07), lineWidth: 1)
+            RoundedRectangle(cornerRadius: panelCornerRadius, style: .continuous)
+                .stroke(Color.primary.opacity(0.06), lineWidth: 1)
         )
         .onAppear {
             configObserver.refresh()
@@ -189,26 +196,28 @@ struct PopoverView: View {
         NSApplication.shared.terminate(nil)
     }
 
-    private func footerButton(systemName: String, action: @escaping () -> Void) -> some View {
+    private func footerButton(systemName: String, accessibilityLabel: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 12, weight: .medium))
+                .font(.system(size: 11.5, weight: .medium))
                 .foregroundStyle(.secondary)
-                .frame(width: 24, height: 22)
+                .frame(width: 22, height: 20)
                 .background(
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(Color.primary.opacity(0.035))
+                        .fill(Color.primary.opacity(0.04))
                 )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(Text(accessibilityLabel))
     }
+
 }
 
 // 供实现系统菜单模糊背景
 struct VisualEffectBackground: NSViewRepresentable {
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
-        view.material = .popover
+        view.material = .menu
         view.blendingMode = .behindWindow
         view.state = .active
         return view
