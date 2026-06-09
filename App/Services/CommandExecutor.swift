@@ -563,9 +563,11 @@ private final class InternalFileInfoPresenter {
         guard !records.isEmpty else { return }
 
         let hostingController = NSHostingController(rootView: FileInfoPanelView(records: records))
+        let panelSize = panelSize(for: records.count)
+        let frame = frameForPanel(size: panelSize)
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 320),
-            styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
+            contentRect: frame,
+            styleMask: [.titled, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
@@ -576,8 +578,10 @@ private final class InternalFileInfoPresenter {
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hidesOnDeactivate = true
+        panel.animationBehavior = .none
         panel.titleVisibility = .hidden
         panel.titlebarAppearsTransparent = true
+        panel.standardWindowButton(.closeButton)?.isHidden = true
         panel.standardWindowButton(.miniaturizeButton)?.isHidden = true
         panel.standardWindowButton(.zoomButton)?.isHidden = true
 
@@ -586,26 +590,30 @@ private final class InternalFileInfoPresenter {
         }
         self.panel = panel
 
-        position(panel: panel)
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    private func position(panel: NSPanel) {
+    private func panelSize(for recordCount: Int) -> NSSize {
+        let height = min(560, max(240, CGFloat(recordCount) * 180))
+        return NSSize(width: 520, height: height)
+    }
+
+    private func frameForPanel(size: NSSize) -> NSRect {
         let mouseLocation = NSEvent.mouseLocation
-        guard let screen = NSScreen.main else {
-            panel.center()
-            return
+        let screen = screen(at: mouseLocation) ?? NSScreen.main
+        guard let screen else {
+            return NSRect(x: mouseLocation.x, y: mouseLocation.y - size.height, width: size.width, height: size.height)
         }
 
         let screenFrame = screen.visibleFrame
         var origin = NSPoint(
             x: mouseLocation.x,
-            y: mouseLocation.y - panel.frame.height
+            y: mouseLocation.y - size.height
         )
 
-        if origin.x + panel.frame.width > screenFrame.maxX {
-            origin.x = screenFrame.maxX - panel.frame.width
+        if origin.x + size.width > screenFrame.maxX {
+            origin.x = screenFrame.maxX - size.width
         }
         if origin.x < screenFrame.minX {
             origin.x = screenFrame.minX
@@ -613,11 +621,17 @@ private final class InternalFileInfoPresenter {
         if origin.y < screenFrame.minY {
             origin.y = screenFrame.minY
         }
-        if origin.y + panel.frame.height > screenFrame.maxY {
-            origin.y = screenFrame.maxY - panel.frame.height
+        if origin.y + size.height > screenFrame.maxY {
+            origin.y = screenFrame.maxY - size.height
         }
 
-        panel.setFrameOrigin(origin)
+        return NSRect(origin: origin, size: size)
+    }
+
+    private func screen(at location: NSPoint) -> NSScreen? {
+        NSScreen.screens.first { screen in
+            NSMouseInRect(location, screen.frame, false)
+        }
     }
 
     private func fallbackURLs(from context: ExecutionContext) -> [URL] {
