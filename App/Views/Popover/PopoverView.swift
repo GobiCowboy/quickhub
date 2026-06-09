@@ -189,9 +189,21 @@ struct PopoverView: View {
     }
 
     private func visibleItems(in group: CommandGroup) -> [CommandItem] {
-        group.items.filter { item in
+        let matchedItems = group.items.filter { item in
             guard item.enabled else { return false }
-            return searchText.isEmpty || PinyinMatcher.match(item.name, query: searchText)
+            return searchText.isEmpty || PinyinMatcher.score(item: item, query: searchText) > 0
+        }
+
+        guard !searchText.isEmpty else { return matchedItems }
+
+        return matchedItems.sorted { lhs, rhs in
+            let lhsScore = PinyinMatcher.score(item: lhs, query: searchText)
+            let rhsScore = PinyinMatcher.score(item: rhs, query: searchText)
+
+            if lhsScore != rhsScore {
+                return lhsScore > rhsScore
+            }
+            return DefaultItemNameMapping.localizedItemName(lhs.name) < DefaultItemNameMapping.localizedItemName(rhs.name)
         }
     }
 

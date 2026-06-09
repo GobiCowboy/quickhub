@@ -10,9 +10,7 @@ struct GroupSectionView: View {
     var onClose: (() -> Void)?
 
     var body: some View {
-        let visibleItems = group.items.filter { item in
-            item.enabled && (searchText.isEmpty || PinyinMatcher.match(item.name, query: searchText))
-        }
+        let visibleItems = filteredItems
 
         if !visibleItems.isEmpty {
             VStack(alignment: .leading, spacing: 0) {
@@ -51,5 +49,23 @@ struct GroupSectionView: View {
     /// 本地化的组名
     private var groupName: String {
         DefaultGroupNameMapping.localizedGroupName(group.name)
+    }
+
+    private var filteredItems: [CommandItem] {
+        let matchedItems = group.items.filter { item in
+            item.enabled && (searchText.isEmpty || PinyinMatcher.score(item: item, query: searchText) > 0)
+        }
+
+        guard !searchText.isEmpty else { return matchedItems }
+
+        return matchedItems.sorted { lhs, rhs in
+            let lhsScore = PinyinMatcher.score(item: lhs, query: searchText)
+            let rhsScore = PinyinMatcher.score(item: rhs, query: searchText)
+
+            if lhsScore != rhsScore {
+                return lhsScore > rhsScore
+            }
+            return DefaultItemNameMapping.localizedItemName(lhs.name) < DefaultItemNameMapping.localizedItemName(rhs.name)
+        }
     }
 }
