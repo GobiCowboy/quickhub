@@ -416,10 +416,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     fileprivate func shouldInterceptRightClick(at point: CGPoint) -> Bool {
-        if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder" {
-            return true
-        }
-
         return isPointOnFinderManagedSurface(at: point)
     }
 
@@ -474,7 +470,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         logger.debug("Right click point \(point.debugDescription, privacy: .public) did not hit any on-screen window")
-        return true
+        return false
     }
 
     private struct AccessibilityHit {
@@ -506,13 +502,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let normalizedTitle = title.lowercased()
         let normalizedDescription = description.lowercased()
 
-        let shouldIntercept =
-            normalizedOwner.contains("finder") ||
-            normalizedOwner.contains("dock") ||
+        let isDesktopSurface =
             normalizedRole.contains("desktop") ||
             normalizedSubrole.contains("desktop") ||
             normalizedTitle.contains("desktop") ||
             normalizedDescription.contains("desktop")
+
+        let shouldIntercept =
+            normalizedOwner.contains("finder") ||
+            isDesktopSurface
 
         return AccessibilityHit(
             owner: owner,
