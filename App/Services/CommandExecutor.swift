@@ -95,6 +95,11 @@ class CommandExecutor: CommandExecutorProtocol {
             let task = Process()
             task.executableURL = URL(fileURLWithPath: "/bin/zsh")
             task.arguments = ["-c", command]
+            task.environment = {
+                var env = ProcessInfo.processInfo.environment
+                env["LANG"] = "en_US.UTF-8"
+                return env
+            }()
 
             let pipe = Pipe()
             task.standardOutput = pipe
