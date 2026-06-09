@@ -71,6 +71,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     fileprivate var rightClickEventTap: CFMachPort?
     private var rightClickRunLoopSource: CFRunLoopSource?
     private var welcomeWindow: NSWindow?
+    private var accessibilityAlertShown = false
     // 保存当前 Finder 选中项，在面板打开时获取
     private var currentFinderSelection: [URL] = []
 
@@ -212,11 +213,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 检查辅助功能权限（全局快捷键需要）
     private func checkAccessibilityPermission() {
-        let promptKey = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
-        let options = [promptKey: true] as CFDictionary
-        _ = AXIsProcessTrustedWithOptions(options)
-
-        // 先检查是否已有权限（不弹出系统对话框）
         let trusted = AXIsProcessTrusted()
         print("[AppDelegate] 辅助功能权限检查: AXIsProcessTrusted() = \(trusted)")
         print("[AppDelegate] 进程路径: \(Bundle.main.bundlePath)")
@@ -227,13 +223,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         print("[AppDelegate] 辅助功能权限未授予，全局快捷键可能无法工作")
-        // 提示用户手动去设置
-        DispatchQueue.main.async {
-            self.showAccessibilityAlert()
+        DispatchQueue.main.async { [weak self] in
+            self?.showAccessibilityAlert()
         }
     }
 
     private func showAccessibilityAlert() {
+        guard !accessibilityAlertShown else { return }
+        accessibilityAlertShown = true
+
         let alert = NSAlert()
         alert.messageText = localized("app.accessibility.title")
         alert.informativeText = localized("app.accessibility.message")
@@ -247,6 +245,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 NSWorkspace.shared.open(url)
             }
         }
+
+        accessibilityAlertShown = false
     }
 
     private func setupStatusItem() {
@@ -688,7 +688,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func preferredPanelHeight(showFooterActions: Bool) -> CGFloat {
         let config = StorageService.shared.loadConfig()
-        let enabledGroups = config.groups.filter { $0.enabled }
+        let enabledGroups = config.groups.filter { group in
+            group.enabled && group.items.contains(where: { $0.enabled })
+        }
 
         let topChrome: CGFloat = 41
         let divider: CGFloat = 1
@@ -756,6 +758,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func openSettings() {
         closePanel()
 
+        var needsDeferredCentering = false
         if settingsWindow == nil {
             let settingsView = AppSettingsView()
             let hostingController = NSHostingController(rootView: settingsView)
@@ -774,8 +777,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.backgroundColor = .windowBackgroundColor
             window.isOpaque = true
             window.contentViewController = hostingController
-            window.center()
             settingsWindow = window
+            needsDeferredCentering = true
 
             if languageObserver == nil {
                 languageObserver = NotificationCenter.default.addObserver(
@@ -790,14 +793,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         } else {
             settingsHostingController?.rootView = AppSettingsView()
-            settingsWindow?.title = LocaleManager.shared.localized("app.settings.title")
-            settingsWindow?.backgroundColor = .windowBackgroundColor
-            settingsWindow?.isOpaque = true
         }
 
         guard let settingsWindow else { return }
+        settingsWindow.title = LocaleManager.shared.localized("app.settings.title")
+        settingsWindow.backgroundColor = .windowBackgroundColor
+        settingsWindow.isOpaque = true
+        centerSettingsWindow(settingsWindow)
         settingsWindow.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+
+        if needsDeferredCentering {
+            DispatchQueue.main.async { [weak self] in
+                guard let settingsWindow = self?.settingsWindow else { return }
+                self?.centerSettingsWindow(settingsWindow)
+            }
+        }
+    }
+
+    private func centerSettingsWindow(_ window: NSWindow) {
+        guard let screen = window.screen ?? NSScreen.main else {
+            window.center()
+            return
+        }
+
+        let visibleFrame = screen.visibleFrame
+        let frame = window.frame
+        let x = visibleFrame.midX - frame.width / 2
+        let y = visibleFrame.midY - frame.height / 2
+        window.setFrameOrigin(NSPoint(x: x, y: y))
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

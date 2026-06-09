@@ -25,7 +25,7 @@ class StorageService: StorageServiceProtocol {
         // 加载配置
         config = StorageService.loadConfig(from: configPath)
 
-        // 如果没有默认配置，注册示例
+        // 如果没有默认配置，保留空状态，由用户自己添加需要的启动项
         if config.groups.isEmpty {
             config.groups = Self.defaultGroups()
         }
@@ -49,6 +49,14 @@ class StorageService: StorageServiceProtocol {
 
         if config.settings.hotkey == HotkeyConfiguration.legacyDefaultHotkey {
             config.settings.hotkey = HotkeyConfiguration.defaultHotkey
+            changed = true
+        }
+
+        if config.settings.legacyDefaultsPrunedRevision < 2 {
+            if pruneLegacyStarterItems() {
+                changed = true
+            }
+            config.settings.legacyDefaultsPrunedRevision = 2
             changed = true
         }
 
@@ -126,96 +134,59 @@ class StorageService: StorageServiceProtocol {
     // MARK: - 默认配置
 
     static func defaultGroups() -> [CommandGroup] {
-        return [
-            CommandGroup(
-                name: "新建文件/文件夹",
-                icon: "folder.badge.plus",
-                items: [
-                    CommandItem(
-                        name: "新建文件夹",
-                        icon: "folder.badge.plus",
-                        type: .createFolder
-                    )
-                ]
-            ),
-            CommandGroup(
-                name: "打开文件夹",
-                icon: "folder",
-                items: [
-                    CommandItem(
-                        name: "桌面",
-                        icon: "desktopcomputer",
-                        type: .openFinder,
-                        targetPath: "~/Desktop"
-                    ),
-                    CommandItem(
-                        name: "下载",
-                        icon: "arrow.down.circle.fill",
-                        type: .openFinder,
-                        targetPath: "~/Downloads"
-                    )
-                ]
-            ),
-            CommandGroup(
-                name: "打开应用",
-                icon: "app",
-                items: [
-                    CommandItem(
-                        name: "终端",
-                        icon: "terminal",
-                        type: .openApp,
-                        targetPath: "/Applications/Utilities/Terminal.app"
-                    )
-                ]
-            ),
-            CommandGroup(
-                name: "命令",
-                icon: "terminal",
-                items: {
-                    var items: [CommandItem] = [
-                        CommandItem(
-                            name: "文件信息",
-                            icon: "info.circle",
-                            type: .shell,
-                            command: InternalShellCommand.fileInfo,
-                            openInTerminal: false
-                        ),
-                        CommandItem(
-                            name: "复制路径",
-                            icon: "doc.on.doc",
-                            type: .copyPath,
-                            command: nil,
-                            openInTerminal: false
-                        )
-                    ]
+        return []
+    }
 
-                    if AppAvailability.isInstalled(bundleIdentifiers: ["com.microsoft.VSCode", "com.microsoft.VSCodeInsiders"], appPaths: ["/Applications/Visual Studio Code.app"]) {
-                        items.append(
-                            CommandItem(
-                                name: "在 VS Code 打开",
-                                icon: "chevron.left.forwardslash.chevron.right",
-                                type: .shell,
-                                command: "open -b com.microsoft.VSCode '{dir}'",
-                                openInTerminal: false
-                            )
-                        )
-                    }
+    private func pruneLegacyStarterItems() -> Bool {
+        var changed = false
 
-                    if AppAvailability.isInstalled(bundleIdentifiers: ["com.github.atom"], appPaths: ["/Applications/Atom.app"]) {
-                        items.append(
-                            CommandItem(
-                                name: "在 Atom 打开",
-                                icon: "circle.grid.3x3.fill",
-                                type: .shell,
-                                command: "open -b com.github.atom '{dir}'",
-                                openInTerminal: false
-                            )
-                        )
-                    }
+        func pruneItems(in groupName: String, shouldRemove: (CommandItem) -> Bool) {
+            guard let groupIndex = config.groups.firstIndex(where: { $0.name == groupName }) else { return }
+            let originalCount = config.groups[groupIndex].items.count
+            config.groups[groupIndex].items.removeAll(where: shouldRemove)
+            if config.groups[groupIndex].items.count != originalCount {
+                changed = true
+            }
+        }
 
-                    return items
-                }()
-            )
-        ]
+        pruneItems(in: "新建文件/文件夹") { item in
+            item.type == .createFolder && item.name == "新建文件夹"
+        }
+
+        pruneItems(in: "打开文件夹") { item in
+            item.type == .openFinder && (item.name == "桌面" || item.name == "下载")
+        }
+
+        pruneItems(in: "打开应用") { item in
+            let terminalPaths = [
+                "/Applications/Utilities/Terminal.app",
+                "/System/Applications/Utilities/Terminal.app"
+            ]
+
+            if item.type == .openApp {
+                return item.name == "终端"
+                    || item.name == "Terminal"
+                    || item.targetPath.map { terminalPaths.contains($0) } == true
+            }
+
+            if item.type == .shell {
+                return item.name == "终端"
+                    || item.name == "Terminal"
+                    || item.command?.contains("Terminal") == true
+                    || item.command?.contains("open -a Terminal") == true
+                    || item.command?.contains("com.apple.Terminal") == true
+            }
+
+            return false
+        }
+
+        pruneItems(in: "命令") { item in
+            (item.type == .shell && item.name == "文件信息" && item.command == InternalShellCommand.fileInfo)
+                || (item.type == .copyPath && item.name == "复制路径")
+                || (item.type == .shell && item.name == "在 VS Code 打开")
+                || (item.type == .shell && item.name == "在 Atom 打开")
+        }
+
+        return changed
     }
 }

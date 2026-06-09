@@ -38,16 +38,20 @@ struct PopoverView: View {
 
     // 面板过滤逻辑 - 使用计算属性（SwiftUI 标准推荐）
     private var filteredGroups: [CommandGroup] {
-        let groups = configObserver.config.groups.filter { $0.enabled }
+        let groups = configObserver.config.groups.filter { group in
+            guard group.enabled else { return false }
+
+            let visibleItems = visibleItems(in: group)
+            return !visibleItems.isEmpty
+        }
+
         if searchText.isEmpty { return groups }
 
         return groups.map { group in
             var filteredGroup = group
-            filteredGroup.items = group.items.filter { item in
-                item.enabled && PinyinMatcher.match(item.name, query: searchText)
-            }
+            filteredGroup.items = visibleItems(in: group)
             return filteredGroup
-        }.filter { !$0.items.isEmpty }
+        }
     }
 
     var body: some View {
@@ -181,6 +185,13 @@ struct PopoverView: View {
             } catch {
                 print(localized("[PopoverView] popover.no_results"))
             }
+        }
+    }
+
+    private func visibleItems(in group: CommandGroup) -> [CommandItem] {
+        group.items.filter { item in
+            guard item.enabled else { return false }
+            return searchText.isEmpty || PinyinMatcher.match(item.name, query: searchText)
         }
     }
 

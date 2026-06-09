@@ -114,6 +114,7 @@ struct AppSettings: Codable {
     var launchAtLogin: Bool = false
     var showNotifications: Bool = true
     var interceptRightClick: Bool = false
+    var legacyDefaultsPrunedRevision: Int = 0
 
     init() {}
 
@@ -122,6 +123,7 @@ struct AppSettings: Codable {
         case launchAtLogin
         case showNotifications
         case interceptRightClick
+        case legacyDefaultsPrunedRevision
     }
 
     init(from decoder: Decoder) throws {
@@ -130,6 +132,7 @@ struct AppSettings: Codable {
         launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         showNotifications = try container.decodeIfPresent(Bool.self, forKey: .showNotifications) ?? true
         interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? false
+        legacyDefaultsPrunedRevision = try container.decodeIfPresent(Int.self, forKey: .legacyDefaultsPrunedRevision) ?? 0
     }
 }
 

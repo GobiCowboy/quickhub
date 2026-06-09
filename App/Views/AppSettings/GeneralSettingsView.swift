@@ -77,7 +77,7 @@ struct GeneralSettingsView: View {
                 SettingsSurface(title: localized("settings.general.section.about"), systemImage: "info.circle") {
                     VStack(spacing: 8) {
                         SettingsValueRow(title: localized("settings.general.version"), icon: "app.badge") {
-                            Text("1.0.0")
+                            Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.3.6")
                                 .font(.system(size: 12))
                                 .foregroundColor(.secondary)
                         }
