@@ -35,8 +35,11 @@ fileprivate func rightClickEventTapCallback(
         return Unmanaged.passUnretained(event)
     }
 
+    // 用 Accessibility API 判断是否点击在桌面表面
+    let clickedOnDesktop = appDelegate.isClickOnDesktopSurface(at: event.location)
+
     DispatchQueue.main.async {
-        appDelegate.handleInterceptedRightClick()
+        appDelegate.handleInterceptedRightClick(clickedOnDesktop: clickedOnDesktop)
     }
 
     return nil
@@ -303,7 +306,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let newPanel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: 280, height: height),
-            styleMask: [.titled, .closable, .nonactivatingPanel, .fullSizeContentView],
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
@@ -566,15 +569,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         rightClickEventTap = nil
     }
 
-    fileprivate func handleInterceptedRightClick() {
-        // 必须在 AppleScript 之前检查 Finder 是否前台
-        finderWasActive = NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder"
+    fileprivate func handleInterceptedRightClick(clickedOnDesktop: Bool) {
+        let finderIsFront = NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder"
+        finderWasActive = !clickedOnDesktop && finderIsFront
         let selection = syncGetFinderSelection()
         currentFinderSelection = selection
-        print("[RightClick] 右键打开面板，Finder 选择: \(selection.map { $0.lastPathComponent })")
+
         logger.info("Right click intercepted; opening panel")
         closePanel()
         showPanel(source: .rightClick)
+    }
+
+    /// 判断点击是否在桌面表面
+    fileprivate func isClickOnDesktopSurface(at point: CGPoint) -> Bool {
+        guard let hit = accessibilityHitUnderCursor(at: point) else { return true }
+        let isDesktop =
+            hit.subrole.lowercased().contains("desktop") ||
+            hit.role.lowercased().contains("desktop") ||
+            hit.title.lowercased().contains("desktop") ||
+            hit.description.lowercased().contains("desktop")
+        if isDesktop { return true }
+        // owner 不是 Finder → 可能是桌面
+        return !hit.owner.lowercased().contains("finder")
     }
 
     /// 同步获取 Finder 选择（阻塞直到完成）

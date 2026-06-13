@@ -46,18 +46,13 @@ enum UserInputHelper {
             // 激活应用
             NSApp.activate(ignoringOtherApps: true)
 
-            // 创建一个临时窗口作为 sheet 的父窗口，定位到鼠标位置附近
+            // 创建一个透明的临时窗口作为 sheet 的父窗口
             let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+            tempWindow.isOpaque = false
+            tempWindow.backgroundColor = .clear
             tempWindow.level = .floating
             let mouseLocation = NSEvent.mouseLocation
-            let alertSize = NSSize(width: 320, height: 140)
-            // Create 按钮在右下角，让窗口右下角靠近鼠标
-            let windowOrigin = NSPoint(
-                x: mouseLocation.x - alertSize.width + 20,
-                y: mouseLocation.y - 20
-            )
-            tempWindow.setFrame(NSRect(origin: windowOrigin, size: alertSize), display: true)
-            tempWindow.makeKeyAndOrderFront(nil)
+            tempWindow.setFrame(NSRect(origin: NSPoint(x: mouseLocation.x, y: mouseLocation.y + 170), size: NSSize(width: 1, height: 1)), display: false)
 
             // 显示 sheet 并在显示后聚焦输入框
             alert.beginSheetModal(for: tempWindow) { response in
@@ -100,17 +95,13 @@ enum UserInputHelper {
             // 激活应用
             NSApp.activate(ignoringOtherApps: true)
 
-            // 创建一个临时窗口作为 sheet 的父窗口，定位到鼠标位置附近
+            // 创建一个透明的临时窗口作为 sheet 的父窗口
             let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+            tempWindow.isOpaque = false
+            tempWindow.backgroundColor = .clear
             tempWindow.level = .floating
             let mouseLocation = NSEvent.mouseLocation
-            let alertSize = NSSize(width: 320, height: 140)
-            let windowOrigin = NSPoint(
-                x: mouseLocation.x - alertSize.width + 20,
-                y: mouseLocation.y - 20
-            )
-            tempWindow.setFrame(NSRect(origin: windowOrigin, size: alertSize), display: true)
-            tempWindow.makeKeyAndOrderFront(nil)
+            tempWindow.setFrame(NSRect(origin: NSPoint(x: mouseLocation.x, y: mouseLocation.y + 170), size: NSSize(width: 1, height: 1)), display: false)
 
             // 显示 sheet 并在显示后聚焦输入框
             alert.beginSheetModal(for: tempWindow) { response in
