@@ -726,6 +726,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func openSettings() {
+        CommandExecutor.shared.dismissFileInfoPanel()
         closePanel()
 
         var needsDeferredCentering = false

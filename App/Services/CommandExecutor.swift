@@ -11,6 +11,12 @@ class CommandExecutor: CommandExecutorProtocol {
 
     private init() {}
 
+    func dismissFileInfoPanel() {
+        MainActor.assumeIsolated {
+            InternalFileInfoPresenter.shared.dismiss()
+        }
+    }
+
     /// 执行命令
     func execute(_ item: CommandItem, context: ExecutionContext) async throws -> ExecutionResult {
         switch item.type {
@@ -559,6 +565,33 @@ private final class InternalFileInfoPresenter {
     static let shared = InternalFileInfoPresenter()
 
     private var panel: NSPanel?
+    private var dismissMonitor: Any?
+
+    func dismiss() {
+        if let monitor = dismissMonitor {
+            NSEvent.removeMonitor(monitor)
+            dismissMonitor = nil
+        }
+        panel?.orderOut(nil)
+        panel = nil
+    }
+
+    private func startDismissMonitor() {
+        stopDismissMonitor()
+        dismissMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .keyDown]) { [weak self] _ in
+            guard let self = self, self.panel?.isVisible == true else { return }
+            DispatchQueue.main.async {
+                self.dismiss()
+            }
+        }
+    }
+
+    private func stopDismissMonitor() {
+        if let monitor = dismissMonitor {
+            NSEvent.removeMonitor(monitor)
+            dismissMonitor = nil
+        }
+    }
 
     func present(using context: ExecutionContext) {
         let selection = AppDelegate.shared?.getSavedFinderSelection() ?? []
@@ -582,7 +615,7 @@ private final class InternalFileInfoPresenter {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.backgroundColor = .clear
         panel.isOpaque = false
-        panel.hidesOnDeactivate = true
+        panel.hidesOnDeactivate = false
         panel.animationBehavior = .none
         panel.titleVisibility = .hidden
         panel.titlebarAppearsTransparent = true
@@ -596,6 +629,7 @@ private final class InternalFileInfoPresenter {
         self.panel = panel
 
         panel.makeKeyAndOrderFront(nil)
+        startDismissMonitor()
         NSApp.activate(ignoringOtherApps: true)
     }
 
