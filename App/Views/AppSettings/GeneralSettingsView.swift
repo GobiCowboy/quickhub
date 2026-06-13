@@ -7,8 +7,34 @@ struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var showNotifications = true
     @State private var interceptRightClick = false
+    @State private var updateStatus: UpdateStatus = .idle
+    @State private var showUpdateAlert = false
+    @State private var pendingVersion: String = ""
+    @State private var pendingAssetURL: String = ""
+    @State private var downloadProgress: Double = 0
     @StateObject private var hotkeyRecorder = HotkeyRecorderViewModel()
     @StateObject private var localeManager = LocaleManager.shared
+
+    private enum UpdateStatus: Equatable {
+        case idle
+        case checking
+        case upToDate
+        case downloading
+        case installing
+        case done
+        case failed
+
+        static func == (lhs: UpdateStatus, rhs: UpdateStatus) -> Bool {
+            switch (lhs, rhs) {
+            case (.idle, .idle), (.checking, .checking), (.upToDate, .upToDate),
+                 (.downloading, .downloading), (.installing, .installing),
+                 (.done, .done), (.failed, .failed):
+                return true
+            default:
+                return false
+            }
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -89,18 +115,31 @@ struct GeneralSettingsView: View {
                 SettingsSurface(title: localized("settings.general.section.about"), systemImage: "info.circle") {
                     VStack(spacing: 8) {
                         SettingsValueRow(title: localized("settings.general.version"), icon: "app.badge") {
-                            Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.3.6")
+                            Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
                                 .font(.system(size: 12))
                                 .foregroundColor(.secondary)
                         }
 
                         Divider()
 
-                        SettingsLinkRow(title: localized("settings.general.github"), icon: "link", url: URL(string: "https://github.com/your-repo")!)
+                        SettingsLinkRow(title: localized("settings.general.github"), icon: "link", url: URL(string: "https://github.com/GobiCowboy/quickhub")!)
 
                         Divider()
 
-                        SettingsLinkRow(title: localized("settings.general.feedback"), icon: "exclamationmark.bubble", url: URL(string: "https://github.com/your-repo/issues")!)
+                        SettingsLinkRow(title: localized("settings.general.feedback"), icon: "exclamationmark.bubble", url: URL(string: "https://github.com/GobiCowboy/quickhub/issues")!)
+
+                        Divider()
+
+                        SettingsActionRow(
+                            title: updateButtonTitle,
+                            icon: "arrow.down.circle"
+                        ) {
+                            checkForUpdates()
+                        }
+
+                        if updateStatus != .idle {
+                            updateStatusView
+                        }
                     }
                 }
 
@@ -129,6 +168,16 @@ struct GeneralSettingsView: View {
         .onAppear {
             loadSettings()
         }
+        .alert(localized("settings.general.update_confirm_title"), isPresented: $showUpdateAlert) {
+            Button(localized("settings.general.update_now")) {
+                downloadAndInstall()
+            }
+            Button(localized("settings.general.update_later"), role: .cancel) {
+                updateStatus = .idle
+            }
+        } message: {
+            Text(localized("settings.general.update_confirm_message", with: pendingVersion))
+        }
     }
 
     private func loadSettings() {
@@ -152,6 +201,191 @@ struct GeneralSettingsView: View {
 
         // 通知 AppDelegate 重新注册快捷键
         NotificationCenter.default.post(name: .hotkeySettingsChanged, object: nil)
+    }
+
+    private var updateButtonTitle: String {
+        switch updateStatus {
+        case .checking:
+            return localized("settings.general.checking_update")
+        default:
+            return localized("settings.general.check_update")
+        }
+    }
+
+    @ViewBuilder
+    private var updateStatusView: some View {
+        HStack(spacing: 6) {
+            switch updateStatus {
+            case .upToDate:
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                Text(localized("settings.general.update_up_to_date"))
+                    .font(.system(size: 12))
+            case .downloading:
+                ProgressView(value: downloadProgress)
+                    .frame(width: 120)
+                Text(localized("settings.general.downloading_update"))
+                    .font(.system(size: 12))
+            case .installing:
+                ProgressView()
+                    .controlSize(.small)
+                Text(localized("settings.general.installing_update"))
+                    .font(.system(size: 12))
+            case .done:
+                ProgressView()
+                    .controlSize(.small)
+                Text(localized("settings.general.update_done"))
+                    .font(.system(size: 12))
+            case .failed:
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.red)
+                Text(localized("settings.general.update_download_failed"))
+                    .font(.system(size: 12))
+            default:
+                EmptyView()
+            }
+        }
+        .padding(.leading, 32)
+    }
+
+    private func checkForUpdates() {
+        updateStatus = .checking
+        guard let url = URL(string: "https://api.github.com/repos/GobiCowboy/quickhub/releases/latest") else { return }
+
+        var request = URLRequest(url: url)
+        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            DispatchQueue.main.async {
+                guard let data, error == nil,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let tagName = json["tag_name"] as? String
+                else {
+                    updateStatus = .failed
+                    return
+                }
+
+                let remoteVersion = tagName.hasPrefix("v") ? String(tagName.dropFirst()) : tagName
+                let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+
+                if isNewerVersion(remoteVersion, than: currentVersion) {
+                    guard let assets = json["assets"] as? [[String: Any]],
+                          let asset = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".zip") == true }),
+                          let downloadURL = asset["browser_download_url"] as? String
+                    else {
+                        updateStatus = .failed
+                        return
+                    }
+                    pendingVersion = remoteVersion
+                    pendingAssetURL = downloadURL
+                    showUpdateAlert = true
+                } else {
+                    updateStatus = .upToDate
+                }
+            }
+        }.resume()
+    }
+
+    private func downloadAndInstall() {
+        guard let url = URL(string: pendingAssetURL) else {
+            updateStatus = .failed
+            return
+        }
+
+        updateStatus = .downloading
+        downloadProgress = 0
+
+        let task = URLSession.shared.downloadTask(with: url) { tempURL, response, error in
+            DispatchQueue.main.async {
+                guard let tempURL, error == nil else {
+                    updateStatus = .failed
+                    return
+                }
+
+                updateStatus = .installing
+
+                let fm = FileManager.default
+                let tempDir = fm.temporaryDirectory.appendingPathComponent("quickhub_update_\(UUID().uuidString)")
+
+                do {
+                    try fm.createDirectory(at: tempDir, withIntermediateDirectories: true)
+
+                    let zipURL = tempDir.appendingPathComponent("update.zip")
+                    try fm.moveItem(at: tempURL, to: zipURL)
+
+                    // 解压
+                    let process = Process()
+                    process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+                    process.arguments = ["-o", zipURL.path, "-d", tempDir.path]
+                    process.standardOutput = FileHandle.nullDevice
+                    process.standardError = FileHandle.nullDevice
+                    try process.run()
+                    process.waitUntilExit()
+
+                    guard process.terminationStatus == 0 else {
+                        try? fm.removeItem(at: tempDir)
+                        updateStatus = .failed
+                        return
+                    }
+
+                    // 找到解压出来的 .app
+                    let contents = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+                    guard let appURL = contents.first(where: { $0.pathExtension == "app" }) else {
+                        try? fm.removeItem(at: tempDir)
+                        updateStatus = .failed
+                        return
+                    }
+
+                    let destination = URL(fileURLWithPath: "/Applications/QuickHub.app")
+
+                    // 替换旧版本
+                    if fm.fileExists(atPath: destination.path) {
+                        let trashURL = try fm.url(for: .trashDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+                        try fm.moveItem(at: destination, to: trashURL.appendingPathComponent("QuickHub.app"))
+                    }
+
+                    try fm.moveItem(at: appURL, to: destination)
+                    try? fm.removeItem(at: tempDir)
+
+                    updateStatus = .done
+
+                    // 重启应用
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        let relaunch = Process()
+                        relaunch.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+                        relaunch.arguments = [destination.path]
+                        try? relaunch.run()
+                        NSApp.terminate(nil)
+                    }
+                } catch {
+                    try? fm.removeItem(at: tempDir)
+                    updateStatus = .failed
+                }
+            }
+        }
+
+        // 监听下载进度
+        let observation = task.progress.observe(\.fractionCompleted) { progress, _ in
+            DispatchQueue.main.async {
+                downloadProgress = progress.fractionCompleted
+            }
+        }
+        objc_setAssociatedObject(task, "observation", observation, .OBJC_ASSOCIATION_RETAIN)
+
+        task.resume()
+    }
+
+    private func isNewerVersion(_ remote: String, than current: String) -> Bool {
+        let remoteParts = remote.split(separator: ".").compactMap { Int($0) }
+        let currentParts = current.split(separator: ".").compactMap { Int($0) }
+        let count = max(remoteParts.count, currentParts.count)
+        for i in 0..<count {
+            let r = i < remoteParts.count ? remoteParts[i] : 0
+            let c = i < currentParts.count ? currentParts[i] : 0
+            if r > c { return true }
+            if r < c { return false }
+        }
+        return false
     }
 
     private func updateLaunchAtLogin() {
