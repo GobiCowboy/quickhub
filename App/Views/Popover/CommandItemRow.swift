@@ -61,7 +61,10 @@ struct CommandItemRow: View {
         let selection = AppDelegate.shared?.getSavedFinderSelection() ?? []
         let firstPath = selection.first?.path
         let directory: String
-        if let url = selection.first {
+        // Finder 不在前台（桌面手势）→ 直接用桌面
+        if !(AppDelegate.shared?.finderWasActive ?? true) {
+            directory = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop").path
+        } else if let url = selection.first {
             var isDir: ObjCBool = false
             if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) {
                 if isDir.boolValue {
@@ -70,10 +73,10 @@ struct CommandItemRow: View {
                     directory = url.deletingLastPathComponent().path
                 }
             } else {
-                directory = FileManager.default.homeDirectoryForCurrentUser.path
+                directory = FinderService.shared.getCurrentDirectory()
             }
         } else {
-            directory = FileManager.default.homeDirectoryForCurrentUser.path
+            directory = FinderService.shared.getCurrentDirectory()
         }
 
         let context = ExecutionContext(

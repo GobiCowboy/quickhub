@@ -79,6 +79,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var accessibilityAlertShown = false
     // 保存当前 Finder 选中项，在面板打开时获取
     private var currentFinderSelection: [URL] = []
+    private(set) var finderWasActive = false
 
     // 提供给外部访问保存的 Finder 选择
     func getSavedFinderSelection() -> [URL] {
@@ -566,6 +567,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     fileprivate func handleInterceptedRightClick() {
+        // 必须在 AppleScript 之前检查 Finder 是否前台
+        finderWasActive = NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder"
         let selection = syncGetFinderSelection()
         currentFinderSelection = selection
         print("[RightClick] 右键打开面板，Finder 选择: \(selection.map { $0.lastPathComponent })")
@@ -596,9 +599,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if panel.isVisible {
             closePanel()
         } else {
+            // 记录打开面板时 Finder 是否为前台（必须在 AppleScript 之前检查）
+            finderWasActive = NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder"
+
             // 打开面板前先打印 Finder 选择
             let selection = syncGetFinderSelection()
-            print("[DEBUG] 打开面板前 Finder 选择: \(selection.map { $0.lastPathComponent })")
 
             // 保存当前 Finder 选择
             currentFinderSelection = selection

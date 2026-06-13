@@ -188,6 +188,8 @@ class CommandExecutor: CommandExecutorProtocol {
         do {
             try content.write(to: fileURL, atomically: true, encoding: .utf8)
 
+            selectInFinder(fileURL, directory: context.directory)
+
             let createdName = fileURL.lastPathComponent
             return ExecutionResult(success: true, output: localized("executor.created", with: createdName))
         } catch {
@@ -239,6 +241,26 @@ class CommandExecutor: CommandExecutorProtocol {
         }
     }
 
+    /// 在 Finder 中选中指定文件/文件夹（不弹新窗口）
+    private func selectInFinder(_ url: URL, directory: String) {
+        // 桌面上不激活 Finder，避免弹出窗口
+        let desktop = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop").path
+        if directory == desktop { return }
+
+        let script = """
+        tell application "Finder"
+            try
+                activate
+                select (POSIX file "\(url.path)" as alias)
+            end try
+        end tell
+        """
+        var error: NSDictionary?
+        if let appleScript = NSAppleScript(source: script) {
+            appleScript.executeAndReturnError(&error)
+        }
+    }
+
     // MARK: - 新建文件夹
 
     private func executeCreateFolder(_ item: CommandItem, context: ExecutionContext) async throws -> ExecutionResult {
@@ -258,6 +280,8 @@ class CommandExecutor: CommandExecutorProtocol {
 
         do {
             try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+
+            selectInFinder(folderURL, directory: context.directory)
 
             let createdName = folderURL.lastPathComponent
             return ExecutionResult(success: true, output: localized("executor.created", with: createdName))
