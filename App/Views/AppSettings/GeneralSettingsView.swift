@@ -64,6 +64,18 @@ struct GeneralSettingsView: View {
                             saveSettings()
                         }
 
+                        HStack(spacing: 10) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.blue)
+                                .frame(width: 22)
+
+                            Text(localized("settings.general.ctrl_right_click_hint"))
+                                .font(.system(size: 12))
+
+                            Spacer()
+                        }
+
                         Divider()
 
                         SettingsValueRow(title: localized("settings.general.open_panel"), icon: "keyboard.badge.eye") {

@@ -26,6 +26,11 @@ fileprivate func rightClickEventTapCallback(
         return Unmanaged.passUnretained(event)
     }
 
+    // Option + 右键：透传给系统，显示原生右键菜单
+    if event.flags.contains(.maskAlternate) {
+        return Unmanaged.passUnretained(event)
+    }
+
     guard appDelegate.shouldInterceptRightClick(at: event.location) else {
         return Unmanaged.passUnretained(event)
     }

@@ -65,6 +65,7 @@
 "settings.general.show_notifications" = "Show notification after command execution";
 "settings.general.section.shortcut" = "Shortcut";
 "settings.general.intercept_right_click" = "Open QuickHub panel on right click";
+"settings.general.ctrl_right_click_hint" = "Tip: Hold Option+Right-click to use the system native menu";
 "settings.general.open_panel" = "Open Panel";
 "settings.general.section.about" = "About";
 "settings.general.version" = "Version";
