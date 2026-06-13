@@ -219,11 +219,11 @@
 "input.new_file.title" = "新建文件";
 "input.new_file.prompt" = "请输入文件名：";
 "input.new_file.placeholder" = "文件名";
-"input.new_file.default" = "Untitled";
+"input.new_file.default" = "未命名";
 "input.new_folder.title" = "新建文件夹";
 "input.new_folder.prompt" = "请输入文件夹名称：";
 "input.new_folder.placeholder" = "文件夹名称";
-"input.new_folder.default" = "Untitled Folder";
+"input.new_folder.default" = "未命名文件夹";
 "input.bitwarden_search.title" = "搜索密码";
 "input.bitwarden_search.prompt" = "请输入搜索关键词：";
 "input.bitwarden_search.placeholder" = "搜索 Bitwarden...";

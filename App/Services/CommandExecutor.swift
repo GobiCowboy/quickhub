@@ -180,7 +180,35 @@ class CommandExecutor: CommandExecutorProtocol {
         }
 
         let fullFileName = "\(fileName).\(ext)"
-        let fileURL = uniqueURL(in: context.directory, name: fileName, extension: ext)
+        let fileURL = URL(fileURLWithPath: context.directory).appendingPathComponent(fullFileName)
+
+        // 检查文件是否已存在
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            let shouldReplace = await withCheckedContinuation { continuation in
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    alert.messageText = localized("input.file_exists.title")
+                    alert.informativeText = localized("input.file_exists.message", with: fullFileName)
+                    alert.addButton(withTitle: localized("input.file_exists.replace"))
+                    alert.addButton(withTitle: localized("common.cancel"))
+
+                    let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+                    tempWindow.level = .floating
+                    let mouseLocation = NSEvent.mouseLocation
+                    tempWindow.setFrame(NSRect(origin: NSPoint(x: mouseLocation.x - 320, y: mouseLocation.y - 20), size: NSSize(width: 320, height: 140)), display: true)
+                    tempWindow.makeKeyAndOrderFront(nil)
+
+                    alert.beginSheetModal(for: tempWindow) { response in
+                        tempWindow.orderOut(nil)
+                        continuation.resume(returning: response == .alertFirstButtonReturn)
+                    }
+                }
+            }
+
+            if !shouldReplace {
+                return ExecutionResult(success: false, output: localized("executor.cancelled"))
+            }
+        }
 
         // 渲染模板
         let content = renderTemplate(template, fileName: fileName)
@@ -207,38 +235,6 @@ class CommandExecutor: CommandExecutorProtocol {
             .replacingOccurrences(of: "{{FILENAME}}", with: fileName)
             .replacingOccurrences(of: "{{DATE}}", with: formatter.string(from: now))
             .replacingOccurrences(of: "{{TIME}}", with: formatter.string(from: now))
-    }
-
-    /// 自动递增文件名：file.md → file 1.md → file 2.md ...
-    private func uniqueURL(in directory: String, name: String, extension ext: String) -> URL {
-        let base = URL(fileURLWithPath: directory).appendingPathComponent("\(name).\(ext)")
-        if !FileManager.default.fileExists(atPath: base.path) {
-            return base
-        }
-        var counter = 1
-        while true {
-            let candidate = URL(fileURLWithPath: directory).appendingPathComponent("\(name) \(counter).\(ext)")
-            if !FileManager.default.fileExists(atPath: candidate.path) {
-                return candidate
-            }
-            counter += 1
-        }
-    }
-
-    /// 自动递增文件夹名：folder → folder 1 → folder 2 ...
-    private func uniqueFolderURL(in directory: String, name: String) -> URL {
-        let base = URL(fileURLWithPath: directory).appendingPathComponent(name)
-        if !FileManager.default.fileExists(atPath: base.path) {
-            return base
-        }
-        var counter = 1
-        while true {
-            let candidate = URL(fileURLWithPath: directory).appendingPathComponent("\(name) \(counter)")
-            if !FileManager.default.fileExists(atPath: candidate.path) {
-                return candidate
-            }
-            counter += 1
-        }
     }
 
     /// 在 Finder 中选中指定文件/文件夹（不弹新窗口）
@@ -276,7 +272,38 @@ class CommandExecutor: CommandExecutorProtocol {
             return ExecutionResult(success: false, output: localized("executor.cancelled"))
         }
 
-        let folderURL = uniqueFolderURL(in: context.directory, name: folderName)
+        let folderURL = URL(fileURLWithPath: context.directory).appendingPathComponent(folderName)
+
+        // 检查文件夹是否已存在
+        if FileManager.default.fileExists(atPath: folderURL.path) {
+            let shouldReplace = await withCheckedContinuation { continuation in
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    alert.messageText = localized("input.folder_exists.title")
+                    alert.informativeText = localized("input.folder_exists.message", with: folderName)
+                    alert.addButton(withTitle: localized("input.file_exists.replace"))
+                    alert.addButton(withTitle: localized("common.cancel"))
+
+                    let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+                    tempWindow.level = .floating
+                    let mouseLocation = NSEvent.mouseLocation
+                    tempWindow.setFrame(NSRect(origin: NSPoint(x: mouseLocation.x - 320, y: mouseLocation.y - 20), size: NSSize(width: 320, height: 140)), display: true)
+                    tempWindow.makeKeyAndOrderFront(nil)
+
+                    alert.beginSheetModal(for: tempWindow) { response in
+                        tempWindow.orderOut(nil)
+                        continuation.resume(returning: response == .alertFirstButtonReturn)
+                    }
+                }
+            }
+
+            if !shouldReplace {
+                return ExecutionResult(success: false, output: localized("executor.cancelled"))
+            }
+
+            // 删除已存在的文件夹
+            try FileManager.default.removeItem(at: folderURL)
+        }
 
         do {
             try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
