@@ -60,13 +60,8 @@ struct CommandItemRow: View {
         // 获取当前 Finder 上下文 - 使用保存的选择，避免面板打开后 Finder 选择改变
         let selection = AppDelegate.shared?.getSavedFinderSelection() ?? []
         let firstPath = selection.first?.path
-        let desktop = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop").path
-
         let directory: String
-        // 桌面可见（手势回桌面）时直接用 Desktop，不依赖 Finder 选中
-        if !FinderService.shared.hasVisibleFinderWindow() {
-            directory = desktop
-        } else if let url = selection.first {
+        if let url = selection.first {
             var isDir: ObjCBool = false
             if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) {
                 if isDir.boolValue {
@@ -75,10 +70,10 @@ struct CommandItemRow: View {
                     directory = url.deletingLastPathComponent().path
                 }
             } else {
-                directory = FinderService.shared.getCurrentDirectory()
+                directory = FileManager.default.homeDirectoryForCurrentUser.path
             }
         } else {
-            directory = FinderService.shared.getCurrentDirectory()
+            directory = FileManager.default.homeDirectoryForCurrentUser.path
         }
 
         let context = ExecutionContext(

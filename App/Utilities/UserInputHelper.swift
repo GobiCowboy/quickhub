@@ -6,6 +6,23 @@ import SwiftUI
 /// 封装用户输入对话框
 enum UserInputHelper {
 
+    /// 计算下一个可用的文件/文件夹名：未命名 → 未命名 1 → 未命名 2 ...
+    private static func nextAvailableName(in directory: String, baseName: String, extension ext: String?) -> String {
+        let fm = FileManager.default
+        let exists: (String) -> Bool = { name in
+            if let ext = ext {
+                return fm.fileExists(atPath: URL(fileURLWithPath: directory).appendingPathComponent("\(name).\(ext)").path)
+            } else {
+                return fm.fileExists(atPath: URL(fileURLWithPath: directory).appendingPathComponent(name).path)
+            }
+        }
+
+        if !exists(baseName) { return baseName }
+        var counter = 1
+        while exists("\(baseName) \(counter)") { counter += 1 }
+        return "\(baseName) \(counter)"
+    }
+
     /// 显示文件名输入对话框
     /// - Parameters:
     ///   - extension: 文件扩展名
@@ -13,6 +30,8 @@ enum UserInputHelper {
     ///   - completion: 回调，返回用户输入的文件名（不含扩展名），如果用户取消则返回 nil
     static func promptFileName(extension ext: String, directory: String, completion: @escaping (String?) -> Void) {
         DispatchQueue.main.async {
+            let defaultName = nextAvailableName(in: directory, baseName: localized("input.new_file.default"), extension: ext)
+
             let alert = NSAlert()
             alert.messageText = localized("input.new_file.title")
             alert.informativeText = localized("input.new_file.prompt")
@@ -20,7 +39,7 @@ enum UserInputHelper {
             alert.addButton(withTitle: localized("common.cancel"))
 
             let inputField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-            inputField.stringValue = localized("input.new_file.default")
+            inputField.stringValue = defaultName
             inputField.placeholderString = localized("input.new_file.placeholder")
             alert.accessoryView = inputField
 
@@ -57,6 +76,8 @@ enum UserInputHelper {
     ///   - completion: 回调，返回用户输入的文件夹名，如果用户取消则返回 nil
     static func promptFolderName(directory: String, completion: @escaping (String?) -> Void) {
         DispatchQueue.main.async {
+            let defaultName = nextAvailableName(in: directory, baseName: localized("input.new_folder.default"), extension: nil)
+
             let alert = NSAlert()
             alert.messageText = localized("input.new_folder.title")
             alert.informativeText = localized("input.new_folder.prompt")
@@ -64,7 +85,7 @@ enum UserInputHelper {
             alert.addButton(withTitle: localized("common.cancel"))
 
             let inputField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
-            inputField.stringValue = localized("input.new_folder.default")
+            inputField.stringValue = defaultName
             inputField.placeholderString = localized("input.new_folder.placeholder")
             alert.accessoryView = inputField
 

@@ -122,31 +122,6 @@ class FinderService: FinderServiceProtocol {
         return desktop
     }
 
-    /// 检测 Finder 是否有可见的前台窗口（桌面被手势隐藏时返回 false）
-    func hasVisibleFinderWindow() -> Bool {
-        guard let app = NSWorkspace.shared.frontmostApplication,
-              app.bundleIdentifier == "com.apple.finder" else {
-            return false
-        }
-
-        let script = """
-        tell application "Finder"
-            try
-                if (count of Finder windows) > 0 then
-                    return true
-                end if
-            end try
-            return false
-        end tell
-        """
-
-        var error: NSDictionary?
-        guard let appleScript = NSAppleScript(source: script) else { return false }
-        let result = appleScript.executeAndReturnError(&error)
-        if error != nil { return false }
-        return result.booleanValue
-    }
-
     /// 获取当前 Finder 窗口的路径
     private func getFinderCurrentDirectory() -> String? {
         let script = """

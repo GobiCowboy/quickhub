@@ -180,34 +180,7 @@ class CommandExecutor: CommandExecutorProtocol {
         }
 
         let fullFileName = "\(fileName).\(ext)"
-        let fileURL = URL(fileURLWithPath: context.directory).appendingPathComponent(fullFileName)
-
-        // 检查文件是否已存在
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            let shouldReplace = await withCheckedContinuation { continuation in
-                DispatchQueue.main.async {
-                    let alert = NSAlert()
-                    alert.messageText = localized("input.file_exists.title")
-                    alert.informativeText = localized("input.file_exists.message", with: fullFileName)
-                    alert.addButton(withTitle: localized("input.file_exists.replace"))
-                    alert.addButton(withTitle: localized("common.cancel"))
-
-                    // 创建临时窗口作为 sheet 父窗口
-                    let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
-                    tempWindow.level = .floating
-                    tempWindow.center()
-                    tempWindow.makeKeyAndOrderFront(nil)
-
-                    alert.beginSheetModal(for: tempWindow) { response in
-                        continuation.resume(returning: response == .alertFirstButtonReturn)
-                    }
-                }
-            }
-
-            if !shouldReplace {
-                return ExecutionResult(success: false, output: localized("executor.cancelled"))
-            }
-        }
+        let fileURL = uniqueURL(in: context.directory, name: fileName, extension: ext)
 
         // 渲染模板
         let content = renderTemplate(template, fileName: fileName)
@@ -215,10 +188,8 @@ class CommandExecutor: CommandExecutorProtocol {
         do {
             try content.write(to: fileURL, atomically: true, encoding: .utf8)
 
-            // 打开文件
-            NSWorkspace.shared.activateFileViewerSelecting([fileURL])
-
-            return ExecutionResult(success: true, output: localized("executor.created", with: fullFileName))
+            let createdName = fileURL.lastPathComponent
+            return ExecutionResult(success: true, output: localized("executor.created", with: createdName))
         } catch {
             throw ExecutionError.executionFailed(error.localizedDescription)
         }
@@ -236,6 +207,38 @@ class CommandExecutor: CommandExecutorProtocol {
             .replacingOccurrences(of: "{{TIME}}", with: formatter.string(from: now))
     }
 
+    /// 自动递增文件名：file.md → file 1.md → file 2.md ...
+    private func uniqueURL(in directory: String, name: String, extension ext: String) -> URL {
+        let base = URL(fileURLWithPath: directory).appendingPathComponent("\(name).\(ext)")
+        if !FileManager.default.fileExists(atPath: base.path) {
+            return base
+        }
+        var counter = 1
+        while true {
+            let candidate = URL(fileURLWithPath: directory).appendingPathComponent("\(name) \(counter).\(ext)")
+            if !FileManager.default.fileExists(atPath: candidate.path) {
+                return candidate
+            }
+            counter += 1
+        }
+    }
+
+    /// 自动递增文件夹名：folder → folder 1 → folder 2 ...
+    private func uniqueFolderURL(in directory: String, name: String) -> URL {
+        let base = URL(fileURLWithPath: directory).appendingPathComponent(name)
+        if !FileManager.default.fileExists(atPath: base.path) {
+            return base
+        }
+        var counter = 1
+        while true {
+            let candidate = URL(fileURLWithPath: directory).appendingPathComponent("\(name) \(counter)")
+            if !FileManager.default.fileExists(atPath: candidate.path) {
+                return candidate
+            }
+            counter += 1
+        }
+    }
+
     // MARK: - 新建文件夹
 
     private func executeCreateFolder(_ item: CommandItem, context: ExecutionContext) async throws -> ExecutionResult {
@@ -251,45 +254,13 @@ class CommandExecutor: CommandExecutorProtocol {
             return ExecutionResult(success: false, output: localized("executor.cancelled"))
         }
 
-        let folderURL = URL(fileURLWithPath: context.directory).appendingPathComponent(folderName)
-
-        // 检查文件夹是否已存在
-        if FileManager.default.fileExists(atPath: folderURL.path) {
-            let shouldReplace = await withCheckedContinuation { continuation in
-                DispatchQueue.main.async {
-                    let alert = NSAlert()
-                    alert.messageText = localized("input.folder_exists.title")
-                    alert.informativeText = localized("input.folder_exists.message", with: folderName)
-                    alert.addButton(withTitle: localized("input.file_exists.replace"))
-                    alert.addButton(withTitle: localized("common.cancel"))
-
-                    // 创建临时窗口作为 sheet 父窗口
-                    let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
-                    tempWindow.level = .floating
-                    tempWindow.center()
-                    tempWindow.makeKeyAndOrderFront(nil)
-
-                    alert.beginSheetModal(for: tempWindow) { response in
-                        continuation.resume(returning: response == .alertFirstButtonReturn)
-                    }
-                }
-            }
-
-            if !shouldReplace {
-                return ExecutionResult(success: false, output: localized("executor.cancelled"))
-            }
-
-            // 删除已存在的文件夹
-            try FileManager.default.removeItem(at: folderURL)
-        }
+        let folderURL = uniqueFolderURL(in: context.directory, name: folderName)
 
         do {
             try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
 
-            // 在 Finder 中显示新创建的文件夹
-            NSWorkspace.shared.activateFileViewerSelecting([folderURL])
-
-            return ExecutionResult(success: true, output: localized("executor.created", with: folderName))
+            let createdName = folderURL.lastPathComponent
+            return ExecutionResult(success: true, output: localized("executor.created", with: createdName))
         } catch {
             throw ExecutionError.executionFailed(error.localizedDescription)
         }
