@@ -173,9 +173,25 @@ struct PopoverView: View {
         guard let firstItem = filteredGroups.first?.items.first else { return }
 
         let paths = (NSApp.delegate as? AppDelegate)?.getSavedFinderSelection() ?? []
+        let desktop = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop").path
+
+        let directory: String
+        if !FinderService.shared.hasVisibleFinderWindow() {
+            directory = desktop
+        } else if let firstPath = paths.first {
+            var isDir: ObjCBool = false
+            if FileManager.default.fileExists(atPath: firstPath.path, isDirectory: &isDir) {
+                directory = isDir.boolValue ? firstPath.path : firstPath.deletingLastPathComponent().path
+            } else {
+                directory = FinderService.shared.getCurrentDirectory()
+            }
+        } else {
+            directory = FinderService.shared.getCurrentDirectory()
+        }
+
         let context = ExecutionContext(
             filePath: paths.first?.path,
-            directory: paths.first?.deletingLastPathComponent().path ?? FileManager.default.homeDirectoryForCurrentUser.path
+            directory: directory
         )
 
         Task {
