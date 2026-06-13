@@ -27,16 +27,11 @@ xcodebuild -scheme RightClickX build
 
 ### Core Features
 
-- **🚀 Instant Activation**: Select a file in Finder, press `⌥Q`. The panel appears exactly at your cursor position.
-- **⌨️ Full Keyboard Operation**: Type to search commands after panel appears, press **Enter** to execute. No mouse movement needed.
-- **🖱️ Right Click + Hotkey Sync**: Right click and the global hotkey open the same panel. You can customize either trigger, and both stay in sync.
-- **⌥ Native Menu on Demand**: Hold `⌥` + Right-click to bypass the QuickHub panel and show the system native context menu. No need to toggle settings.
+- **🚀 Multiple Ways to Launch**: Select a file in Finder and press `⌥Q`, or simply right-click to open the panel. Both triggers work in sync.
+- **⌥ Native Menu on Demand**: Hold `⌥` + Right-click to show the system native context menu directly, no settings change needed.
+- **⌨️ Search and Go**: Type to search commands right after the panel appears, press Enter to execute instantly.
+- **🛠️ Unlimited Custom Extensions**: Supports shell commands, file templates, one-click folder access, and more — fully configurable.
 - **🔄 Built-in Update**: Check for updates in Settings → About. Downloads, installs, and restarts automatically.
-- **🛠️ Unlimited Extensions**:
-  - **Shell Commands**: Quickly open Terminal/iTerm2, VS Code, copy POSIX paths.
-  - **File Templates**: Create Markdown, Swift, Python scripts, etc., with custom content support.
-  - **One-Click Access**: Quickly open Desktop, Downloads, or any custom paths.
-- **✨ Native Interaction**: Built with SwiftUI, perfectly matches macOS system visual style (Popover material).
 
 ### Quick Start
 
@@ -92,16 +87,11 @@ xcodebuild -scheme RightClickX build
 
 ### 核心特性
 
-- **🚀 瞬时呼出**: 选中 Finder 文件，按 `⌥Q`。面板会精确出现在你的鼠标指针处。
-- **⌨️ 全程键盘操作**: 呼出面板后直接打字搜索命令，按 **回车** 立即执行。无需挪动鼠标。
-- **🖱️ 右键与快捷键同步**: 右键和全局快捷键会打开同一个面板。你可以自己分别配置触发方式，它们会保持同步。
-- **⌥ 原生菜单随时可用**: 按住 `⌥` + 右键 可绕过 QuickHub 面板，直接显示系统原生右键菜单，无需切换设置。
+- **🚀 多种呼出方式**: 选中 Finder 文件，按 `⌥Q` 呼出面板；也可以直接右键呼出，两种方式同步可用。
+- **⌥ 原生菜单随时可用**: 按住 `⌥` + 右键 可直接显示系统原生右键菜单，无需切换设置。
+- **⌨️ 即搜即用**: 呼出面板后直接打字搜索命令，按回车立即执行。
+- **🛠️ 无限自定义扩展**: 支持 Shell 命令、文件模板、一键打开常用目录等，自由配置你的专属工具箱。
 - **🔄 应用内更新**: 在 设置 → 关于 中检查更新，自动下载、安装并重启。
-- **🛠️ 无限扩展**:
-  - **Shell 命令**: 快速打开终端（Terminal/iTerm2）、VS Code、复制 POSIX 路径。
-  - **文件模板**: 快速创建 Markdown、Swift、Python 脚本等，支持自定义内容。
-  - **一键触达**: 快速打开桌面、下载目录或任何你常用的自定义路径。
-- **✨ 原生交互**: 基于 SwiftUI 打造，完美契合 macOS 系统级视觉风格（Popover 材质）。
 
 ### 快速开始
 
