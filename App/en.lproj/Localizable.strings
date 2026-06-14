@@ -244,6 +244,11 @@
 /* Icon Picker Sheet */
 "icon_picker.title" = "Select Icon";
 "icon_picker.search_placeholder" = "Search icons...";
+"icon_picker.current_icon" = "Current Icon";
+"icon_picker.choose_image" = "Choose Image";
+"icon_picker.choose_image_message" = "Select an image file to use as icon";
+"icon_picker.set_icon" = "Set Icon";
+"icon_picker.set_icon_hint" = "SF Symbol or local image";
 
 /* User Input Helper */
 "input.new_file.title" = "New File";

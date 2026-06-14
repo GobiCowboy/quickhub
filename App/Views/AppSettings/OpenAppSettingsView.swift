@@ -7,6 +7,8 @@ struct OpenAppSettingsView: View {
     var onEdit: (EditableItem) -> Void
     @State private var customAppName = ""
     @State private var customAppPath = ""
+    @State private var customIcon = "app"
+    @State private var showIconPicker = false
     @State private var errorMessage: String?
 
     // 按分类组织的预设应用
@@ -133,7 +135,41 @@ struct OpenAppSettingsView: View {
                 }
 
                 SettingsSurface(title: localized("open_app.custom"), systemImage: "plus.square.dashed") {
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        // 图标选择
+                        Button(action: { showIconPicker = true }) {
+                            HStack(spacing: 8) {
+                                if customIcon.hasPrefix("/"), let image = NSImage(contentsOfFile: customIcon) {
+                                    Image(nsImage: image)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 20, height: 20)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                } else {
+                                    Image(systemName: customIcon)
+                                        .font(.system(size: 15, weight: .medium))
+                                        .foregroundColor(.accentColor)
+                                }
+
+                                Text(localized("icon_picker.set_icon"))
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.primary)
+
+                                Spacer()
+
+                                Image(systemName: "pencil.circle")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                    .stroke(Color.secondary.opacity(0.3), lineWidth: 0.5)
+                            )
+                        }
+                        .buttonStyle(.plain)
+
                         HStack(spacing: 8) {
                             TextField(localized("editor.field.name_placeholder"), text: $customAppName)
                                 .textFieldStyle(.roundedBorder)
@@ -169,6 +205,9 @@ struct OpenAppSettingsView: View {
                             .disabled(customAppPath.isEmpty)
                         }
                     }
+                }
+                .sheet(isPresented: $showIconPicker) {
+                    IconPickerSheet(selectedIcon: $customIcon)
                 }
             }
             .padding(22)
@@ -253,12 +292,13 @@ struct OpenAppSettingsView: View {
 
         ensureGroup(name: "打开应用", icon: "app")
         if let groupIndex = config.groups.firstIndex(where: { $0.name == "打开应用" }) {
-            let item = CommandItem(name: name, icon: "app", type: .openApp, targetPath: path)
+            let item = CommandItem(name: name, icon: customIcon, type: .openApp, targetPath: path)
             config.groups[groupIndex].items.append(item)
             StorageService.shared.saveConfig(config)
             ConfigObserver.shared.refresh()
             customAppName = ""
             customAppPath = ""
+            customIcon = "app"
             errorMessage = nil
         }
     }

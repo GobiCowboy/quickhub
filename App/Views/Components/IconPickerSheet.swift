@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 // MARK: - 图标选择器
 
@@ -75,6 +76,54 @@ struct IconPickerSheet: View {
 
             Divider()
 
+            // 当前图标预览 + 本地图片按钮
+            HStack(spacing: 12) {
+                // 当前图标预览
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.secondary.opacity(0.1))
+                        .frame(width: 48, height: 48)
+                    if selectedIcon.hasPrefix("/"), let image = NSImage(contentsOfFile: selectedIcon) {
+                        Image(nsImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 32, height: 32)
+                    } else if selectedIcon.isEmpty {
+                        Image(systemName: "command")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Image(systemName: selectedIcon)
+                            .font(.title3)
+                            .foregroundColor(.accentColor)
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(localized("icon_picker.current_icon"))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(selectedIcon.isEmpty ? "command" : selectedIcon)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Button(action: pickLocalImage) {
+                    Label(localized("icon_picker.choose_image"), systemImage: "photo.badge.plus")
+                        .font(.system(size: 13, weight: .medium))
+                        .frame(height: 28)
+                        .padding(.horizontal, 14)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            Divider()
+
             // 搜索框
             HStack {
                 Image(systemName: "magnifyingglass")
@@ -126,6 +175,39 @@ struct IconPickerSheet: View {
                 .padding()
             }
         }
-        .frame(width: 400, height: 450)
+        .frame(width: 400, height: 500)
+    }
+
+    private func pickLocalImage() {
+        let panel = NSOpenPanel()
+        panel.title = localized("icon_picker.choose_image")
+        panel.message = localized("icon_picker.choose_image_message")
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+        panel.allowedContentTypes = [.image]
+        panel.directoryURL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop")
+
+        NSApp.activate(ignoringOtherApps: true)
+
+        guard panel.runModal() == .OK, let fileURL = panel.url else { return }
+
+        // 复制图片到配置目录，确保图标不会因原文件移动/删除而失效
+        let iconsDir = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".config/rightclickx/icons")
+
+        do {
+            try FileManager.default.createDirectory(at: iconsDir, withIntermediateDirectories: true)
+            let destURL = iconsDir.appendingPathComponent(fileURL.lastPathComponent)
+
+            // 如果同名文件已存在，先删除
+            if FileManager.default.fileExists(atPath: destURL.path) {
+                try FileManager.default.removeItem(at: destURL)
+            }
+            try FileManager.default.copyItem(at: fileURL, to: destURL)
+            selectedIcon = destURL.path
+        } catch {
+            print("[IconPickerSheet] Failed to copy image: \(error)")
+        }
     }
 }

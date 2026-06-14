@@ -244,6 +244,11 @@
 /* Icon Picker Sheet */
 "icon_picker.title" = "选择图标";
 "icon_picker.search_placeholder" = "搜索图标...";
+"icon_picker.current_icon" = "当前图标";
+"icon_picker.choose_image" = "选择图片";
+"icon_picker.choose_image_message" = "选择一张图片作为图标";
+"icon_picker.set_icon" = "设置图标";
+"icon_picker.set_icon_hint" = "SF Symbol 或本地图片";
 
 /* User Input Helper */
 "input.new_file.title" = "新建文件";
