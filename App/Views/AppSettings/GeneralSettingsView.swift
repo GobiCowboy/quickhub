@@ -250,29 +250,53 @@ struct GeneralSettingsView: View {
 
     private func checkForUpdates() {
         updateStatus = .checking
-        guard let url = URL(string: "https://api.github.com/repos/GobiCowboy/quickhub/releases/latest") else { return }
+        guard let url = URL(string: "https://api.github.com/repos/GobiCowboy/quickhub/releases/latest") else {
+            print("[Update] Invalid URL")
+            updateStatus = .failed
+            return
+        }
 
         var request = URLRequest(url: url)
         request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
 
-        URLSession.shared.dataTask(with: request) { data, _, error in
+        URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                guard let data, error == nil,
-                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      let tagName = json["tag_name"] as? String
-                else {
+                if let error = error {
+                    print("[Update] Network error: \(error.localizedDescription)")
                     updateStatus = .failed
                     return
                 }
 
+                guard let data = data else {
+                    print("[Update] No data received")
+                    updateStatus = .failed
+                    return
+                }
+
+                guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    print("[Update] JSON parse failed, response: \(String(data: data, encoding: .utf8) ?? "nil")")
+                    updateStatus = .failed
+                    return
+                }
+
+                guard let tagName = json["tag_name"] as? String else {
+                    print("[Update] tag_name not found in JSON: \(json)")
+                    updateStatus = .failed
+                    return
+                }
+
+                print("[Update] Remote tag: \(tagName)")
+
                 let remoteVersion = tagName.hasPrefix("v") ? String(tagName.dropFirst()) : tagName
                 let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+                print("[Update] Remote: \(remoteVersion), Current: \(currentVersion)")
 
                 if isNewerVersion(remoteVersion, than: currentVersion) {
                     guard let assets = json["assets"] as? [[String: Any]],
                           let asset = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".zip") == true }),
                           let downloadURL = asset["browser_download_url"] as? String
                     else {
+                        print("[Update] No zip asset found")
                         updateStatus = .failed
                         return
                     }
@@ -328,12 +352,28 @@ struct GeneralSettingsView: View {
                         return
                     }
 
-                    // 找到解压出来的 .app
+                    // 找到解压出来的 .app（支持嵌套目录）
+                    let appURL: URL
                     let contents = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
-                    guard let appURL = contents.first(where: { $0.pathExtension == "app" }) else {
-                        try? fm.removeItem(at: tempDir)
-                        updateStatus = .failed
-                        return
+                    if let direct = contents.first(where: { $0.pathExtension == "app" }) {
+                        appURL = direct
+                    } else {
+                        // ZIP 可能包含子目录，递归查找 .app
+                        var found: URL?
+                        if let enumerator = fm.enumerator(at: tempDir, includingPropertiesForKeys: nil) {
+                            for case let fileURL as URL in enumerator {
+                                if fileURL.pathExtension == "app" {
+                                    found = fileURL
+                                    break
+                                }
+                            }
+                        }
+                        guard let nested = found else {
+                            try? fm.removeItem(at: tempDir)
+                            updateStatus = .failed
+                            return
+                        }
+                        appURL = nested
                     }
 
                     let destination = URL(fileURLWithPath: "/Applications/QuickHub.app")
