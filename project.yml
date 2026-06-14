@@ -22,6 +22,10 @@ targets:
       - path: App
         excludes:
           - "**/.DS_Store"
+    resources:
+      - path: App/Resources/OpenMoji
+        excludes:
+          - "**/.DS_Store"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.rightclickx.app

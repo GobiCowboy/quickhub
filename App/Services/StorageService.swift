@@ -84,6 +84,14 @@ class StorageService: StorageServiceProtocol {
             changed = true
         }
 
+        if config.settings.legacyDefaultsPrunedRevision < 6 {
+            if migrateUpdateIcons() {
+                changed = true
+            }
+            config.settings.legacyDefaultsPrunedRevision = 6
+            changed = true
+        }
+
         // 每次启动清理旧版命令名称（不限 revision）
         if migrateCleanStaleCommands() {
             changed = true
@@ -186,27 +194,27 @@ class StorageService: StorageServiceProtocol {
 
         // —— 基础命令 ——
         items.append(contentsOf: [
-            CommandItem(name: "shell.file_info", icon: "info.circle", type: .shell,
+            CommandItem(name: "shell.file_info", icon: "openmoji/file_info.png", type: .shell,
                         command: InternalShellCommand.fileInfo, openInTerminal: false),
-            CommandItem(name: "shell.copy_path", icon: "doc.on.doc", type: .shell,
+            CommandItem(name: "shell.copy_path", icon: "openmoji/copy_path.png", type: .shell,
                         command: "echo -n '{path}' | pbcopy", openInTerminal: false),
-            CommandItem(name: "shell.open_in_terminal", icon: "terminal", type: .shell,
+            CommandItem(name: "shell.open_in_terminal", icon: "openmoji/terminal.png", type: .shell,
                         command: "open -b com.apple.Terminal '{dir}'", openInTerminal: false),
         ])
 
         // —— macOS ——
         items.append(contentsOf: [
-            CommandItem(name: "shell.create_shortcut_desktop", icon: "arrow.uturn.forward", type: .shell,
+            CommandItem(name: "shell.create_shortcut_desktop", icon: "openmoji/shortcut.png", type: .shell,
                         command: "ln -s '{path}' ~/Desktop/", openInTerminal: false),
-            CommandItem(name: "shell.compress_zip", icon: "archivebox", type: .shell,
+            CommandItem(name: "shell.compress_zip", icon: "openmoji/compress.png", type: .shell,
                         command: "ditto -c -k --sequesterRsrc '{path}' \"$(dirname '{path}')/{filename}.zip\"", openInTerminal: false),
-            CommandItem(name: "shell.view_icon", icon: "square.grid.2x2", type: .shell,
+            CommandItem(name: "shell.view_icon", icon: "openmoji/view_grid.png", type: .shell,
                         command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to icon view'", openInTerminal: false),
-            CommandItem(name: "shell.view_list", icon: "list.bullet", type: .shell,
+            CommandItem(name: "shell.view_list", icon: "openmoji/view_list.png", type: .shell,
                         command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to list view'", openInTerminal: false),
-            CommandItem(name: "shell.view_column", icon: "sidebar.left", type: .shell,
+            CommandItem(name: "shell.view_column", icon: "openmoji/view_column.png", type: .shell,
                         command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to column view'", openInTerminal: false),
-            CommandItem(name: "shell.view_gallery", icon: "rectangle.split.3x1", type: .shell,
+            CommandItem(name: "shell.view_gallery", icon: "openmoji/view_gallery.png", type: .shell,
                         command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to flow view'", openInTerminal: false),
         ])
 
@@ -216,18 +224,18 @@ class StorageService: StorageServiceProtocol {
             bundleIdentifiers: ["com.microsoft.VSCode", "com.microsoft.VSCodeInsiders"],
             appPaths: ["/Applications/Visual Studio Code.app"]
         ) {
-            items.append(CommandItem(name: "shell.open_in_vscode", icon: "chevron.left.forwardslash.chevron.right", type: .shell,
+            items.append(CommandItem(name: "shell.open_in_vscode", icon: "openmoji/terminal.png", type: .shell,
                                      command: "open -b com.microsoft.VSCode '{path}'", openInTerminal: false))
         }
 
         items.append(contentsOf: [
-            CommandItem(name: "shell.git_status", icon: "arrow.triangle.branch", type: .shell,
+            CommandItem(name: "shell.git_status", icon: "openmoji/git_status.png", type: .shell,
                         command: "cd '{dir}' && git status", openInTerminal: true),
-            CommandItem(name: "shell.git_add", icon: "plus.circle", type: .shell,
+            CommandItem(name: "shell.git_add", icon: "openmoji/git_add.png", type: .shell,
                         command: "cd '{dir}' && git add '{filename}'", openInTerminal: true),
-            CommandItem(name: "shell.git_diff", icon: "doc.text.magnifyingglass", type: .shell,
+            CommandItem(name: "shell.git_diff", icon: "openmoji/git_diff.png", type: .shell,
                         command: "cd '{dir}' && git diff '{filename}'", openInTerminal: true),
-            CommandItem(name: "shell.git_log", icon: "clock.arrow.circlepath", type: .shell,
+            CommandItem(name: "shell.git_log", icon: "openmoji/git_log.png", type: .shell,
                         command: "cd '{dir}' && git log --oneline -20", openInTerminal: true),
         ])
 
@@ -352,6 +360,24 @@ class StorageService: StorageServiceProtocol {
     }
 
     /// 每次启动清理旧版/错误添加的命令，重命名为新版
+    /// 更新默认命令的图标为 OpenMoji
+    private func migrateUpdateIcons() -> Bool {
+        let defaults = Self.defaultCommandItems()
+        let defaultsByName = Dictionary(uniqueKeysWithValues: defaults.map { ($0.name, $0.icon) })
+        var changed = false
+
+        for groupIndex in config.groups.indices {
+            for itemIndex in config.groups[groupIndex].items.indices {
+                let item = config.groups[groupIndex].items[itemIndex]
+                if let newIcon = defaultsByName[item.name], item.icon != newIcon {
+                    config.groups[groupIndex].items[itemIndex].icon = newIcon
+                    changed = true
+                }
+            }
+        }
+        return changed
+    }
+
     private func migrateCleanStaleCommands() -> Bool {
         var changed = false
         for groupIndex in config.groups.indices {
