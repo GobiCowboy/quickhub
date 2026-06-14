@@ -151,6 +151,25 @@ class FinderService: FinderServiceProtocol {
         return path
     }
 
+    /// 检查当前 Finder 窗口是否在废纸篓目录
+    func isFinderInTrash() -> Bool {
+        let script = """
+        tell application "Finder"
+            try
+                set currentTarget to target of front Finder window
+                return (POSIX path of (currentTarget as alias)) contains "/.Trash"
+            on error
+                return false
+            end try
+        end tell
+        """
+
+        var error: NSDictionary?
+        guard let appleScript = NSAppleScript(source: script) else { return false }
+        let result = appleScript.executeAndReturnError(&error)
+        return result.booleanValue
+    }
+
     /// 获取选中的第一个文件/目录的路径
     func getFirstSelectedPath() -> String? {
         return getSelectedItems().first?.path

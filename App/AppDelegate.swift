@@ -425,6 +425,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     fileprivate func shouldInterceptRightClick(at point: CGPoint) -> Bool {
+        // 废纸篓内不拦截，使用系统原生菜单
+        if FinderService.shared.isFinderInTrash() {
+            logger.debug("Right click in Trash folder, skipping intercept")
+            return false
+        }
         return isPointOnFinderManagedSurface(at: point)
     }
 
