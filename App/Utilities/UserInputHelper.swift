@@ -163,6 +163,48 @@ enum UserInputHelper {
             panel.makeKeyAndOrderFront(nil)
         }
     }
+
+    /// 显示重命名输入对话框
+    static func promptRename(currentName: String) async -> String? {
+        await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                let alert = NSAlert()
+                alert.messageText = localized("input.rename.title")
+                alert.informativeText = localized("input.rename.prompt")
+                alert.addButton(withTitle: localized("common.confirm"))
+                alert.addButton(withTitle: localized("common.cancel"))
+
+                let inputField = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
+                inputField.stringValue = currentName
+                inputField.placeholderString = localized("input.rename.placeholder")
+                alert.accessoryView = inputField
+
+                NSApp.activate(ignoringOtherApps: true)
+
+                let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+                tempWindow.isOpaque = false
+                tempWindow.backgroundColor = .clear
+                tempWindow.level = .floating
+                let mouseLocation = NSEvent.mouseLocation
+                tempWindow.setFrame(NSRect(origin: NSPoint(x: mouseLocation.x, y: mouseLocation.y + 170), size: NSSize(width: 1, height: 1)), display: false)
+
+                alert.beginSheetModal(for: tempWindow) { response in
+                    tempWindow.orderOut(nil)
+                    if response == .alertFirstButtonReturn {
+                        let name = inputField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                        continuation.resume(returning: name.isEmpty ? nil : name)
+                    } else {
+                        continuation.resume(returning: nil)
+                    }
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    tempWindow.makeFirstResponder(inputField)
+                    inputField.selectText(nil)
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Bitwarden 搜索结果视图

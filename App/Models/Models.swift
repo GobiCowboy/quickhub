@@ -72,6 +72,13 @@ enum CommandType: String, Codable, CaseIterable {
     case openFinder = "open_finder"    // 打开目录
     case openApp = "open_app"          // 打开应用
     case bitwardenSearch = "bitwarden_search" // Bitwarden 密码搜索
+    case moveToTrash = "move_to_trash" // 移到废纸篓
+    case rename = "rename"             // 重命名
+    case cutFile = "cut_file"          // 剪切
+    case copyFile = "copy_file"        // 复制文件
+    case pasteFile = "paste_file"      // 粘贴
+    case openWith = "open_with"        // 用其他程序打开
+    case shareFile = "share_file"      // 共享
 }
 
 // MARK: - 命令分组

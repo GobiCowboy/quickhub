@@ -158,6 +158,10 @@ struct ItemEditorSheet: View {
                     case .copyPath:
                         Text(localized("editor.copy_path_no_config"))
                             .foregroundColor(.secondary)
+
+                    case .genericCommand:
+                        Text(localized("editor.generic_no_config"))
+                            .foregroundColor(.secondary)
                     }
                 }
                 .padding(20)
@@ -228,6 +232,10 @@ struct ItemEditorSheet: View {
         case .copyPath(let cmdItem):
             name = cmdItem.name
             icon = cmdItem.icon
+
+        case .genericCommand(let cmdItem):
+            name = cmdItem.name
+            icon = cmdItem.icon
         }
     }
 
@@ -246,6 +254,8 @@ struct ItemEditorSheet: View {
         case .bitwardenSearch(let cmdItem):
             updateItem(cmdItem)
         case .copyPath(let cmdItem):
+            updateItem(cmdItem)
+        case .genericCommand(let cmdItem):
             updateItem(cmdItem)
         }
         onSave()
@@ -266,6 +276,8 @@ struct ItemEditorSheet: View {
         case .bitwardenSearch(let cmdItem):
             deleteFromConfig(cmdItem)
         case .copyPath(let cmdItem):
+            deleteFromConfig(cmdItem)
+        case .genericCommand(let cmdItem):
             deleteFromConfig(cmdItem)
         }
         onSave()
@@ -306,6 +318,8 @@ struct ItemEditorSheet: View {
                 case .copyPath:
                     break
                 case .bitwardenSearch:
+                    break
+                case .moveToTrash, .rename, .cutFile, .copyFile, .pasteFile, .openWith, .shareFile:
                     break
                 }
 

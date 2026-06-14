@@ -201,6 +201,36 @@
 "shell.open_in_vscode" = "Open in VS Code";
 "shell.open_in_atom" = "Open in Atom";
 
+/* Shell Presets - Category Names */
+"shell.category.basic" = "Basic";
+"shell.category.macos" = "macOS";
+"shell.category.developer" = "Developer";
+
+/* Shell Presets - macOS */
+"shell.show_hidden_files" = "Show Hidden Files";
+"shell.hide_hidden_files" = "Hide Hidden Files";
+"shell.create_shortcut_desktop" = "Create Shortcut on Desktop";
+"shell.compress_zip" = "Compress to ZIP";
+"shell.view_icon" = "View: Icons";
+"shell.view_list" = "View: List";
+"shell.view_column" = "View: Columns";
+"shell.view_gallery" = "View: Gallery";
+"shell.sort_name" = "Sort: by Name";
+"shell.sort_date" = "Sort: by Date";
+"shell.sort_size" = "Sort: by Size";
+"shell.sort_kind" = "Sort: by Kind";
+
+/* Shell Presets - Developer */
+"shell.json_format" = "JSON Format";
+"shell.git_status" = "Git: Status";
+"shell.git_add" = "Git: Add";
+"shell.git_diff" = "Git: Diff";
+"shell.git_log" = "Git: Log";
+
+/* Group Names - New */
+"group.macos_common" = "macOS";
+"group.developer" = "Developer";
+
 /* Menu Sort Settings */
 "menu_sort.title" = "Menu Sort";
 "menu_sort.desc" = "Drag up/down to adjust the order of groups in the right-click panel";
@@ -284,6 +314,14 @@
 "command_type.open_app" = "App";
 "command_type.bitwarden" = "Password";
 "command_type.file_info" = "Info";
+"command_type.move_to_trash" = "Trash";
+"command_type.rename" = "Rename";
+"command_type.cut_file" = "Cut";
+"command_type.copy_file" = "Copy";
+"command_type.paste_file" = "Paste";
+"command_type.open_with" = "Open With";
+"command_type.share_file" = "Share";
+"editor.generic_no_config" = "This command has no configurable settings. It operates on the selected file or folder.";
 
 /* File Info */
 "file_info.type" = "Type";
@@ -330,3 +368,35 @@
 "app.iterm" = "iTerm";
 "app.vscode" = "VS Code";
 "app.atom" = "Atom";
+
+/* Shell Presets - Windows Style */
+"shell.category.windows" = "Windows Style";
+"command.cut_file" = "Cut";
+"command.copy_file" = "Copy File";
+"command.paste_file" = "Paste";
+"command.move_to_trash" = "Move to Trash";
+"command.rename" = "Rename";
+"command.open_with" = "Open With...";
+"command.share_file" = "Share";
+
+/* Command Execution Messages */
+"command.move_to_trash.confirm_title" = "Move to Trash?";
+"command.move_to_trash.confirm_message" = "Are you sure you want to move \"%@\" to the Trash?";
+"command.move_to_trash.success" = "\"%@\" moved to Trash";
+"command.rename.success" = "Renamed to \"%@\"";
+"command.cut.no_file" = "No file selected";
+"command.cut.success" = "\"%@\" marked for moving";
+"command.copy.no_file" = "No file selected";
+"command.copy.success" = "\"%@\" marked for copying";
+"command.paste.empty" = "Nothing to paste (use Cut or Copy first)";
+"command.paste.moved" = "\"%@\" moved here";
+"command.paste.copied" = "\"%@\" copied here";
+"command.open_with.title" = "Choose Application";
+"command.open_with.message" = "Select an application to open this file";
+"command.open_with.success" = "Opened with %@";
+"command.share.shown" = "Share menu shown";
+
+/* Rename Dialog */
+"input.rename.title" = "Rename";
+"input.rename.prompt" = "Enter a new name:";
+"input.rename.placeholder" = "New name";

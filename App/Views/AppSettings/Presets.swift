@@ -102,3 +102,23 @@ extension ShellPreset {
         }
     }
 }
+
+// MARK: - 通用命令预设（支持所有 CommandType）
+
+struct CommandPreset: Identifiable {
+    let id: String
+    let name: String
+    let icon: String
+    let type: CommandType
+
+    init(name: String, icon: String, type: CommandType) {
+        self.id = name
+        self.name = name
+        self.icon = icon
+        self.type = type
+    }
+
+    func toCommandItem() -> CommandItem {
+        CommandItem(name: name, icon: icon, type: type)
+    }
+}

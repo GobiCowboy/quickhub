@@ -34,6 +34,20 @@ class CommandExecutor: CommandExecutorProtocol {
             return try await executeOpenApp(item, context: context)
         case .bitwardenSearch:
             return try await executeBitwardenSearch(context: context)
+        case .moveToTrash:
+            return try await executeMoveToTrash(context: context)
+        case .rename:
+            return try await executeRename(context: context)
+        case .cutFile:
+            return executeCutFile(context: context)
+        case .copyFile:
+            return executeCopyFile(context: context)
+        case .pasteFile:
+            return try await executePasteFile(context: context)
+        case .openWith:
+            return try await executeOpenWith(context: context)
+        case .shareFile:
+            return try await executeShareFile(context: context)
         }
     }
 
@@ -394,6 +408,209 @@ class CommandExecutor: CommandExecutorProtocol {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
+    }
+
+    // MARK: - 移到废纸篓
+
+    private func executeMoveToTrash(context: ExecutionContext) async throws -> ExecutionResult {
+        guard let filePath = context.filePath else {
+            throw ExecutionError.missingCommand
+        }
+        let url = URL(fileURLWithPath: filePath)
+
+        // 确认弹窗
+        let confirmed = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+            DispatchQueue.main.async {
+                let alert = NSAlert()
+                alert.messageText = localized("command.move_to_trash.confirm_title")
+                alert.informativeText = localized("command.move_to_trash.confirm_message", with: url.lastPathComponent)
+                alert.alertStyle = .warning
+                alert.addButton(withTitle: localized("common.delete"))
+                alert.addButton(withTitle: localized("common.cancel"))
+
+                let tempWindow = NSWindow(contentRect: .zero, styleMask: .borderless, backing: .buffered, defer: false)
+                tempWindow.level = .floating
+                let mouseLocation = NSEvent.mouseLocation
+                tempWindow.setFrame(NSRect(origin: NSPoint(x: mouseLocation.x - 160, y: mouseLocation.y - 20), size: NSSize(width: 320, height: 140)), display: true)
+                tempWindow.makeKeyAndOrderFront(nil)
+
+                alert.beginSheetModal(for: tempWindow) { response in
+                    tempWindow.orderOut(nil)
+                    continuation.resume(returning: response == .alertFirstButtonReturn)
+                }
+            }
+        }
+
+        guard confirmed else {
+            return ExecutionResult(success: false, output: localized("common.cancel"))
+        }
+
+        return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<ExecutionResult, Error>) in
+            DispatchQueue.main.async {
+                do {
+                    try NSWorkspace.shared.recycle([url])
+                    continuation.resume(returning: ExecutionResult(success: true, output: localized("command.move_to_trash.success", with: url.lastPathComponent)))
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    // MARK: - 重命名
+
+    private func executeRename(context: ExecutionContext) async throws -> ExecutionResult {
+        guard let filePath = context.filePath else {
+            throw ExecutionError.missingCommand
+        }
+        let url = URL(fileURLWithPath: filePath)
+        let currentName = url.deletingPathExtension().lastPathComponent
+        let ext = url.pathExtension
+
+        let newName = await UserInputHelper.promptRename(currentName: currentName)
+
+        guard let newName = newName, !newName.isEmpty else {
+            return ExecutionResult(success: false, output: localized("common.cancel"))
+        }
+
+        let newFileName = ext.isEmpty ? newName : "\(newName).\(ext)"
+        let newURL = url.deletingLastPathComponent().appendingPathComponent(newFileName)
+
+        do {
+            try FileManager.default.moveItem(at: url, to: newURL)
+            return ExecutionResult(success: true, output: localized("command.rename.success", with: newFileName))
+        } catch {
+            throw error
+        }
+    }
+
+    // MARK: - 剪切
+
+    private func executeCutFile(context: ExecutionContext) -> ExecutionResult {
+        guard let filePath = context.filePath else {
+            return ExecutionResult(success: false, output: localized("command.cut.no_file"))
+        }
+        ClipboardService.shared.setCut(path: filePath)
+        return ExecutionResult(success: true, output: localized("command.cut.success", with: URL(fileURLWithPath: filePath).lastPathComponent))
+    }
+
+    // MARK: - 复制文件
+
+    private func executeCopyFile(context: ExecutionContext) -> ExecutionResult {
+        guard let filePath = context.filePath else {
+            return ExecutionResult(success: false, output: localized("command.copy.no_file"))
+        }
+        ClipboardService.shared.setCopy(path: filePath)
+        return ExecutionResult(success: true, output: localized("command.copy.success", with: URL(fileURLWithPath: filePath).lastPathComponent))
+    }
+
+    // MARK: - 粘贴
+
+    private func executePasteFile(context: ExecutionContext) async throws -> ExecutionResult {
+        guard let sourcePath = ClipboardService.shared.sourcePath,
+              let operation = ClipboardService.shared.operation else {
+            return ExecutionResult(success: false, output: localized("command.paste.empty"))
+        }
+
+        let sourceURL = URL(fileURLWithPath: sourcePath)
+        let destDir = context.directory
+        let destURL = URL(fileURLWithPath: destDir).appendingPathComponent(sourceURL.lastPathComponent)
+
+        do {
+            switch operation {
+            case .cut:
+                try FileManager.default.moveItem(at: sourceURL, to: destURL)
+                ClipboardService.shared.clear()
+                return ExecutionResult(success: true, output: localized("command.paste.moved", with: sourceURL.lastPathComponent))
+            case .copy:
+                try FileManager.default.copyItem(at: sourceURL, to: destURL)
+                ClipboardService.shared.clear()
+                return ExecutionResult(success: true, output: localized("command.paste.copied", with: sourceURL.lastPathComponent))
+            }
+        } catch {
+            throw error
+        }
+    }
+
+    // MARK: - 用其他程序打开
+
+    private func executeOpenWith(context: ExecutionContext) async throws -> ExecutionResult {
+        guard let filePath = context.filePath else {
+            throw ExecutionError.missingCommand
+        }
+
+        let appURL = await withCheckedContinuation { (continuation: CheckedContinuation<URL?, Never>) in
+            DispatchQueue.main.async {
+                let panel = NSOpenPanel()
+                panel.title = localized("command.open_with.title")
+                panel.message = localized("command.open_with.message")
+                panel.canChooseFiles = true
+                panel.canChooseDirectories = false
+                panel.allowsMultipleSelection = false
+                panel.directoryURL = URL(fileURLWithPath: "/Applications")
+                panel.allowedContentTypes = [.application]
+
+                NSApp.activate(ignoringOtherApps: true)
+                let result = panel.runModal()
+                continuation.resume(returning: result == .OK ? panel.url : nil)
+            }
+        }
+
+        guard let appURL = appURL else {
+            return ExecutionResult(success: false, output: localized("common.cancel"))
+        }
+
+        let fileURL = URL(fileURLWithPath: filePath)
+        try await NSWorkspace.shared.open([fileURL], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration())
+        return ExecutionResult(success: true, output: localized("command.open_with.success", with: appURL.deletingPathExtension().lastPathComponent))
+    }
+
+    // MARK: - 共享
+
+    private func executeShareFile(context: ExecutionContext) async throws -> ExecutionResult {
+        guard let filePath = context.filePath else {
+            throw ExecutionError.missingCommand
+        }
+
+        let url = URL(fileURLWithPath: filePath)
+
+        return await withCheckedContinuation { (continuation: CheckedContinuation<ExecutionResult, Never>) in
+            DispatchQueue.main.async {
+                // 创建临时窗口作为 picker 的锚点
+                let mouseLocation = NSEvent.mouseLocation
+                let anchorView = NSView(frame: NSRect(x: 0, y: 0, width: 1, height: 1))
+                let tempWindow = NSWindow(contentRect: NSRect(origin: mouseLocation, size: NSSize(width: 1, height: 1)),
+                                          styleMask: .borderless, backing: .buffered, defer: false)
+                tempWindow.level = .floating
+                tempWindow.contentView = anchorView
+                tempWindow.orderFront(nil)
+
+                let picker = NSSharingServicePicker(items: [url])
+                picker.delegate = SharePickerDelegate.shared
+                SharePickerDelegate.shared.onDismiss = {
+                    tempWindow.orderOut(nil)
+                    continuation.resume(returning: ExecutionResult(success: true, output: localized("command.share.shown")))
+                }
+                picker.show(relativeTo: anchorView.bounds, of: anchorView, preferredEdge: .minY)
+            }
+        }
+    }
+}
+
+// MARK: - 共享 Picker 代理
+
+private class SharePickerDelegate: NSObject, NSSharingServicePickerDelegate {
+    static let shared = SharePickerDelegate()
+    var onDismiss: (() -> Void)?
+
+    func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, didChoose service: NSSharingService?) {
+        onDismiss?()
+        onDismiss = nil
+    }
+
+    func sharingServicePickerDidDismiss(_ sharingServicePicker: NSSharingServicePicker) {
+        onDismiss?()
+        onDismiss = nil
     }
 }
 

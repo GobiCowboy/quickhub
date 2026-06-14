@@ -201,6 +201,36 @@
 "shell.open_in_vscode" = "在 VS Code 打开";
 "shell.open_in_atom" = "在 Atom 打开";
 
+/* Shell Presets - 分类名称 */
+"shell.category.basic" = "基础";
+"shell.category.macos" = "macOS";
+"shell.category.developer" = "开发者";
+
+/* Shell Presets - macOS 常用 */
+"shell.show_hidden_files" = "显示隐藏文件";
+"shell.hide_hidden_files" = "隐藏隐藏文件";
+"shell.create_shortcut_desktop" = "创建快捷方式到桌面";
+"shell.compress_zip" = "压缩为 ZIP";
+"shell.view_icon" = "展示: 图标视图";
+"shell.view_list" = "展示: 列表视图";
+"shell.view_column" = "展示: 分栏视图";
+"shell.view_gallery" = "展示: 画廊视图";
+"shell.sort_name" = "排序: 按名称";
+"shell.sort_date" = "排序: 按日期";
+"shell.sort_size" = "排序: 按大小";
+"shell.sort_kind" = "排序: 按种类";
+
+/* Shell Presets - 开发者 */
+"shell.json_format" = "JSON 格式化";
+"shell.git_status" = "Git: 查看状态";
+"shell.git_add" = "Git: 添加暂存";
+"shell.git_diff" = "Git: 查看差异";
+"shell.git_log" = "Git: 查看历史";
+
+/* Group Names - 新增 */
+"group.macos_common" = "macOS 常用";
+"group.developer" = "开发者";
+
 /* Menu Sort Settings */
 "menu_sort.title" = "菜单排序";
 "menu_sort.desc" = "上下拖拽以调整组在右键面板中的显示顺序";
@@ -284,6 +314,14 @@
 "command_type.open_app" = "应用";
 "command_type.bitwarden" = "密码";
 "command_type.file_info" = "信息";
+"command_type.move_to_trash" = "删除";
+"command_type.rename" = "重命名";
+"command_type.cut_file" = "剪切";
+"command_type.copy_file" = "复制";
+"command_type.paste_file" = "粘贴";
+"command_type.open_with" = "打开方式";
+"command_type.share_file" = "共享";
+"editor.generic_no_config" = "此命令无需配置，操作基于当前选中的文件或文件夹。";
 
 /* File Info */
 "file_info.type" = "类型";
@@ -330,3 +368,35 @@
 "app.iterm" = "iTerm";
 "app.vscode" = "VS Code";
 "app.atom" = "Atom";
+
+/* Shell Presets - Windows 风格 */
+"shell.category.windows" = "Windows 风格";
+"command.cut_file" = "剪切";
+"command.copy_file" = "复制文件";
+"command.paste_file" = "粘贴";
+"command.move_to_trash" = "移到废纸篓";
+"command.rename" = "重命名";
+"command.open_with" = "用其他程序打开...";
+"command.share_file" = "共享";
+
+/* Command Execution Messages */
+"command.move_to_trash.confirm_title" = "移到废纸篓？";
+"command.move_to_trash.confirm_message" = "确定要将 \"%@\" 移到废纸篓吗？";
+"command.move_to_trash.success" = "\"%@\" 已移到废纸篓";
+"command.rename.success" = "已重命名为 \"%@\"";
+"command.cut.no_file" = "未选中文件";
+"command.cut.success" = "\"%@\" 已标记移动";
+"command.copy.no_file" = "未选中文件";
+"command.copy.success" = "\"%@\" 已标记复制";
+"command.paste.empty" = "没有可粘贴的内容（请先剪切或复制）";
+"command.paste.moved" = "\"%@\" 已移动到此处";
+"command.paste.copied" = "\"%@\" 已复制到此处";
+"command.open_with.title" = "选择应用程序";
+"command.open_with.message" = "选择一个应用程序来打开此文件";
+"command.open_with.success" = "已用 %@ 打开";
+"command.share.shown" = "已显示共享菜单";
+
+/* Rename Dialog */
+"input.rename.title" = "重命名";
+"input.rename.prompt" = "输入新名称：";
+"input.rename.placeholder" = "新名称";

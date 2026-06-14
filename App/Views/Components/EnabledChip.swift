@@ -16,6 +16,16 @@ enum CommandVisualStyle {
             return Color(red: 0.08, green: 0.58, blue: 0.70)
         case .bitwardenSearch:
             return Color(red: 0.82, green: 0.22, blue: 0.38)
+        case .moveToTrash:
+            return Color(red: 0.75, green: 0.25, blue: 0.25)
+        case .rename:
+            return Color(red: 0.95, green: 0.58, blue: 0.12)
+        case .cutFile, .copyFile, .pasteFile:
+            return Color(red: 0.20, green: 0.60, blue: 0.85)
+        case .openWith:
+            return Color(red: 0.50, green: 0.40, blue: 0.85)
+        case .shareFile:
+            return Color(red: 0.10, green: 0.65, blue: 0.50)
         }
     }
 
@@ -39,6 +49,20 @@ enum CommandVisualStyle {
             return localized("command_type.open_app")
         case .bitwardenSearch:
             return localized("command_type.bitwarden")
+        case .moveToTrash:
+            return localized("command_type.move_to_trash")
+        case .rename:
+            return localized("command_type.rename")
+        case .cutFile:
+            return localized("command_type.cut_file")
+        case .copyFile:
+            return localized("command_type.copy_file")
+        case .pasteFile:
+            return localized("command_type.paste_file")
+        case .openWith:
+            return localized("command_type.open_with")
+        case .shareFile:
+            return localized("command_type.share_file")
         }
     }
 

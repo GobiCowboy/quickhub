@@ -60,6 +60,43 @@ class StorageService: StorageServiceProtocol {
             changed = true
         }
 
+        if config.settings.legacyDefaultsPrunedRevision < 3 {
+            if migrateAddDefaultGroups() {
+                changed = true
+            }
+            config.settings.legacyDefaultsPrunedRevision = 3
+            changed = true
+        }
+
+        if config.settings.legacyDefaultsPrunedRevision < 4 {
+            if migrateUpdateCommandStrings() {
+                changed = true
+            }
+            config.settings.legacyDefaultsPrunedRevision = 4
+            changed = true
+        }
+
+        if config.settings.legacyDefaultsPrunedRevision < 5 {
+            if migrateRemoveRetractedCommands() {
+                changed = true
+            }
+            config.settings.legacyDefaultsPrunedRevision = 5
+            changed = true
+        }
+
+        // 每次启动清理旧版命令名称（不限 revision）
+        if migrateCleanStaleCommands() {
+            changed = true
+        }
+
+        // 清理错误添加的顶级分组（v3 迁移曾误创建）
+        let staleGroups = ["macOS 常用", "开发者"]
+        let beforeCount = config.groups.count
+        config.groups.removeAll { staleGroups.contains($0.name) }
+        if config.groups.count != beforeCount {
+            changed = true
+        }
+
         if changed {
             saveToDisk()
         }
@@ -134,7 +171,67 @@ class StorageService: StorageServiceProtocol {
     // MARK: - 默认配置
 
     static func defaultGroups() -> [CommandGroup] {
-        return []
+        return [
+            CommandGroup(
+                name: "命令",
+                icon: "terminal",
+                items: defaultCommandItems()
+            ),
+        ]
+    }
+
+    /// 命令分组默认项
+    private static func defaultCommandItems() -> [CommandItem] {
+        var items: [CommandItem] = []
+
+        // —— 基础命令 ——
+        items.append(contentsOf: [
+            CommandItem(name: "shell.file_info", icon: "info.circle", type: .shell,
+                        command: InternalShellCommand.fileInfo, openInTerminal: false),
+            CommandItem(name: "shell.copy_path", icon: "doc.on.doc", type: .shell,
+                        command: "echo -n '{path}' | pbcopy", openInTerminal: false),
+            CommandItem(name: "shell.open_in_terminal", icon: "terminal", type: .shell,
+                        command: "open -b com.apple.Terminal '{dir}'", openInTerminal: false),
+        ])
+
+        // —— macOS ——
+        items.append(contentsOf: [
+            CommandItem(name: "shell.create_shortcut_desktop", icon: "arrow.uturn.forward", type: .shell,
+                        command: "ln -s '{path}' ~/Desktop/", openInTerminal: false),
+            CommandItem(name: "shell.compress_zip", icon: "archivebox", type: .shell,
+                        command: "ditto -c -k --sequesterRsrc '{path}' \"$(dirname '{path}')/{filename}.zip\"", openInTerminal: false),
+            CommandItem(name: "shell.view_icon", icon: "square.grid.2x2", type: .shell,
+                        command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to icon view'", openInTerminal: false),
+            CommandItem(name: "shell.view_list", icon: "list.bullet", type: .shell,
+                        command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to list view'", openInTerminal: false),
+            CommandItem(name: "shell.view_column", icon: "sidebar.left", type: .shell,
+                        command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to column view'", openInTerminal: false),
+            CommandItem(name: "shell.view_gallery", icon: "rectangle.split.3x1", type: .shell,
+                        command: "osascript -e 'tell application \"Finder\" to activate' -e 'delay 0.1' -e 'tell application \"Finder\" to set current view of front Finder window to flow view'", openInTerminal: false),
+        ])
+
+        // —— 开发者 ——
+        // VS Code：仅在已安装时添加
+        if AppAvailability.isInstalled(
+            bundleIdentifiers: ["com.microsoft.VSCode", "com.microsoft.VSCodeInsiders"],
+            appPaths: ["/Applications/Visual Studio Code.app"]
+        ) {
+            items.append(CommandItem(name: "shell.open_in_vscode", icon: "chevron.left.forwardslash.chevron.right", type: .shell,
+                                     command: "open -b com.microsoft.VSCode '{path}'", openInTerminal: false))
+        }
+
+        items.append(contentsOf: [
+            CommandItem(name: "shell.git_status", icon: "arrow.triangle.branch", type: .shell,
+                        command: "cd '{dir}' && git status", openInTerminal: true),
+            CommandItem(name: "shell.git_add", icon: "plus.circle", type: .shell,
+                        command: "cd '{dir}' && git add '{filename}'", openInTerminal: true),
+            CommandItem(name: "shell.git_diff", icon: "doc.text.magnifyingglass", type: .shell,
+                        command: "cd '{dir}' && git diff '{filename}'", openInTerminal: true),
+            CommandItem(name: "shell.git_log", icon: "clock.arrow.circlepath", type: .shell,
+                        command: "cd '{dir}' && git log --oneline -20", openInTerminal: true),
+        ])
+
+        return items
     }
 
     private func pruneLegacyStarterItems() -> Bool {
@@ -187,6 +284,92 @@ class StorageService: StorageServiceProtocol {
                 || (item.type == .shell && item.name == "在 Atom 打开")
         }
 
+        return changed
+    }
+
+    /// 为已有用户补入新的默认命令项（不覆盖用户已有配置）
+    private func migrateAddDefaultGroups() -> Bool {
+        let defaults = Self.defaultCommandItems()
+        let defaultNames = Set(defaults.map { $0.name })
+
+        // 找到 "命令" 分组，没有则创建
+        let groupIndex: Int
+        if let idx = config.groups.firstIndex(where: { $0.name == "命令" }) {
+            groupIndex = idx
+        } else {
+            config.groups.append(CommandGroup(name: "命令", icon: "terminal"))
+            groupIndex = config.groups.count - 1
+        }
+
+        // 只添加用户还没有的命令
+        let existingNames = Set(config.groups[groupIndex].items.map { $0.name })
+        let toAdd = defaults.filter { !existingNames.contains($0.name) }
+        if toAdd.isEmpty { return false }
+
+        config.groups[groupIndex].items.append(contentsOf: toAdd)
+        return true
+    }
+
+    /// 更新已有命令的命令字符串（修复 bug 后同步更新用户已有配置）
+    private func migrateUpdateCommandStrings() -> Bool {
+        let defaults = Self.defaultCommandItems()
+        let defaultsByName = Dictionary(uniqueKeysWithValues: defaults.map { ($0.name, $0) })
+        var changed = false
+
+        for groupIndex in config.groups.indices {
+            for itemIndex in config.groups[groupIndex].items.indices {
+                let item = config.groups[groupIndex].items[itemIndex]
+                if let defaultItem = defaultsByName[item.name],
+                   item.command != defaultItem.command {
+                    config.groups[groupIndex].items[itemIndex].command = defaultItem.command
+                    changed = true
+                }
+            }
+        }
+        return changed
+    }
+
+    /// 移除已撤回的默认命令
+    private func migrateRemoveRetractedCommands() -> Bool {
+        let retractedNames: Set<String> = [
+            "shell.show_hidden_files",
+            "shell.hide_hidden_files",
+            "shell.sort_name",
+            "shell.sort_date",
+            "shell.sort_size",
+            "shell.sort_kind",
+            "shell.json_format",
+        ]
+        var changed = false
+        for groupIndex in config.groups.indices {
+            let beforeCount = config.groups[groupIndex].items.count
+            config.groups[groupIndex].items.removeAll { retractedNames.contains($0.name) }
+            if config.groups[groupIndex].items.count != beforeCount {
+                changed = true
+            }
+        }
+        return changed
+    }
+
+    /// 每次启动清理旧版/错误添加的命令，重命名为新版
+    private func migrateCleanStaleCommands() -> Bool {
+        var changed = false
+        for groupIndex in config.groups.indices {
+            // 移除已撤回的 Windows 默认命令（cut/copy/paste/trash/rename/open_with/share）
+            let beforeCount = config.groups[groupIndex].items.count
+            config.groups[groupIndex].items.removeAll { item in
+                ["command.cut_file", "command.copy_file", "command.paste_file",
+                 "command.move_to_trash", "command.rename",
+                 "command.open_with", "command.share_file",
+                 "shell.create_alias_desktop",
+                 "shell.show_hidden_files", "shell.hide_hidden_files",
+                 "shell.sort_name", "shell.sort_date", "shell.sort_size", "shell.sort_kind",
+                 "shell.json_format"].contains(item.name)
+            }
+            if config.groups[groupIndex].items.count != beforeCount {
+                changed = true
+            }
+        }
         return changed
     }
 }

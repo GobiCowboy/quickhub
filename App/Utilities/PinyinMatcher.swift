@@ -97,6 +97,20 @@ struct PinyinMatcher {
             candidates.append(contentsOf: ["新建文件夹", "new folder", "folder"])
         case .bitwardenSearch:
             candidates.append(contentsOf: ["密码管理", "password", "vault"])
+        case .moveToTrash:
+            candidates.append(contentsOf: ["移到废纸篓", "删除", "delete", "trash", "remove"])
+        case .rename:
+            candidates.append(contentsOf: ["重命名", "rename"])
+        case .cutFile:
+            candidates.append(contentsOf: ["剪切", "cut"])
+        case .copyFile:
+            candidates.append(contentsOf: ["复制文件", "copy file", "copy"])
+        case .pasteFile:
+            candidates.append(contentsOf: ["粘贴", "paste"])
+        case .openWith:
+            candidates.append(contentsOf: ["用其他程序打开", "open with"])
+        case .shareFile:
+            candidates.append(contentsOf: ["共享", "share"])
         }
 
         return candidates

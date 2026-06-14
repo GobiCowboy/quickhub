@@ -254,6 +254,7 @@ enum EditableItem: Identifiable, Equatable {
     case shell(CommandItem)
     case copyPath(CommandItem)
     case bitwardenSearch(CommandItem)
+    case genericCommand(CommandItem)  // 剪切/复制/粘贴/删除/重命名/用其他程序打开/共享
 
     var id: UUID {
         switch self {
@@ -264,6 +265,7 @@ enum EditableItem: Identifiable, Equatable {
         case .shell(let item): return item.id
         case .copyPath(let item): return item.id
         case .bitwardenSearch(let item): return item.id
+        case .genericCommand(let item): return item.id
         }
     }
 }

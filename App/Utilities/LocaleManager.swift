@@ -137,7 +137,34 @@ struct DefaultItemNameMapping {
         "open_folder.applications": "open_folder.applications",
         "open_folder.pictures": "open_folder.pictures",
         "open_folder.music": "open_folder.music",
-        "open_folder.movies": "open_folder.movies"
+        "open_folder.movies": "open_folder.movies",
+        // macOS 常用
+        "shell.show_hidden_files": "shell.show_hidden_files",
+        "shell.hide_hidden_files": "shell.hide_hidden_files",
+        "shell.create_shortcut_desktop": "shell.create_shortcut_desktop",
+        "shell.compress_zip": "shell.compress_zip",
+        "shell.view_icon": "shell.view_icon",
+        "shell.view_list": "shell.view_list",
+        "shell.view_column": "shell.view_column",
+        "shell.view_gallery": "shell.view_gallery",
+        "shell.sort_name": "shell.sort_name",
+        "shell.sort_date": "shell.sort_date",
+        "shell.sort_size": "shell.sort_size",
+        "shell.sort_kind": "shell.sort_kind",
+        // 开发者
+        "shell.json_format": "shell.json_format",
+        "shell.git_status": "shell.git_status",
+        "shell.git_add": "shell.git_add",
+        "shell.git_diff": "shell.git_diff",
+        "shell.git_log": "shell.git_log",
+        // Windows 风格
+        "command.cut_file": "command.cut_file",
+        "command.copy_file": "command.copy_file",
+        "command.paste_file": "command.paste_file",
+        "command.move_to_trash": "command.move_to_trash",
+        "command.rename": "command.rename",
+        "command.open_with": "command.open_with",
+        "command.share_file": "command.share_file",
     ]
 
     /// 获取本地化的项名称
@@ -173,7 +200,9 @@ struct DefaultGroupNameMapping {
         "打开文件夹": "打开文件夹",
         "打开应用": "打开应用",
         "命令": "命令",
-        "密码管理": "密码管理"
+        "密码管理": "密码管理",
+        "macOS 常用": "macOS 常用",
+        "开发者": "开发者"
     ]
 
     /// 获取本地化的组名
