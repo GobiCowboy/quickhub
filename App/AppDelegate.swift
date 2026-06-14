@@ -430,14 +430,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     fileprivate func shouldInterceptRightClick(at point: CGPoint) -> Bool {
-        // 桌面始终拦截（优先级最高）
+        // 先用快速的 accessibility API 判断
         if isClickOnDesktopSurface(at: point) {
             return true
         }
-        // 废纸篓内不拦截，使用系统原生菜单
-        if FinderService.shared.isFinderInTrash() {
-            logger.debug("Right click in Trash folder, skipping intercept")
-            return false
+        // 仅在 Finder 前台时才检查废纸篓（AppleScript 较慢，避免影响其他应用）
+        if NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.apple.finder" {
+            if FinderService.shared.isFinderInTrash() {
+                return false
+            }
         }
         return isPointOnFinderManagedSurface(at: point)
     }
@@ -596,15 +597,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 判断点击是否在桌面表面
     fileprivate func isClickOnDesktopSurface(at point: CGPoint) -> Bool {
-        guard let hit = accessibilityHitUnderCursor(at: point) else { return true }
-        let isDesktop =
-            hit.subrole.lowercased().contains("desktop") ||
-            hit.role.lowercased().contains("desktop") ||
-            hit.title.lowercased().contains("desktop") ||
-            hit.description.lowercased().contains("desktop")
-        if isDesktop { return true }
-        // owner 不是 Finder → 可能是桌面
-        return !hit.owner.lowercased().contains("finder")
+        guard let hit = accessibilityHitUnderCursor(at: point) else { return false }
+        return hit.subrole.lowercased().contains("desktop") ||
+               hit.role.lowercased().contains("desktop") ||
+               hit.title.lowercased().contains("desktop") ||
+               hit.description.lowercased().contains("desktop")
     }
 
     /// 同步获取 Finder 选择（阻塞直到完成）
