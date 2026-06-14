@@ -367,8 +367,10 @@ struct GeneralSettingsView: View {
 
                     // 替换旧版本
                     if fm.fileExists(atPath: destination.path) {
+                        // 移到废纸篓，加时间戳避免重名
                         let trashURL = try fm.url(for: .trashDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-                        try fm.moveItem(at: destination, to: trashURL.appendingPathComponent("QuickHub.app"))
+                        let timestamp = Int(Date().timeIntervalSince1970)
+                        try fm.moveItem(at: destination, to: trashURL.appendingPathComponent("QuickHub-\(timestamp).app"))
                     }
 
                     try fm.moveItem(at: appURL, to: destination)

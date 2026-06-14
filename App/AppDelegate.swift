@@ -232,7 +232,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return
         }
 
-        print("[AppDelegate] 辅助功能权限未授予，全局快捷键可能无法工作")
+        print("[AppDelegate] 辅助功能权限未授予，自动触发系统权限弹窗")
+        // 自动弹出系统辅助功能权限对话框（无需用户手动去设置）
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
+        AXIsProcessTrustedWithOptions(options)
+
         DispatchQueue.main.async { [weak self] in
             self?.showAccessibilityAlert()
         }
