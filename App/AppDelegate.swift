@@ -223,6 +223,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 检查辅助功能权限（全局快捷键需要）
     private func checkAccessibilityPermission() {
+        // 更新后旧 TCC 条目的 cdhash 不匹配，AXIsProcessTrusted 可能返回 true
+        // 但实际权限已失效，必须先清掉再重新检查
+        clearStaleAccessibilityEntryIfNeeded()
+
         let trusted = AXIsProcessTrusted()
         print("[AppDelegate] 辅助功能权限检查: AXIsProcessTrusted() = \(trusted)")
         print("[AppDelegate] 进程路径: \(Bundle.main.bundlePath)")
@@ -240,6 +244,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.showAccessibilityAlert()
         }
+    }
+
+    /// 更新后旧版本的 TCC 条目仍在，macOS 不会重新弹窗，需要先清掉
+    private func clearStaleAccessibilityEntryIfNeeded() {
+        let defaults = UserDefaults.standard
+        let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let lastVersion = defaults.string(forKey: "LastLaunchedVersion") ?? ""
+
+        // 记录本次版本，下次启动时对比
+        defaults.set(currentVersion, forKey: "LastLaunchedVersion")
+
+        guard !lastVersion.isEmpty, lastVersion != currentVersion else { return }
+
+        print("[AppDelegate] 检测到版本更新 \(lastVersion) → \(currentVersion)，清除旧辅助功能权限")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+        process.arguments = ["reset", "Accessibility", Bundle.main.bundleIdentifier ?? "com.rightclickx.app"]
+        try? process.run()
+        process.waitUntilExit()
+        print("[AppDelegate] tccutil reset 完成")
     }
 
     private func showAccessibilityAlert() {
