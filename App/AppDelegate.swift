@@ -70,6 +70,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var panel: NSPanel!
     private var settingsWindow: NSWindow?
+    private var settingsKeyMonitor: Any?
     private var eventMonitor: Any?
     private var settingsHostingController: NSHostingController<AppSettingsView>?
     private var globalHotkeyMonitor: Any?
@@ -804,6 +805,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
+        // 设置窗口快捷键: Command+W 关闭, Command+Q 退出
+        setupSettingsKeyMonitor()
+
         if needsDeferredCentering {
             DispatchQueue.main.async { [weak self] in
                 guard let settingsWindow = self?.settingsWindow else { return }
@@ -827,5 +831,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
+    }
+
+    private func setupSettingsKeyMonitor() {
+        // 移除旧的 monitor
+        if let monitor = settingsKeyMonitor {
+            NSEvent.removeMonitor(monitor)
+            settingsKeyMonitor = nil
+        }
+
+        settingsKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            let isCommand = event.modifierFlags.contains(.command)
+
+            // Command+W → 关闭设置窗口
+            if isCommand && event.keyCode == 13 {
+                self?.settingsWindow?.close()
+                return nil
+            }
+
+            // Command+Q → 退出应用
+            if isCommand && event.keyCode == 12 {
+                NSApp.terminate(nil)
+                return nil
+            }
+
+            return event
+        }
     }
 }
