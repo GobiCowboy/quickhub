@@ -352,29 +352,16 @@ struct GeneralSettingsView: View {
                         return
                     }
 
-                    // 找到解压出来的 .app（支持嵌套目录）
-                    let appURL: URL
+                    // 找到解压出来的 .app
                     let contents = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
-                    if let direct = contents.first(where: { $0.pathExtension == "app" }) {
-                        appURL = direct
-                    } else {
-                        // ZIP 可能包含子目录，递归查找 .app
-                        var found: URL?
-                        if let enumerator = fm.enumerator(at: tempDir, includingPropertiesForKeys: nil) {
-                            for case let fileURL as URL in enumerator {
-                                if fileURL.pathExtension == "app" {
-                                    found = fileURL
-                                    break
-                                }
-                            }
-                        }
-                        guard let nested = found else {
-                            try? fm.removeItem(at: tempDir)
-                            updateStatus = .failed
-                            return
-                        }
-                        appURL = nested
+                    guard let appURL = contents.first(where: { $0.pathExtension == "app" }) else {
+                        print("[Update] No .app found in: \(contents.map { $0.lastPathComponent })")
+                        try? fm.removeItem(at: tempDir)
+                        updateStatus = .failed
+                        return
                     }
+
+                    print("[Update] Found app: \(appURL.path)")
 
                     let destination = URL(fileURLWithPath: "/Applications/QuickHub.app")
 
@@ -398,6 +385,7 @@ struct GeneralSettingsView: View {
                         NSApp.terminate(nil)
                     }
                 } catch {
+                    print("[Update] Install error: \(error)")
                     try? fm.removeItem(at: tempDir)
                     updateStatus = .failed
                 }
