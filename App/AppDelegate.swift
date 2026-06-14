@@ -240,10 +240,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 自动弹出系统辅助功能权限对话框（无需用户手动去设置）
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
-
-        DispatchQueue.main.async { [weak self] in
-            self?.showAccessibilityAlert()
-        }
     }
 
     /// 更新后旧版本的 TCC 条目仍在，macOS 不会重新弹窗，需要先清掉
