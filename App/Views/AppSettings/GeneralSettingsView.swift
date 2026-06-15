@@ -292,16 +292,8 @@ struct GeneralSettingsView: View {
                 print("[Update] Remote: \(remoteVersion), Current: \(currentVersion)")
 
                 if isNewerVersion(remoteVersion, than: currentVersion) {
-                    guard let assets = json["assets"] as? [[String: Any]],
-                          let asset = assets.first(where: { ($0["name"] as? String)?.hasSuffix(".zip") == true }),
-                          let downloadURL = asset["browser_download_url"] as? String
-                    else {
-                        print("[Update] No zip asset found")
-                        updateStatus = .failed
-                        return
-                    }
                     pendingVersion = remoteVersion
-                    pendingAssetURL = downloadURL
+                    pendingAssetURL = "https://download.gobicowboy.cn/QuickHub-arm64_app.zip"
                     showUpdateAlert = true
                 } else {
                     updateStatus = .upToDate
