@@ -1,2 +1,6 @@
 build/
 RightClickX.xcodeproj/
+.DS_Store
+*.xcuserstate
+xcuserdata/
+DerivedData/
