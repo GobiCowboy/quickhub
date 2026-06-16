@@ -64,8 +64,12 @@
 "settings.general.section.notifications" = "通知";
 "settings.general.show_notifications" = "执行命令后显示通知";
 "settings.general.section.shortcut" = "快捷键";
-"settings.general.intercept_right_click" = "右键打开 QuickHub 面板";
-"settings.general.ctrl_right_click_hint" = "提示：按住 Option+右键 可唤出系统原生菜单";
+"settings.general.intercept_right_click" = "启用自定义右键行为";
+"settings.general.right_click_default_action" = "右键默认打开";
+"settings.general.right_click_action.quickhub" = "QuickHub 面板";
+"settings.general.right_click_action.system" = "系统原生菜单";
+"settings.general.right_click_hint_quickhub_default" = "提示：按住 Option+右键 可唤出系统原生菜单";
+"settings.general.right_click_hint_system_default" = "提示：按住 Option+右键 可打开 QuickHub 面板";
 "settings.general.open_panel" = "打开面板";
 "settings.general.section.about" = "关于";
 "settings.general.version" = "版本";

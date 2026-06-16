@@ -7,6 +7,7 @@ struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var showNotifications = true
     @State private var interceptRightClick = false
+    @State private var rightClickDefaultAction: RightClickDefaultAction = .quickHub
     @State private var updateStatus: UpdateStatus = .idle
     @State private var showUpdateAlert = false
     @State private var pendingVersion: String = ""
@@ -90,19 +91,38 @@ struct GeneralSettingsView: View {
                             saveSettings()
                         }
 
-                        HStack(spacing: 10) {
-                            Image(systemName: "info.circle")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.blue)
-                                .frame(width: 22)
+                        if interceptRightClick {
+                            SettingsValueRow(
+                                title: localized("settings.general.right_click_default_action"),
+                                icon: "arrow.left.and.right.righttriangle.left.righttriangle.right"
+                            ) {
+                                Picker("", selection: $rightClickDefaultAction) {
+                                    Text(localized("settings.general.right_click_action.quickhub"))
+                                        .tag(RightClickDefaultAction.quickHub)
+                                    Text(localized("settings.general.right_click_action.system"))
+                                        .tag(RightClickDefaultAction.systemNative)
+                                }
+                                .labelsHidden()
+                                .frame(width: 180)
+                                .onChange(of: rightClickDefaultAction) { _ in
+                                    saveSettings()
+                                }
+                            }
 
-                            Text(localized("settings.general.ctrl_right_click_hint"))
-                                .font(.system(size: 12))
+                            HStack(spacing: 10) {
+                                Image(systemName: "info.circle")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundStyle(.blue)
+                                    .frame(width: 22)
 
-                            Spacer()
+                                Text(rightClickHint)
+                                    .font(.system(size: 12))
+
+                                Spacer()
+                            }
+
+                            Divider()
                         }
-
-                        Divider()
 
                         SettingsValueRow(title: localized("settings.general.open_panel"), icon: "keyboard.badge.eye") {
                             HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey) {
@@ -186,6 +206,7 @@ struct GeneralSettingsView: View {
         launchAtLogin = settings.launchAtLogin
         showNotifications = settings.showNotifications
         interceptRightClick = settings.interceptRightClick
+        rightClickDefaultAction = settings.rightClickDefaultAction
     }
 
     private func saveSettings() {
@@ -194,6 +215,7 @@ struct GeneralSettingsView: View {
         config.settings.launchAtLogin = launchAtLogin
         config.settings.showNotifications = showNotifications
         config.settings.interceptRightClick = interceptRightClick
+        config.settings.rightClickDefaultAction = rightClickDefaultAction
         StorageService.shared.saveConfig(config)
 
         // 更新开机自动启动状态
@@ -209,6 +231,15 @@ struct GeneralSettingsView: View {
             return localized("settings.general.checking_update")
         default:
             return localized("settings.general.check_update")
+        }
+    }
+
+    private var rightClickHint: String {
+        switch rightClickDefaultAction {
+        case .quickHub:
+            return localized("settings.general.right_click_hint_quickhub_default")
+        case .systemNative:
+            return localized("settings.general.right_click_hint_system_default")
         }
     }
 

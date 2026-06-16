@@ -26,8 +26,7 @@ fileprivate func rightClickEventTapCallback(
         return Unmanaged.passUnretained(event)
     }
 
-    // Option + 右键：透传给系统，显示原生右键菜单
-    if event.flags.contains(.maskAlternate) {
+    if !appDelegate.shouldOpenQuickHubForRightClick(with: event.flags) {
         return Unmanaged.passUnretained(event)
     }
 
@@ -422,6 +421,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             CGEvent.tapEnable(tap: eventTap, enable: true)
             print("[RightClick] 右键拦截已启用")
             logger.info("Right click interception enabled")
+        }
+    }
+
+    fileprivate func shouldOpenQuickHubForRightClick(with flags: CGEventFlags) -> Bool {
+        let defaultAction = StorageService.shared.loadConfig().settings.rightClickDefaultAction
+        let optionPressed = flags.contains(.maskAlternate)
+
+        switch defaultAction {
+        case .quickHub:
+            return !optionPressed
+        case .systemNative:
+            return optionPressed
         }
     }
 

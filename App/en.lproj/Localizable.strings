@@ -64,8 +64,12 @@
 "settings.general.section.notifications" = "Notifications";
 "settings.general.show_notifications" = "Show notification after command execution";
 "settings.general.section.shortcut" = "Shortcut";
-"settings.general.intercept_right_click" = "Open QuickHub panel on right click";
-"settings.general.ctrl_right_click_hint" = "Tip: Hold Option+Right-click to use the system native menu";
+"settings.general.intercept_right_click" = "Enable custom right-click behavior";
+"settings.general.right_click_default_action" = "Default right-click action";
+"settings.general.right_click_action.quickhub" = "QuickHub Panel";
+"settings.general.right_click_action.system" = "System Menu";
+"settings.general.right_click_hint_quickhub_default" = "Tip: Hold Option+Right-click to use the system native menu";
+"settings.general.right_click_hint_system_default" = "Tip: Hold Option+Right-click to open the QuickHub panel";
 "settings.general.open_panel" = "Open Panel";
 "settings.general.section.about" = "About";
 "settings.general.version" = "Version";

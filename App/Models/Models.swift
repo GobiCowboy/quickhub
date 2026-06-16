@@ -19,6 +19,12 @@ struct HotkeyConfiguration: Codable, Equatable {
     }
 }
 
+// MARK: - 右键默认行为
+enum RightClickDefaultAction: String, Codable, CaseIterable {
+    case quickHub = "quickhub"
+    case systemNative = "system_native"
+}
+
 // MARK: - 命令项
 struct CommandItem: Identifiable, Codable, Hashable {
     var id: UUID
@@ -121,6 +127,7 @@ struct AppSettings: Codable {
     var launchAtLogin: Bool = false
     var showNotifications: Bool = true
     var interceptRightClick: Bool = false
+    var rightClickDefaultAction: RightClickDefaultAction = .quickHub
     var legacyDefaultsPrunedRevision: Int = 0
 
     init() {}
@@ -130,6 +137,7 @@ struct AppSettings: Codable {
         case launchAtLogin
         case showNotifications
         case interceptRightClick
+        case rightClickDefaultAction
         case legacyDefaultsPrunedRevision
     }
 
@@ -139,6 +147,7 @@ struct AppSettings: Codable {
         launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
         showNotifications = try container.decodeIfPresent(Bool.self, forKey: .showNotifications) ?? true
         interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? false
+        rightClickDefaultAction = try container.decodeIfPresent(RightClickDefaultAction.self, forKey: .rightClickDefaultAction) ?? .quickHub
         legacyDefaultsPrunedRevision = try container.decodeIfPresent(Int.self, forKey: .legacyDefaultsPrunedRevision) ?? 0
     }
 }
