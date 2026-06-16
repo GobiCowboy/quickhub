@@ -8,17 +8,21 @@
 
 Minimal, fast macOS super toolbox. One key press gives your Finder infinite possibilities.
 
+<p align="center">
+  <img src="docs/images/en-1.png" width="360" alt="QuickHub Panel" />
+  <img src="docs/images/en-2.png" width="360" alt="QuickHub Settings" />
+</p>
+
 ### Download & Install
 
 #### Direct Download (Recommended)
 Download the packaged app: https://github.com/GobiCowboy/quickhub/releases/latest
 
-1. Download `QuickHub-vX.X.X.zip`
+1. Download `QuickHub-arm64.zip`
 2. Extract and drag to **Applications** folder
 3. On first run, right-click and select "Open"
 
 #### Build from Source
-If you install from source, ensure `xcodegen` is installed.
 
 ```bash
 xcodegen generate
@@ -27,17 +31,20 @@ xcodebuild -scheme RightClickX build
 
 ### Core Features
 
-- **🚀 Multiple Ways to Launch**: Select a file in Finder and press `⌥Q`, or simply right-click to open the panel. Both triggers work in sync.
-- **⌥ Native Menu on Demand**: Hold `⌥` + Right-click to show the system native context menu directly, no settings change needed.
+- **🚀 Multiple Ways to Launch**: Press `⌥Q` or right-click in Finder to open the panel. Both triggers are always in sync.
+- **🔧 Configurable Default Action**: Choose whether right-click opens the QuickHub panel or the system native menu — your choice in Settings.
+- **⌥ Native Menu on Demand**: Hold `⌥` + Right-click to show the system native context menu directly.
+- **🎨 OpenMoji Colorful Icons**: Command groups use OpenMoji icons for a more expressive, colorful interface.
 - **⌨️ Search and Go**: Type to search commands right after the panel appears, press Enter to execute instantly.
-- **🛠️ Unlimited Custom Extensions**: Supports shell commands, file templates, one-click folder access, and more — fully configurable.
+- **🛠️ 7 Built-in Command Types + 18 Shell Presets**: Open Terminal, VS Code, copy paths, create files, and more — fully configurable.
 - **🔄 Built-in Update**: Check for updates in Settings → About. Downloads, installs, and restarts automatically.
+- **⌨️ Settings Shortcuts**: `⌘W` to close settings, `⌘Q` to quit the app.
 
 ### Quick Start
 
 1. **Run the app**: QuickHub icon appears in menu bar.
 2. **Onboarding**: First launch shows feature introduction.
-3. **Settings**: Click ⚙️ icon at panel bottom to customize your shortcuts.
+3. **Settings**: Click the gear icon to customize your tools.
 
 ### Why QuickHub?
 
@@ -48,15 +55,6 @@ xcodebuild -scheme RightClickX build
 ### System Requirements
 
 - macOS 13.0 (Ventura) or later
-- Xcode 15.0 or later
-
-### Distribution Notes
-
-- This app is currently built for Apple Silicon (`arm64`) only.
-- First launch requires Accessibility permission for the global hotkey and right-click interception.
-- Reading Finder selection also requires allowing the app to control Finder.
-- For smooth distribution outside your machine, notarize the released app before sharing it.
-- The release script is `./scripts/release_arm64.sh` after setting your Notary profile.
 
 ### Language Support
 
@@ -68,17 +66,21 @@ QuickHub supports **English** and **Chinese**. You can switch languages in **Set
 
 极简、极速的 macOS 超级工具箱。通过一个按键，赋予你的 Finder 无限可能。
 
+<p align="center">
+  <img src="docs/images/ch-1.png" width="360" alt="QuickHub 面板" />
+  <img src="docs/images/ch-2.png" width="360" alt="QuickHub 设置" />
+</p>
+
 ### 下载安装
 
 #### 直接下载（推荐）
 下载打包好的应用：https://github.com/GobiCowboy/quickhub/releases/latest
 
-1. 下载 `QuickHub-vX.X.X.zip`
+1. 下载 `QuickHub-arm64.zip`
 2. 解压后拖到 **应用程序** 文件夹
 3. 首次运行需要右键点击选择"打开"
 
 #### 从源码编译
-如果你通过源码安装，请确保已安装 `xcodegen`。
 
 ```bash
 xcodegen generate
@@ -87,17 +89,20 @@ xcodebuild -scheme RightClickX build
 
 ### 核心特性
 
-- **🚀 多种呼出方式**: 选中 Finder 文件，按 `⌥Q` 呼出面板；也可以直接右键呼出，两种方式同步可用。
-- **⌥ 原生菜单随时可用**: 按住 `⌥` + 右键 可直接显示系统原生右键菜单，无需切换设置。
+- **🚀 多种呼出方式**: 按 `⌥Q` 或在 Finder 中右键呼出面板，两种方式同步可用。
+- **🔧 右键默认行为可配置**: 在设置中选择右键默认打开 QuickHub 面板或系统原生菜单。
+- **⌥ 原生菜单随时可用**: 按住 `⌥` + 右键 可直接显示系统原生右键菜单。
+- **🎨 OpenMoji 彩色图标**: 命令分组使用 OpenMoji 彩色图标，界面更生动。
 - **⌨️ 即搜即用**: 呼出面板后直接打字搜索命令，按回车立即执行。
-- **🛠️ 无限自定义扩展**: 支持 Shell 命令、文件模板、一键打开常用目录等，自由配置你的专属工具箱。
+- **🛠️ 7 种命令类型 + 18 个 Shell 预设**: 打开终端、VS Code、复制路径、新建文件等，自由配置。
 - **🔄 应用内更新**: 在 设置 → 关于 中检查更新，自动下载、安装并重启。
+- **⌨️ 设置快捷键**: `⌘W` 关闭设置窗口，`⌘Q` 退出应用。
 
 ### 快速开始
 
-1. **运行应用**: 菜单栏会出现 `QuickHub` 图标。
+1. **运行应用**: 菜单栏会出现 QuickHub 图标。
 2. **新手引导**: 首次启动会弹出功能说明，助你快速上手。
-3. **设置**: 点击面板底部的 ⚙️ 图标，进入详细设置页面，自定义属于你的快捷指令。
+3. **设置**: 点击齿轮图标进入设置，自定义你的工具箱。
 
 ### 为什么选择 QuickHub？
 
@@ -108,15 +113,6 @@ xcodebuild -scheme RightClickX build
 ### 系统要求
 
 - macOS 13.0 (Ventura) 或更高版本
-- Xcode 15.0 或更高版本
-
-### 分发说明
-
-- 当前版本只面向 Apple Silicon（`arm64`）机器。
-- 首次启动需要开启辅助功能权限，用于全局快捷键和右键拦截。
-- 读取 Finder 选区还需要允许应用控制 Finder。
-- 如果要发给别人，建议先完成公证再分享。
-- 发布脚本是 `./scripts/release_arm64.sh`，先配置好 Notary profile。
 
 ### 语言支持
 
