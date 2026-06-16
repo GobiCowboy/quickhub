@@ -285,6 +285,12 @@ struct GeneralSettingsView: View {
                     return
                 }
 
+                guard let assetURL = githubReleaseAssetURL(from: json) else {
+                    print("[Update] No suitable zip asset found in release: \(json)")
+                    updateStatus = .failed
+                    return
+                }
+
                 print("[Update] Remote tag: \(tagName)")
 
                 let remoteVersion = tagName.hasPrefix("v") ? String(tagName.dropFirst()) : tagName
@@ -293,7 +299,7 @@ struct GeneralSettingsView: View {
 
                 if isNewerVersion(remoteVersion, than: currentVersion) {
                     pendingVersion = remoteVersion
-                    pendingAssetURL = "https://download.gobicowboy.cn/QuickHub-arm64_app.zip"
+                    pendingAssetURL = assetURL.absoluteString
                     showUpdateAlert = true
                 } else {
                     updateStatus = .upToDate
@@ -355,7 +361,7 @@ struct GeneralSettingsView: View {
 
                     print("[Update] Found app: \(appURL.path)")
 
-                    let destination = URL(fileURLWithPath: "/Applications/QuickHub.app")
+                    let destination = Bundle.main.bundleURL.standardizedFileURL
 
                     // 替换旧版本
                     if fm.fileExists(atPath: destination.path) {
@@ -372,10 +378,7 @@ struct GeneralSettingsView: View {
 
                     // 重启应用
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        let relaunch = Process()
-                        relaunch.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-                        relaunch.arguments = [destination.path]
-                        try? relaunch.run()
+                        relaunchUpdatedApp(at: destination)
                         NSApp.terminate(nil)
                     }
                 } catch {
@@ -408,6 +411,38 @@ struct GeneralSettingsView: View {
             if r < c { return false }
         }
         return false
+    }
+
+    private func githubReleaseAssetURL(from json: [String: Any]) -> URL? {
+        guard let assets = json["assets"] as? [[String: Any]] else { return nil }
+
+        let preferredAsset = assets.first { asset in
+            guard let name = asset["name"] as? String else { return false }
+            return name == "QuickHub-arm64.zip"
+        } ?? assets.first { asset in
+            guard let name = asset["name"] as? String else { return false }
+            return name.hasSuffix(".zip")
+        }
+
+        guard
+            let preferredAsset,
+            let downloadURLString = preferredAsset["browser_download_url"] as? String
+        else {
+            return nil
+        }
+
+        return URL(string: downloadURLString)
+    }
+
+    private func relaunchUpdatedApp(at appURL: URL) {
+        let parentPID = ProcessInfo.processInfo.processIdentifier
+        let escapedPath = appURL.path.replacingOccurrences(of: "\"", with: "\\\"")
+        let script = "while kill -0 \(parentPID) 2>/dev/null; do sleep 0.2; done; open -n -a \"\(escapedPath)\""
+
+        let relaunch = Process()
+        relaunch.executableURL = URL(fileURLWithPath: "/bin/sh")
+        relaunch.arguments = ["-c", script]
+        try? relaunch.run()
     }
 
     private func updateLaunchAtLogin() {
