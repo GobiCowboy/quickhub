@@ -10,6 +10,8 @@ Minimal, fast macOS super toolbox. One key press gives your Finder infinite poss
 
 <p align="center">
   <img src="docs/images/en-1.png" width="360" alt="QuickHub Panel" />
+</p>
+<p align="center">
   <img src="docs/images/en-2.png" width="360" alt="QuickHub Settings" />
 </p>
 
@@ -65,6 +67,8 @@ QuickHub supports **English** and **Chinese**. You can switch languages in **Set
 
 <p align="center">
   <img src="docs/images/ch-1.png" width="360" alt="QuickHub 面板" />
+</p>
+<p align="center">
   <img src="docs/images/ch-2.png" width="360" alt="QuickHub 设置" />
 </p>
 
