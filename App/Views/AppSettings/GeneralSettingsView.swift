@@ -125,9 +125,9 @@ struct GeneralSettingsView: View {
                         }
 
                         SettingsValueRow(title: localized("settings.general.open_panel"), icon: "keyboard.badge.eye") {
-                            HotkeyRecorderView(hotkey: $hotkeyRecorder.hotkey) {
-                                saveSettings()
-                            }
+                            Text("⌥ Option + Q")
+                                .font(.system(.body, design: .monospaced))
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
