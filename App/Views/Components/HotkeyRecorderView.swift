@@ -51,7 +51,9 @@ struct HotkeyRecorderView: View {
                     Button(action: {
                         hotkey = nil
                         conflicts = []
+                        showConflictWarning = false
                         displayText = localized("hotkey.click_to_set")
+                        onSave?()
                     }) {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.secondary)

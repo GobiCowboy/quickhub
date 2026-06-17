@@ -1,11 +1,11 @@
 import SwiftUI
 import ServiceManagement
 import AppKit
-import Carbon
 
 struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
     @State private var showNotifications = true
+    @State private var hotkeyEnabled = true
     @State private var interceptRightClick = false
     @State private var rightClickDefaultAction: RightClickDefaultAction = .quickHub
     @State private var updateStatus: UpdateStatus = .idle
@@ -13,7 +13,6 @@ struct GeneralSettingsView: View {
     @State private var pendingVersion: String = ""
     @State private var pendingAssetURL: String = ""
     @State private var downloadProgress: Double = 0
-    @StateObject private var hotkeyRecorder = HotkeyRecorderViewModel()
     @StateObject private var localeManager = LocaleManager.shared
 
     private enum UpdateStatus: Equatable {
@@ -84,6 +83,24 @@ struct GeneralSettingsView: View {
                 SettingsSurface(title: localized("settings.general.section.shortcut"), systemImage: "keyboard") {
                     VStack(spacing: 8) {
                         SettingsToggleRow(
+                            title: localized("settings.general.enable_global_hotkey"),
+                            icon: "keyboard.badge.eye",
+                            isOn: $hotkeyEnabled
+                        ) {
+                            saveSettings()
+                        }
+
+                        if hotkeyEnabled {
+                            SettingsValueRow(title: localized("settings.general.open_panel"), icon: "command") {
+                                Text("⌥ Option + Q")
+                                    .font(.system(.body, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Divider()
+                        }
+
+                        SettingsToggleRow(
                             title: localized("settings.general.intercept_right_click"),
                             icon: "cursorarrow.click.2",
                             isOn: $interceptRightClick
@@ -122,12 +139,6 @@ struct GeneralSettingsView: View {
                             }
 
                             Divider()
-                        }
-
-                        SettingsValueRow(title: localized("settings.general.open_panel"), icon: "keyboard.badge.eye") {
-                            Text("⌥ Option + Q")
-                                .font(.system(.body, design: .monospaced))
-                                .foregroundColor(.secondary)
                         }
                     }
                 }
@@ -202,7 +213,7 @@ struct GeneralSettingsView: View {
 
     private func loadSettings() {
         let settings = StorageService.shared.loadConfig().settings
-        hotkeyRecorder.hotkey = settings.hotkey ?? HotkeyConfiguration.defaultHotkey
+        hotkeyEnabled = !(settings.hotkey?.isEmpty ?? true)
         launchAtLogin = settings.launchAtLogin
         showNotifications = settings.showNotifications
         interceptRightClick = settings.interceptRightClick
@@ -211,7 +222,7 @@ struct GeneralSettingsView: View {
 
     private func saveSettings() {
         var config = StorageService.shared.loadConfig()
-        config.settings.hotkey = hotkeyRecorder.hotkey
+        config.settings.hotkey = hotkeyEnabled ? HotkeyConfiguration.defaultHotkey : nil
         config.settings.launchAtLogin = launchAtLogin
         config.settings.showNotifications = showNotifications
         config.settings.interceptRightClick = interceptRightClick
@@ -575,13 +586,6 @@ private struct SettingsLinkRow: View {
         }
         .buttonStyle(.plain)
     }
-}
-
-// MARK: - 快捷键录制视图模型
-class HotkeyRecorderViewModel: ObservableObject {
-    @Published var hotkey: HotkeyConfiguration?
-
-    init() {}
 }
 
 // MARK: - 通知名称

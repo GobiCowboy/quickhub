@@ -64,6 +64,7 @@
 "settings.general.section.notifications" = "Notifications";
 "settings.general.show_notifications" = "Show notification after command execution";
 "settings.general.section.shortcut" = "Shortcut";
+"settings.general.enable_global_hotkey" = "Enable global shortcut";
 "settings.general.intercept_right_click" = "Enable custom right-click behavior";
 "settings.general.right_click_default_action" = "Default right-click action";
 "settings.general.right_click_action.quickhub" = "QuickHub Panel";

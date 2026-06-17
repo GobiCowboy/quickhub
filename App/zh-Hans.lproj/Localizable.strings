@@ -64,6 +64,7 @@
 "settings.general.section.notifications" = "通知";
 "settings.general.show_notifications" = "执行命令后显示通知";
 "settings.general.section.shortcut" = "快捷键";
+"settings.general.enable_global_hotkey" = "启用全局快捷键";
 "settings.general.intercept_right_click" = "启用自定义右键行为";
 "settings.general.right_click_default_action" = "右键默认打开";
 "settings.general.right_click_action.quickhub" = "QuickHub 面板";

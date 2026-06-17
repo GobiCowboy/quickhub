@@ -3,6 +3,11 @@ import ApplicationServices
 import OSLog
 import SwiftUI
 
+private final class SearchPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+}
+
 fileprivate func rightClickEventTapCallback(
     proxy: CGEventTapProxy,
     type: CGEventType,
@@ -304,7 +309,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         )
 
-        let newPanel = NSPanel(
+        let newPanel = SearchPanel(
             contentRect: NSRect(x: 0, y: 0, width: 280, height: height),
             styleMask: [.borderless],
             backing: .buffered,
@@ -322,6 +327,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         newPanel.hasShadow = true
         newPanel.titlebarAppearsTransparent = true
         newPanel.titleVisibility = .hidden
+        newPanel.becomesKeyOnlyIfNeeded = false
         newPanel.standardWindowButton(.closeButton)?.isHidden = true
         newPanel.standardWindowButton(.miniaturizeButton)?.isHidden = true
         newPanel.standardWindowButton(.zoomButton)?.isHidden = true
@@ -345,8 +351,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // 读取保存的快捷键配置
-        let savedHotkey = StorageService.shared.loadConfig().settings.hotkey
-        let config = savedHotkey ?? HotkeyConfiguration.defaultHotkey
+        let config = StorageService.shared.loadConfig().settings.hotkey ?? .empty
 
         guard !config.isEmpty else {
             print("[Hotkey] 快捷键为空，跳过注册")
@@ -689,6 +694,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         panel.setFrameOrigin(panelOrigin)
+        NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
         panel.orderFrontRegardless()
 
