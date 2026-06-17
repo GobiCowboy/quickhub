@@ -4,8 +4,8 @@ import AppKit
 
 struct GeneralSettingsView: View {
     @State private var launchAtLogin = false
-    @State private var showNotifications = true
-    @State private var hotkeyEnabled = true
+    @State private var showNotifications = false
+    @State private var hotkeyEnabled = false
     @State private var interceptRightClick = false
     @State private var rightClickDefaultAction: RightClickDefaultAction = .quickHub
     @State private var updateStatus: UpdateStatus = .idle
@@ -508,9 +508,11 @@ struct GeneralSettingsView: View {
     }
 
     private func resetToDefaults() {
-        StorageService.shared.saveConfig(AppConfig(groups: StorageService.defaultGroups()))
+        StorageService.shared.saveConfig(AppConfig(groups: StorageService.defaultGroups(), settings: AppSettings()))
         ConfigObserver.shared.refresh()
         loadSettings()
+        NotificationCenter.default.post(name: .hotkeySettingsChanged, object: nil)
+        updateLaunchAtLogin()
     }
 }
 

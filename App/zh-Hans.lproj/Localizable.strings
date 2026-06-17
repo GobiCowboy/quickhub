@@ -40,18 +40,21 @@
 
 /* Welcome View */
 "welcome.title" = "欢迎使用 QuickHub";
-"welcome.subtitle" = "极简、极速的 macOS 超级工具箱";
-"welcome.feature1.title" = "快捷唤醒 (⌥Q / 右键)";
-"welcome.feature1.desc" = "选中 Finder 文件，按下快捷键或右键。面板会瞬时出现在鼠标位置，比传统右键菜单更快。";
-"welcome.feature2.title" = "呼出即搜索";
-"welcome.feature2.desc" = "面板弹出后直接打字（如输入 'T'），然后按回车。全程无需挪动鼠标。";
-"welcome.feature3.title" = "自由定制";
-"welcome.feature3.desc" = "在设置 ⚙️ 中，你可以定义 Shell 脚本、文件模板、并随时更换你喜欢的快捷键。";
-"welcome.button" = "我已掌握，开始使用";
+"welcome.subtitle" = "先把需要的功能配进去，再决定要不要启用快捷入口";
+"welcome.feature1.title" = "先配置内容";
+"welcome.feature1.desc" = "首次打开时，所有功能默认都是空的。你可以按自己的习惯添加命令、应用、文件模板和常用目录。";
+"welcome.feature2.title" = "模块始终可见";
+"welcome.feature2.desc" = "即使暂时还没添加功能，设置页里也会保留各个模块和菜单排序，方便你理解 QuickHub 能做什么。";
+"welcome.feature3.title" = "入口按需开启";
+"welcome.feature3.desc" = "开机启动、全局快捷键、通知和自定义右键默认都关闭。等你配置好以后，再按需打开。";
+"welcome.button" = "去设置开始配置";
 
 /* Popover View */
 "popover.search_placeholder" = "快速搜索命令...";
 "popover.no_results" = "暂无匹配命令";
+"popover.empty_state_title" = "还没有可用功能";
+"popover.empty_state_desc" = "先到设置里添加命令、应用或模板，配置完成后这里才会显示对应分组。";
+"popover.empty_state_action" = "打开设置";
 
 /* General Settings View */
 "settings.general.desc" = "语言、启动、快捷键与应用维护";
@@ -238,7 +241,8 @@
 
 /* Menu Sort Settings */
 "menu_sort.title" = "菜单排序";
-"menu_sort.desc" = "上下拖拽以调整组在右键面板中的显示顺序";
+"menu_sort.desc" = "这里始终显示所有模块；右键面板只会展示当前有可用功能的分组";
+"menu_sort.empty_group" = "暂无功能";
 
 /* Hotkey Recorder View */
 "hotkey.click_to_set" = "点击设置快捷键";

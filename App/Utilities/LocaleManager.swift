@@ -55,9 +55,7 @@ class LocaleManager: ObservableObject {
            let language = Language(rawValue: savedLanguage) {
             self.currentLanguage = language
         } else {
-            // 没有保存的设置，根据系统语言决定默认
-            // 如果系统是中文，默认选中文；否则默认选英文
-            self.currentLanguage = LocaleManager.isSystemChinese ? .chinese : .english
+            self.currentLanguage = .system
         }
     }
 

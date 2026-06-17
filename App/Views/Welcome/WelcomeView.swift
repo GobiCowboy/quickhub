@@ -25,19 +25,19 @@ struct WelcomeView: View {
             // 中间：核心三要素
             VStack(alignment: .leading, spacing: 20) {
                 FeatureRow(
-                    icon: "keyboard",
+                    icon: "slider.horizontal.3",
                     title: String(localized: "welcome.feature1.title"),
                     description: String(localized: "welcome.feature1.desc")
                 )
 
                 FeatureRow(
-                    icon: "magnifyingglass",
+                    icon: "square.grid.2x2",
                     title: String(localized: "welcome.feature2.title"),
                     description: String(localized: "welcome.feature2.desc")
                 )
 
                 FeatureRow(
-                    icon: "slider.horizontal.3",
+                    icon: "cursorarrow.click.2",
                     title: String(localized: "welcome.feature3.title"),
                     description: String(localized: "welcome.feature3.desc")
                 )

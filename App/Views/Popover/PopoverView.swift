@@ -92,15 +92,7 @@ struct PopoverView: View {
                     let groups = filteredGroups
 
                     if groups.isEmpty {
-                        VStack(spacing: 6) {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 20))
-                                .foregroundColor(.secondary.opacity(0.7))
-
-                            Text(localized("popover.no_results"))
-                                .font(.system(size: 11.5))
-                                .foregroundColor(.secondary)
-                        }
+                        emptyStateView
                         .frame(maxWidth: .infinity)
                         .padding(.top, 36)
                     } else {
@@ -195,6 +187,42 @@ struct PopoverView: View {
                 onClose?()
             } catch {
                 print(localized("[PopoverView] popover.no_results"))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var emptyStateView: some View {
+        if searchText.isEmpty {
+            VStack(spacing: 10) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(.secondary.opacity(0.7))
+
+                Text(localized("popover.empty_state_title"))
+                    .font(.system(size: 12.5, weight: .semibold))
+
+                Text(localized("popover.empty_state_desc"))
+                    .font(.system(size: 11.5))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 220)
+
+                Button(localized("popover.empty_state_action")) {
+                    openSettings()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
+        } else {
+            VStack(spacing: 6) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 20))
+                    .foregroundColor(.secondary.opacity(0.7))
+
+                Text(localized("popover.no_results"))
+                    .font(.system(size: 11.5))
+                    .foregroundColor(.secondary)
             }
         }
     }

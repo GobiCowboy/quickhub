@@ -40,18 +40,21 @@
 
 /* Welcome View */
 "welcome.title" = "Welcome to QuickHub";
-"welcome.subtitle" = "Minimal, fast macOS super toolbox";
-"welcome.feature1.title" = "Quick Activation (⌥Q / Right Click)";
-"welcome.feature1.desc" = "Select a file in Finder, press the shortcut or right-click. The panel instantly appears at mouse position, faster than a traditional context menu.";
-"welcome.feature2.title" = "Search as You Type";
-"welcome.feature2.desc" = "After the panel pops up, just type (like 'T'), then press Enter. No need to move the mouse at all.";
-"welcome.feature3.title" = "Fully Customizable";
-"welcome.feature3.desc" = "In Settings ⚙️, you can define shell scripts, file templates, and change shortcuts as you like.";
-"welcome.button" = "Got it, start using";
+"welcome.subtitle" = "Add the functions you need first, then decide which entry points to enable";
+"welcome.feature1.title" = "Configure Content First";
+"welcome.feature1.desc" = "On first launch, every module starts empty. Add commands, apps, file templates, and folders based on your own workflow.";
+"welcome.feature2.title" = "Modules Stay Visible";
+"welcome.feature2.desc" = "Even before you add any functions, the settings page keeps every module and menu sort visible so users can understand what QuickHub supports.";
+"welcome.feature3.title" = "Enable Entry Points Later";
+"welcome.feature3.desc" = "Launch at login, global shortcut, notifications, and custom right-click are all off by default. Turn them on only after setup.";
+"welcome.button" = "Open Settings to Start";
 
 /* Popover View */
 "popover.search_placeholder" = "Quick search commands...";
 "popover.no_results" = "No matching commands";
+"popover.empty_state_title" = "No actions available yet";
+"popover.empty_state_desc" = "Open Settings to add commands, apps, or templates. Groups will appear here after you configure them.";
+"popover.empty_state_action" = "Open Settings";
 
 /* General Settings View */
 "settings.general.desc" = "Language, startup, shortcuts, and app maintenance";
@@ -238,7 +241,8 @@
 
 /* Menu Sort Settings */
 "menu_sort.title" = "Menu Sort";
-"menu_sort.desc" = "Drag up/down to adjust the order of groups in the right-click panel";
+"menu_sort.desc" = "All modules stay visible here; the right-click panel only shows groups that currently have available actions";
+"menu_sort.empty_group" = "Empty";
 
 /* Hotkey Recorder View */
 "hotkey.click_to_set" = "Click to set shortcut";

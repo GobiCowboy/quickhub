@@ -33,6 +33,12 @@ struct MenuSortSettingsView: View {
                                 .font(.system(size: 13, weight: .medium))
 
                             Spacer()
+
+                            if group.items.isEmpty {
+                                Text(localized("menu_sort.empty_group"))
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                         .padding(.vertical, 5)
                         .listRowBackground(Color.clear)

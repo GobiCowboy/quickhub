@@ -204,6 +204,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.set(true, forKey: "hasSeenWelcomeV1")
             self?.welcomeWindow?.close()
             self?.welcomeWindow = nil
+            self?.openSettings()
         }
 
         let window = NSWindow(

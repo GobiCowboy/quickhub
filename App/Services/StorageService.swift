@@ -25,12 +25,15 @@ class StorageService: StorageServiceProtocol {
         // 加载配置
         config = StorageService.loadConfig(from: configPath)
 
-        // 如果没有默认配置，保留空状态，由用户自己添加需要的启动项
         if config.groups.isEmpty {
             config.groups = Self.defaultGroups()
         }
 
         migrateSettingsIfNeeded()
+
+        if ensureRequiredGroups() {
+            saveToDisk()
+        }
     }
 
     // MARK: - 公开方法
@@ -89,6 +92,14 @@ class StorageService: StorageServiceProtocol {
                 changed = true
             }
             config.settings.legacyDefaultsPrunedRevision = 6
+            changed = true
+        }
+
+        if config.settings.legacyDefaultsPrunedRevision < 7 {
+            if migrateRemoveLegacyStarterCommands() {
+                changed = true
+            }
+            config.settings.legacyDefaultsPrunedRevision = 7
             changed = true
         }
 
@@ -179,12 +190,15 @@ class StorageService: StorageServiceProtocol {
     // MARK: - 默认配置
 
     static func defaultGroups() -> [CommandGroup] {
-        return [
-            CommandGroup(
-                name: "命令",
-                icon: "terminal",
-                items: defaultCommandItems()
-            ),
+        return requiredGroups()
+    }
+
+    static func requiredGroups() -> [CommandGroup] {
+        [
+            CommandGroup(name: "新建文件/文件夹", icon: "folder.badge.plus"),
+            CommandGroup(name: "打开文件夹", icon: "folder"),
+            CommandGroup(name: "打开应用", icon: "app"),
+            CommandGroup(name: "命令", icon: "terminal")
         ]
     }
 
@@ -295,6 +309,19 @@ class StorageService: StorageServiceProtocol {
         return changed
     }
 
+    private func ensureRequiredGroups() -> Bool {
+        var changed = false
+
+        for requiredGroup in Self.requiredGroups() {
+            if !config.groups.contains(where: { $0.name == requiredGroup.name }) {
+                config.groups.append(requiredGroup)
+                changed = true
+            }
+        }
+
+        return changed
+    }
+
     /// 为已有用户补入新的默认命令项（不覆盖用户已有配置）
     private func migrateAddDefaultGroups() -> Bool {
         let defaults = Self.defaultCommandItems()
@@ -397,5 +424,32 @@ class StorageService: StorageServiceProtocol {
             }
         }
         return changed
+    }
+
+    /// v7: 新产品策略改为默认全空，移除历史自动塞入的命令 starter pack
+    private func migrateRemoveLegacyStarterCommands() -> Bool {
+        let legacyStarterNames: Set<String> = [
+            "shell.file_info",
+            "shell.copy_path",
+            "shell.open_in_terminal",
+            "shell.create_shortcut_desktop",
+            "shell.compress_zip",
+            "shell.view_icon",
+            "shell.view_list",
+            "shell.view_column",
+            "shell.view_gallery",
+            "shell.git_status",
+            "shell.git_add",
+            "shell.git_diff",
+            "shell.git_log"
+        ]
+
+        guard let groupIndex = config.groups.firstIndex(where: { $0.name == "命令" }) else {
+            return false
+        }
+
+        let beforeCount = config.groups[groupIndex].items.count
+        config.groups[groupIndex].items.removeAll { legacyStarterNames.contains($0.name) }
+        return config.groups[groupIndex].items.count != beforeCount
     }
 }
