@@ -12,22 +12,11 @@ Minimal, fast macOS super toolbox. One key press gives your Finder infinite poss
   <img src="docs/images/en-2.png" width="360" alt="QuickHub Settings" />
 </p>
 
-### Download & Install
+### Why QuickHub?
 
-Download the latest release: https://github.com/GobiCowboy/quickhub/releases/latest
-
-1. Download `QuickHub-arm64.zip`, extract and drag to **Applications** folder
-2. On first run, right-click the app and select "Open"
-3. Grant Accessibility permission when prompted (required for global hotkey and right-click)
-4. Click the gear icon in the menu bar to open Settings
-5. Go to General Settings → Enable custom right-click behavior
-
-#### Build from Source
-
-```bash
-xcodegen generate
-xcodebuild -scheme RightClickX build
-```
+1. **Better than Context Menu**: No more messy secondary/tertiary context menus. Search + Enter solves everything.
+2. **More Precise than Spotlight**: You only search the tools you need, no system noise.
+3. **Extremely Lightweight**: Barely uses system resources, only appears when needed.
 
 ### Core Features
 
@@ -38,11 +27,20 @@ xcodebuild -scheme RightClickX build
 - **⌨️ Search and Go**: Type to search commands right after the panel appears, press Enter to execute instantly.
 - **🔄 Built-in Update**: Check for updates in Settings → About. Downloads, installs, and restarts automatically.
 
-### Why QuickHub?
+### Download & Install
 
-1. **Better than Context Menu**: No more messy secondary/tertiary context menus. Search + Enter solves everything.
-2. **More Precise than Spotlight**: You only search the tools you need, no system noise.
-3. **Extremely Lightweight**: Barely uses system resources, only appears when needed.
+Download the latest release: https://github.com/GobiCowboy/quickhub/releases/latest
+
+1. Download `QuickHub-arm64.zip`, extract and drag to **Applications** folder
+2. Open the app, grant Accessibility permission when prompted
+3. Click the gear icon → Settings → General Settings → Enable custom right-click behavior
+
+#### Build from Source
+
+```bash
+xcodegen generate
+xcodebuild -scheme RightClickX build
+```
 
 ### System Requirements
 
@@ -63,22 +61,11 @@ QuickHub supports **English** and **Chinese**. You can switch languages in **Set
   <img src="docs/images/ch-2.png" width="360" alt="QuickHub 设置" />
 </p>
 
-### 下载安装
+### 为什么选择 QuickHub？
 
-下载最新版本：https://github.com/GobiCowboy/quickhub/releases/latest
-
-1. 下载 `QuickHub-arm64.zip`，解压后拖到 **应用程序** 文件夹
-2. 首次运行需要右键点击选择"打开"
-3. 弹出权限提示时授予辅助功能权限（全局快捷键和右键拦截需要）
-4. 点击菜单栏齿轮图标打开设置
-5. 设置 → 通用设置 → 启用自定义右键行为
-
-#### 从源码编译
-
-```bash
-xcodegen generate
-xcodebuild -scheme RightClickX build
-```
+1. **比起右键菜单更爽**: 告别杂乱的二级、三级右键菜单，用搜索和回车解决一切。
+2. **比起聚焦搜索更准**: 你只搜索你需要的工具，没有系统杂音。
+3. **极其轻量**: 几乎不占系统资源，仅在需要时现身。
 
 ### 核心特性
 
@@ -89,11 +76,20 @@ xcodebuild -scheme RightClickX build
 - **⌨️ 即搜即用**: 呼出面板后直接打字搜索命令，按回车立即执行。
 - **🔄 应用内更新**: 在 设置 → 关于 中检查更新，自动下载、安装并重启。
 
-### 为什么选择 QuickHub？
+### 下载安装
 
-1. **比起右键菜单更爽**: 告别杂乱的二级、三级右键菜单，用搜索和回车解决一切。
-2. **比起聚焦搜索更准**: 你只搜索你需要的工具，没有系统杂音。
-3. **极其轻量**: 几乎不占系统资源，仅在需要时现身。
+下载最新版本：https://github.com/GobiCowboy/quickhub/releases/latest
+
+1. 下载 `QuickHub-arm64.zip`，解压后拖到 **应用程序** 文件夹
+2. 打开应用，授予辅助功能权限
+3. 点击齿轮图标 → 设置 → 通用设置 → 启用自定义右键行为
+
+#### 从源码编译
+
+```bash
+xcodegen generate
+xcodebuild -scheme RightClickX build
+```
 
 ### 系统要求
 
