@@ -312,7 +312,7 @@
 
 /* App Delegate */
 "app.accessibility.title" = "Accessibility Permission Required";
-"app.accessibility.message" = "Global shortcuts and right-click interception require Accessibility permission; reading Finder selection also requires allowing QuickHub to control Finder. Please enable the relevant permissions in System Settings, then restart the app.";
+"app.accessibility.message" = "Global shortcuts and right-click interception require Accessibility permission; reading Finder selection also requires allowing QuickHub to control Finder. Please enable the relevant permissions in System Settings and return to the app to apply them automatically.";
 "app.accessibility.open_settings" = "Open System Settings";
 "app.accessibility.later" = "Later";
 "app.settings.title" = "QuickHub Settings";

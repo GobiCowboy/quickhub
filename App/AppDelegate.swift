@@ -81,10 +81,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var panelDismissMonitor: Any?
     private var debugMonitor: Any?
     private var languageObserver: NSObjectProtocol?
+    private var appActivationObserver: NSObjectProtocol?
     fileprivate var rightClickEventTap: CFMachPort?
     private var rightClickRunLoopSource: CFRunLoopSource?
     private var welcomeWindow: NSWindow?
     private var accessibilityAlertShown = false
+    private var lastAccessibilityTrustedState = false
     // 保存当前 Finder 选中项，在面板打开时获取
     private var currentFinderSelection: [URL] = []
     private(set) var finderWasActive = false
@@ -118,6 +120,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // 初始化存储服务
         _ = StorageService.shared
+        lastAccessibilityTrustedState = AXIsProcessTrusted()
 
         // 提供标准编辑菜单，保证文本框里 ⌘V / ⌘C / ⌘A 等快捷键可用。
         setupEditMenu()
@@ -127,6 +130,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 创建浮动面板
         setupPanel()
+
+        // 监听从系统设置返回后的权限状态变化
+        observeAccessibilityPermissionChanges()
 
         // 检查辅助功能权限
         checkAccessibilityPermission()
@@ -155,6 +161,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 检查是否是首次运行
         checkFirstRun()
+    }
+
+    private func observeAccessibilityPermissionChanges() {
+        guard appActivationObserver == nil else { return }
+
+        appActivationObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: NSApp,
+            queue: .main
+        ) { [weak self] _ in
+            self?.refreshAccessibilityDependentFeaturesIfNeeded()
+        }
     }
 
     private func setupEditMenu() {
@@ -261,6 +279,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         accessibilityAlertShown = false
+    }
+
+    private func refreshAccessibilityDependentFeaturesIfNeeded() {
+        let trusted = AXIsProcessTrusted()
+        guard trusted != lastAccessibilityTrustedState else { return }
+
+        lastAccessibilityTrustedState = trusted
+        print("[AppDelegate] 辅助功能权限状态变化: \(trusted)")
+
+        setupGlobalHotKey()
+        setupRightClickInterceptor()
     }
 
     private func setupStatusItem() {

@@ -312,7 +312,7 @@
 
 /* App Delegate */
 "app.accessibility.title" = "需要辅助功能权限";
-"app.accessibility.message" = "全局快捷键和右键拦截需要辅助功能权限；读取 Finder 选区还需要允许 QuickHub 控制 Finder。请在系统设置中开启对应权限，然后重启应用。";
+"app.accessibility.message" = "全局快捷键和右键拦截需要辅助功能权限；读取 Finder 选区还需要允许 QuickHub 控制 Finder。请在系统设置中开启对应权限，返回应用后会自动生效。";
 "app.accessibility.open_settings" = "打开系统设置";
 "app.accessibility.later" = "稍后";
 "app.settings.title" = "QuickHub 设置";
