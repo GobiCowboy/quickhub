@@ -14,12 +14,13 @@ Minimal, fast macOS super toolbox. One key press gives your Finder infinite poss
 
 ### Download & Install
 
-#### Direct Download (Recommended)
-Download the packaged app: https://github.com/GobiCowboy/quickhub/releases/latest
+Download the latest release: https://github.com/GobiCowboy/quickhub/releases/latest
 
-1. Download `QuickHub-arm64.zip`
-2. Extract and drag to **Applications** folder
-3. On first run, right-click and select "Open"
+1. Download `QuickHub-arm64.zip`, extract and drag to **Applications** folder
+2. On first run, right-click the app and select "Open"
+3. Grant Accessibility permission when prompted (required for global hotkey and right-click)
+4. Click the gear icon in the menu bar to open Settings
+5. Go to General Settings → Enable custom right-click behavior
 
 #### Build from Source
 
@@ -36,12 +37,6 @@ xcodebuild -scheme RightClickX build
 - **⌥ Native Menu on Demand**: Hold Option + Right-click to show the system native context menu directly.
 - **⌨️ Search and Go**: Type to search commands right after the panel appears, press Enter to execute instantly.
 - **🔄 Built-in Update**: Check for updates in Settings → About. Downloads, installs, and restarts automatically.
-
-### Quick Start
-
-1. **Run the app**: QuickHub icon appears in menu bar.
-2. **Settings**: Click the gear icon to open settings.
-3. **Enable Right-Click**: Settings → General Settings → Enable custom right-click behavior.
 
 ### Why QuickHub?
 
@@ -70,12 +65,13 @@ QuickHub supports **English** and **Chinese**. You can switch languages in **Set
 
 ### 下载安装
 
-#### 直接下载（推荐）
-下载打包好的应用：https://github.com/GobiCowboy/quickhub/releases/latest
+下载最新版本：https://github.com/GobiCowboy/quickhub/releases/latest
 
-1. 下载 `QuickHub-arm64.zip`
-2. 解压后拖到 **应用程序** 文件夹
-3. 首次运行需要右键点击选择"打开"
+1. 下载 `QuickHub-arm64.zip`，解压后拖到 **应用程序** 文件夹
+2. 首次运行需要右键点击选择"打开"
+3. 弹出权限提示时授予辅助功能权限（全局快捷键和右键拦截需要）
+4. 点击菜单栏齿轮图标打开设置
+5. 设置 → 通用设置 → 启用自定义右键行为
 
 #### 从源码编译
 
@@ -92,12 +88,6 @@ xcodebuild -scheme RightClickX build
 - **⌥ 原生菜单随时可用**: 按住 Option + 右键 可直接显示系统原生右键菜单。
 - **⌨️ 即搜即用**: 呼出面板后直接打字搜索命令，按回车立即执行。
 - **🔄 应用内更新**: 在 设置 → 关于 中检查更新，自动下载、安装并重启。
-
-### 快速开始
-
-1. **运行应用**: 菜单栏会出现 QuickHub 图标。
-2. **设置**: 点击齿轮图标打开设置。
-3. **开启右键**: 设置 → 通用设置 → 启用自定义右键行为。
 
 ### 为什么选择 QuickHub？
 
