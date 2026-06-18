@@ -40,8 +40,8 @@ xcodebuild -scheme RightClickX build
 ### Quick Start
 
 1. **Run the app**: QuickHub icon appears in menu bar.
-2. **Enable Right-Click**: Settings → General Settings → Enable custom right-click behavior.
-3. **Settings**: Click the gear icon to customize your tools.
+2. **Settings**: Click the gear icon to open settings.
+3. **Enable Right-Click**: Settings → General Settings → Enable custom right-click behavior.
 
 ### Why QuickHub?
 
@@ -95,8 +95,8 @@ xcodebuild -scheme RightClickX build
 ### 快速开始
 
 1. **运行应用**: 菜单栏会出现 QuickHub 图标。
-2. **开启右键**: 设置 → 通用设置 → 启用自定义右键行为。
-3. **设置**: 点击齿轮图标进入设置，自定义你的工具箱。
+2. **设置**: 点击齿轮图标打开设置。
+3. **开启右键**: 设置 → 通用设置 → 启用自定义右键行为。
 
 ### 为什么选择 QuickHub？
 
