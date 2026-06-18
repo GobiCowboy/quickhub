@@ -52,6 +52,7 @@ xcodebuild -scheme RightClickX build
 ### System Requirements
 
 - macOS 13.0 (Ventura) or later
+- Accessibility permission is required for global hotkey and right-click interception
 
 ### Language Support
 
@@ -107,6 +108,7 @@ xcodebuild -scheme RightClickX build
 ### 系统要求
 
 - macOS 13.0 (Ventura) 或更高版本
+- 需要授予辅助功能权限（用于全局快捷键和右键拦截）
 
 ### 语言支持
 
