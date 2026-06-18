@@ -260,12 +260,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         print("[AppDelegate] 辅助功能权限未授予，自动触发系统权限弹窗")
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
-
-        if StorageService.shared.loadConfig().settings.interceptRightClick {
-            DispatchQueue.main.async { [weak self] in
-                self?.showAccessibilityAlertOnce()
-            }
-        }
     }
 
     private func showAccessibilityAlertOnce() {
