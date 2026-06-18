@@ -34,6 +34,7 @@ Download the latest release: https://github.com/GobiCowboy/quickhub/releases/lat
 1. Download `QuickHub-arm64.zip`, extract and drag to **Applications** folder
 2. Open the app, grant Accessibility permission when prompted
 3. Click the gear icon → Settings → General Settings → Enable custom right-click behavior
+4. Explore other tabs in Settings to customize your commands and tools
 
 #### Build from Source
 
@@ -83,6 +84,7 @@ QuickHub supports **English** and **Chinese**. You can switch languages in **Set
 1. 下载 `QuickHub-arm64.zip`，解压后拖到 **应用程序** 文件夹
 2. 打开应用，授予辅助功能权限
 3. 点击齿轮图标 → 设置 → 通用设置 → 启用自定义右键行为
+4. 在其他设置页面自定义你需要的命令和工具
 
 #### 从源码编译
 
