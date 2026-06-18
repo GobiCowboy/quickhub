@@ -238,7 +238,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         print("[AppDelegate] 辅助功能权限未授予，自动触发系统权限弹窗")
-        // 自动弹出系统辅助功能权限对话框（无需用户手动去设置）
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
     }

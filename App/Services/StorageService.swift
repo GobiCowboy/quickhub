@@ -190,7 +190,23 @@ class StorageService: StorageServiceProtocol {
     // MARK: - 默认配置
 
     static func defaultGroups() -> [CommandGroup] {
-        return requiredGroups()
+        [
+            CommandGroup(name: "新建文件/文件夹", icon: "folder.badge.plus", items: [
+                CommandItem(name: "新建文件夹", icon: "folder.fill", type: .createFolder),
+                CommandItem(name: "Markdown", icon: "doc.richtext", type: .createFile, fileExtension: "md"),
+                CommandItem(name: "Pages", icon: "doc.richtext.fill", type: .createFile, fileExtension: "pages"),
+            ]),
+            CommandGroup(name: "命令", icon: "terminal"),
+            CommandGroup(name: "打开文件夹", icon: "folder", items: [
+                CommandItem(name: "open_folder.downloads", icon: "arrow.down.circle.fill", type: .openFinder, targetPath: "~/Downloads"),
+                CommandItem(name: "open_folder.applications", icon: "app.fill", type: .openFinder, targetPath: "~/Applications"),
+                CommandItem(name: "open_folder.documents", icon: "doc.fill", type: .openFinder, targetPath: "~/Documents"),
+            ]),
+            CommandGroup(name: "打开应用", icon: "app", items: [
+                CommandItem(name: "Pages", icon: "doc.richtext.fill", type: .openApp, targetPath: "/Applications/Pages.app"),
+                CommandItem(name: "Keynote", icon: "play.rectangle.fill", type: .openApp, targetPath: "/Applications/Keynote.app"),
+            ]),
+        ]
     }
 
     static func requiredGroups() -> [CommandGroup] {
