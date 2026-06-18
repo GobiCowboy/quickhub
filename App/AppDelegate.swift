@@ -82,6 +82,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var debugMonitor: Any?
     private var languageObserver: NSObjectProtocol?
     private var appActivationObserver: NSObjectProtocol?
+    private var needsPostLaunchAccessibilityRefresh = true
     fileprivate var rightClickEventTap: CFMachPort?
     private var rightClickRunLoopSource: CFRunLoopSource?
     private var welcomeWindow: NSWindow?
@@ -131,20 +132,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 创建浮动面板
         setupPanel()
 
+        // 隐藏 Dock 图标（菜单栏应用）
+        NSApp.setActivationPolicy(.accessory)
+
         // 监听从系统设置返回后的权限状态变化
         observeAccessibilityPermissionChanges()
 
         // 检查辅助功能权限
         checkAccessibilityPermission()
-
-        // 监听全局快捷键
-        setupGlobalHotKey()
-
-        // 监听全局右键，用 QuickHub 面板替代系统右键菜单
-        setupRightClickInterceptor()
-
-        // 调试：监听 Ctrl+Option+Command+D 打印 Finder 选择
-        setupDebugHotkey()
 
         // 监听快捷键设置变化通知
         NotificationCenter.default.addObserver(
@@ -156,8 +151,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.setupRightClickInterceptor()
         }
 
-        // 隐藏 Dock 图标（菜单栏应用）
-        NSApp.setActivationPolicy(.accessory)
+        NSApp.activate(ignoringOtherApps: true)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.setupGlobalHotKey()
+            self?.setupRightClickInterceptor()
+            self?.schedulePostLaunchAccessibilityRefresh()
+        }
+
+        // 调试：监听 Ctrl+Option+Command+D 打印 Finder 选择
+        setupDebugHotkey()
 
         // 检查是否是首次运行
         checkFirstRun()
@@ -281,12 +284,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         accessibilityAlertShown = false
     }
 
-    private func refreshAccessibilityDependentFeaturesIfNeeded() {
+    private func schedulePostLaunchAccessibilityRefresh() {
+        guard needsPostLaunchAccessibilityRefresh else { return }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            self?.refreshAccessibilityDependentFeaturesIfNeeded(forceRefresh: true)
+        }
+    }
+
+    private func refreshAccessibilityDependentFeaturesIfNeeded(forceRefresh: Bool = false) {
         let trusted = AXIsProcessTrusted()
-        guard trusted != lastAccessibilityTrustedState else { return }
+        let accessibilityStateChanged = trusted != lastAccessibilityTrustedState
+        let needsRefresh = forceRefresh || accessibilityStateChanged
+
+        guard needsRefresh else { return }
+
+        if accessibilityStateChanged {
+            print("[AppDelegate] 辅助功能权限状态变化: \(trusted)")
+        } else if forceRefresh || needsPostLaunchAccessibilityRefresh {
+            print("[AppDelegate] 启动后补做辅助功能依赖刷新")
+        }
 
         lastAccessibilityTrustedState = trusted
-        print("[AppDelegate] 辅助功能权限状态变化: \(trusted)")
+        needsPostLaunchAccessibilityRefresh = false
 
         setupGlobalHotKey()
         setupRightClickInterceptor()
