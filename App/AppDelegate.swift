@@ -82,11 +82,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var debugMonitor: Any?
     private var languageObserver: NSObjectProtocol?
     private var appActivationObserver: NSObjectProtocol?
-    private var needsPostLaunchAccessibilityRefresh = true
     fileprivate var rightClickEventTap: CFMachPort?
     private var rightClickRunLoopSource: CFRunLoopSource?
     private var welcomeWindow: NSWindow?
     private var accessibilityAlertShown = false
+    private var accessibilityPromptPresentedThisLaunch = false
     private var lastAccessibilityTrustedState = false
     // 保存当前 Finder 选中项，在面板打开时获取
     private var currentFinderSelection: [URL] = []
@@ -154,8 +154,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
 
         DispatchQueue.main.async { [weak self] in
-            self?.setupGlobalHotKey()
-            self?.setupRightClickInterceptor()
+            self?.refreshAccessibilityDependentFeatures(reason: "startup")
             self?.schedulePostLaunchAccessibilityRefresh()
         }
 
@@ -174,7 +173,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             object: NSApp,
             queue: .main
         ) { [weak self] _ in
-            self?.refreshAccessibilityDependentFeaturesIfNeeded()
+            self?.refreshAccessibilityDependentFeatures(reason: "app became active")
         }
     }
 
@@ -261,6 +260,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         print("[AppDelegate] 辅助功能权限未授予，自动触发系统权限弹窗")
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
+
+        if StorageService.shared.loadConfig().settings.interceptRightClick {
+            DispatchQueue.main.async { [weak self] in
+                self?.showAccessibilityAlertOnce()
+            }
+        }
+    }
+
+    private func showAccessibilityAlertOnce() {
+        guard !accessibilityPromptPresentedThisLaunch else { return }
+        accessibilityPromptPresentedThisLaunch = true
+        showAccessibilityAlert()
     }
 
     private func showAccessibilityAlert() {
@@ -285,28 +296,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func schedulePostLaunchAccessibilityRefresh() {
-        guard needsPostLaunchAccessibilityRefresh else { return }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
-            self?.refreshAccessibilityDependentFeaturesIfNeeded(forceRefresh: true)
+        for delay in [0.35, 1.0, 2.0] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                self?.refreshAccessibilityDependentFeatures(reason: "post-launch retry \(delay)s")
+            }
         }
     }
 
-    private func refreshAccessibilityDependentFeaturesIfNeeded(forceRefresh: Bool = false) {
+    private func refreshAccessibilityDependentFeatures(reason: String) {
         let trusted = AXIsProcessTrusted()
         let accessibilityStateChanged = trusted != lastAccessibilityTrustedState
-        let needsRefresh = forceRefresh || accessibilityStateChanged
-
-        guard needsRefresh else { return }
 
         if accessibilityStateChanged {
             print("[AppDelegate] 辅助功能权限状态变化: \(trusted)")
-        } else if forceRefresh || needsPostLaunchAccessibilityRefresh {
-            print("[AppDelegate] 启动后补做辅助功能依赖刷新")
         }
 
         lastAccessibilityTrustedState = trusted
-        needsPostLaunchAccessibilityRefresh = false
+        print("[AppDelegate] 刷新辅助功能依赖: \(reason), trusted=\(trusted)")
 
         setupGlobalHotKey()
         setupRightClickInterceptor()

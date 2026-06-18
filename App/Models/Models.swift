@@ -126,7 +126,7 @@ struct AppSettings: Codable {
     var hotkey: HotkeyConfiguration? = HotkeyConfiguration.defaultHotkey
     var launchAtLogin: Bool = true
     var showNotifications: Bool = false
-    var interceptRightClick: Bool = true
+    var interceptRightClick: Bool = false
     var rightClickDefaultAction: RightClickDefaultAction = .quickHub
     var legacyDefaultsPrunedRevision: Int = 0
 
@@ -146,7 +146,7 @@ struct AppSettings: Codable {
         hotkey = try container.decodeIfPresent(HotkeyConfiguration.self, forKey: .hotkey) ?? HotkeyConfiguration.defaultHotkey
         launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? true
         showNotifications = try container.decodeIfPresent(Bool.self, forKey: .showNotifications) ?? false
-        interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? true
+        interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? false
         rightClickDefaultAction = try container.decodeIfPresent(RightClickDefaultAction.self, forKey: .rightClickDefaultAction) ?? .quickHub
         legacyDefaultsPrunedRevision = try container.decodeIfPresent(Int.self, forKey: .legacyDefaultsPrunedRevision) ?? 0
     }
