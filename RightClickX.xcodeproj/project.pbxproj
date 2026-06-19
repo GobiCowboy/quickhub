@@ -455,7 +455,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.quickhub.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
 				PRODUCT_NAME = QuickHub;
 				SDKROOT = macosx;
 			};
@@ -529,7 +529,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.quickhub.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rightclickx.app;
 				PRODUCT_NAME = QuickHub;
 				SDKROOT = macosx;
 			};

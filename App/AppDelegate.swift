@@ -50,7 +50,7 @@ fileprivate func rightClickEventTapCallback(
 }
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    private let logger = Logger(subsystem: "com.quickhub.app", category: "RightClick")
+    private let logger = Logger(subsystem: "com.rightclickx.app", category: "RightClick")
 
     private enum PanelInvocationSource {
         case menuBar
