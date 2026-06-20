@@ -83,17 +83,12 @@ struct IconPickerSheet: View {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill(Color.secondary.opacity(0.1))
                         .frame(width: 48, height: 48)
-                    if selectedIcon.hasPrefix("openmoji/"), let image = loadOpenMojiImage(name: selectedIcon) {
+                    if let image = IconImageLoader.loadImage(named: selectedIcon) {
                         Image(nsImage: image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 32, height: 32)
-                    } else if selectedIcon.hasPrefix("/"), let image = NSImage(contentsOfFile: selectedIcon) {
-                        Image(nsImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 32, height: 32)
-                    } else if selectedIcon.isEmpty {
+                    } else if selectedIcon.isEmpty || IconImageLoader.isImageReference(selectedIcon) {
                         Image(systemName: "command")
                             .font(.title3)
                             .foregroundColor(.secondary)
@@ -216,13 +211,4 @@ struct IconPickerSheet: View {
         }
     }
 
-    private func loadOpenMojiImage(name: String) -> NSImage? {
-        let pathComponent = name.hasPrefix("openmoji/") ? String(name.dropFirst(9)) : name
-        let fileName = (pathComponent as NSString).deletingPathExtension
-        let ext = (pathComponent as NSString).pathExtension.isEmpty ? "png" : (pathComponent as NSString).pathExtension
-        if let path = Bundle.main.path(forResource: fileName, ofType: ext) {
-            return NSImage(contentsOfFile: path)
-        }
-        return nil
-    }
 }

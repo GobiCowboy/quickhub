@@ -3,7 +3,9 @@ import ServiceManagement
 import AppKit
 
 struct GeneralSettingsView: View {
+    private let highlightRightClickToggle: Bool
     @State private var launchAtLogin = false
+    @State private var showMenuBarIcon = true
     @State private var showNotifications = false
     @State private var hotkeyEnabled = false
     @State private var interceptRightClick = false
@@ -14,6 +16,12 @@ struct GeneralSettingsView: View {
     @State private var pendingAssetURL: String = ""
     @State private var downloadProgress: Double = 0
     @StateObject private var localeManager = LocaleManager.shared
+    @State private var rightClickHighlightPulse = false
+    @State private var rightClickGuideVisible = false
+
+    init(highlightRightClickToggle: Bool = false) {
+        self.highlightRightClickToggle = highlightRightClickToggle
+    }
 
     private enum UpdateStatus: Equatable {
         case idle
@@ -37,167 +45,219 @@ struct GeneralSettingsView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                SettingsPageHeader(
-                    title: localized("settings.category.general"),
-                    subtitle: localized("settings.general.desc"),
-                    icon: "gear"
-                )
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    SettingsPageHeader(
+                        title: localized("settings.category.general"),
+                        subtitle: localized("settings.general.desc"),
+                        icon: "gear"
+                    )
 
-                SettingsSurface(title: localized("settings.general.section.language"), systemImage: "globe") {
-                    SettingsValueRow(title: localized("settings.general.language"), icon: "character.bubble") {
-                        Picker("", selection: $localeManager.currentLanguage) {
-                            ForEach(LocaleManager.Language.allCases, id: \.self) { language in
-                                Text(language.rawValue).tag(language)
+                    if rightClickGuideVisible {
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "hand.point.up.left.fill")
+                                .foregroundStyle(Color.accentColor)
+                                .padding(.top, 1)
+
+                            Text("先在这里开启自定义右键行为，然后再选右键面板默认动作。")
+                                .font(.system(size: 12))
+                                .foregroundStyle(.secondary)
+
+                            Spacer()
+                        }
+                        .padding(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(Color.accentColor.opacity(0.08))
+                        )
+                    }
+
+                    SettingsSurface(title: localized("settings.general.section.language"), systemImage: "globe") {
+                        SettingsValueRow(title: localized("settings.general.language"), icon: "character.bubble") {
+                            Picker("", selection: $localeManager.currentLanguage) {
+                                ForEach(LocaleManager.Language.allCases, id: \.self) { language in
+                                    Text(language.rawValue).tag(language)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(width: 150)
+                            .onChange(of: localeManager.currentLanguage) { _ in
+                                // 语言切换后刷新视图
                             }
                         }
-                        .labelsHidden()
-                        .frame(width: 150)
-                        .onChange(of: localeManager.currentLanguage) { _ in
-                            // 语言切换后刷新视图
+                    }
+
+                    SettingsSurface(title: localized("settings.general.section.startup"), systemImage: "power") {
+                        VStack(spacing: 8) {
+                            SettingsToggleRow(
+                                title: localized("settings.general.launch_at_login"),
+                                icon: "arrow.up.forward.app",
+                                isOn: $launchAtLogin
+                            ) {
+                                saveSettings()
+                            }
+
+                            Divider()
+
+                            SettingsToggleRow(
+                                title: localized("settings.general.show_menu_bar_icon"),
+                                icon: "menubar.rectangle",
+                                isOn: $showMenuBarIcon
+                            ) {
+                                saveSettings()
+                            }
                         }
                     }
-                }
 
-                SettingsSurface(title: localized("settings.general.section.startup"), systemImage: "power") {
-                    SettingsToggleRow(
-                        title: localized("settings.general.launch_at_login"),
-                        icon: "arrow.up.forward.app",
-                        isOn: $launchAtLogin
-                    ) {
-                        saveSettings()
-                    }
-                }
-
-                SettingsSurface(title: localized("settings.general.section.notifications"), systemImage: "bell") {
-                    SettingsToggleRow(
-                        title: localized("settings.general.show_notifications"),
-                        icon: "bell.badge",
-                        isOn: $showNotifications
-                    ) {
-                        saveSettings()
-                    }
-                }
-
-                SettingsSurface(title: localized("settings.general.section.shortcut"), systemImage: "keyboard") {
-                    VStack(spacing: 8) {
+                    SettingsSurface(title: localized("settings.general.section.notifications"), systemImage: "bell") {
                         SettingsToggleRow(
-                            title: localized("settings.general.enable_global_hotkey"),
-                            icon: "keyboard.badge.eye",
-                            isOn: $hotkeyEnabled
+                            title: localized("settings.general.show_notifications"),
+                            icon: "bell.badge",
+                            isOn: $showNotifications
                         ) {
                             saveSettings()
                         }
+                    }
 
-                        if hotkeyEnabled {
-                            SettingsValueRow(title: localized("settings.general.open_panel"), icon: "command") {
-                                Text("⌥ Option + Q")
-                                    .font(.system(.body, design: .monospaced))
+                    SettingsSurface(title: localized("settings.general.section.shortcut"), systemImage: "keyboard") {
+                        VStack(spacing: 8) {
+                            SettingsToggleRow(
+                                title: localized("settings.general.enable_global_hotkey"),
+                                icon: "keyboard.badge.eye",
+                                isOn: $hotkeyEnabled
+                            ) {
+                                saveSettings()
+                            }
+
+                            if hotkeyEnabled {
+                                SettingsValueRow(title: localized("settings.general.open_panel"), icon: "command") {
+                                    Text("⌥ Option + Q")
+                                        .font(.system(.body, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Divider()
+                            }
+
+                            SettingsToggleRow(
+                                title: localized("settings.general.intercept_right_click"),
+                                icon: "cursorarrow.click.2",
+                                isOn: $interceptRightClick,
+                                onChange: {
+                                    saveSettings()
+                                },
+                                isHighlighted: highlightRightClickToggle,
+                                highlightPulse: rightClickHighlightPulse
+                            )
+                            .id("general.intercept_right_click")
+
+                            if interceptRightClick {
+                                SettingsValueRow(
+                                    title: localized("settings.general.right_click_default_action"),
+                                    icon: "arrow.left.and.right.righttriangle.left.righttriangle.right"
+                                ) {
+                                    Picker("", selection: $rightClickDefaultAction) {
+                                        Text(localized("settings.general.right_click_action.quickhub"))
+                                            .tag(RightClickDefaultAction.quickHub)
+                                        Text(localized("settings.general.right_click_action.system"))
+                                            .tag(RightClickDefaultAction.systemNative)
+                                    }
+                                    .labelsHidden()
+                                    .frame(width: 180)
+                                    .onChange(of: rightClickDefaultAction) { _ in
+                                        saveSettings()
+                                    }
+                                }
+
+                                HStack(spacing: 10) {
+                                    Image(systemName: "info.circle")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundStyle(.blue)
+                                        .frame(width: 22)
+
+                                    Text(rightClickHint)
+                                        .font(.system(size: 12))
+
+                                    Spacer()
+                                }
+
+                                Divider()
+                            }
+                        }
+                    }
+
+                    SettingsSurface(title: localized("settings.general.section.about"), systemImage: "info.circle") {
+                        VStack(spacing: 8) {
+                            SettingsValueRow(title: localized("settings.general.version"), icon: "app.badge") {
+                                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
+                                    .font(.system(size: 12))
                                     .foregroundColor(.secondary)
                             }
 
                             Divider()
-                        }
 
-                        SettingsToggleRow(
-                            title: localized("settings.general.intercept_right_click"),
-                            icon: "cursorarrow.click.2",
-                            isOn: $interceptRightClick
-                        ) {
-                            saveSettings()
-                        }
+                            SettingsLinkRow(title: localized("settings.general.github"), icon: "link", url: URL(string: "https://github.com/GobiCowboy/quickhub")!)
 
-                        if interceptRightClick {
-                            SettingsValueRow(
-                                title: localized("settings.general.right_click_default_action"),
-                                icon: "arrow.left.and.right.righttriangle.left.righttriangle.right"
+                            Divider()
+
+                            SettingsLinkRow(title: localized("settings.general.feedback"), icon: "exclamationmark.bubble", url: URL(string: "https://github.com/GobiCowboy/quickhub/issues")!)
+
+                            Divider()
+
+                            SettingsActionRow(
+                                title: updateButtonTitle,
+                                icon: "arrow.down.circle"
                             ) {
-                                Picker("", selection: $rightClickDefaultAction) {
-                                    Text(localized("settings.general.right_click_action.quickhub"))
-                                        .tag(RightClickDefaultAction.quickHub)
-                                    Text(localized("settings.general.right_click_action.system"))
-                                        .tag(RightClickDefaultAction.systemNative)
-                                }
-                                .labelsHidden()
-                                .frame(width: 180)
-                                .onChange(of: rightClickDefaultAction) { _ in
-                                    saveSettings()
-                                }
+                                checkForUpdates()
                             }
 
-                            HStack(spacing: 10) {
-                                Image(systemName: "info.circle")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundStyle(.blue)
-                                    .frame(width: 22)
+                            if updateStatus != .idle {
+                                updateStatusView
+                            }
+                        }
+                    }
 
-                                Text(rightClickHint)
-                                    .font(.system(size: 12))
-
-                                Spacer()
+                    SettingsSurface(title: localized("settings.general.section.advanced"), systemImage: "wrench.and.screwdriver") {
+                        VStack(spacing: 8) {
+                            SettingsActionRow(
+                                title: localized("settings.general.open_config_dir"),
+                                icon: "folder"
+                            ) {
+                                openConfigDirectory()
                             }
 
                             Divider()
+
+                            SettingsActionRow(
+                                title: localized("settings.general.reset_all"),
+                                icon: "arrow.counterclockwise"
+                            ) {
+                                resetToDefaults()
+                            }
                         }
                     }
                 }
-
-                SettingsSurface(title: localized("settings.general.section.about"), systemImage: "info.circle") {
-                    VStack(spacing: 8) {
-                        SettingsValueRow(title: localized("settings.general.version"), icon: "app.badge") {
-                            Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                        }
-
-                        Divider()
-
-                        SettingsLinkRow(title: localized("settings.general.github"), icon: "link", url: URL(string: "https://github.com/GobiCowboy/quickhub")!)
-
-                        Divider()
-
-                        SettingsLinkRow(title: localized("settings.general.feedback"), icon: "exclamationmark.bubble", url: URL(string: "https://github.com/GobiCowboy/quickhub/issues")!)
-
-                        Divider()
-
-                        SettingsActionRow(
-                            title: updateButtonTitle,
-                            icon: "arrow.down.circle"
-                        ) {
-                            checkForUpdates()
-                        }
-
-                        if updateStatus != .idle {
-                            updateStatusView
+                .padding(22)
+            }
+            .onAppear {
+                loadSettings()
+                if highlightRightClickToggle {
+                    rightClickGuideVisible = true
+                    rightClickHighlightPulse = false
+                    DispatchQueue.main.async {
+                        proxy.scrollTo("general.intercept_right_click", anchor: .center)
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                            rightClickHighlightPulse = true
                         }
                     }
-                }
-
-                SettingsSurface(title: localized("settings.general.section.advanced"), systemImage: "wrench.and.screwdriver") {
-                    VStack(spacing: 8) {
-                        SettingsActionRow(
-                            title: localized("settings.general.open_config_dir"),
-                            icon: "folder"
-                        ) {
-                            openConfigDirectory()
-                        }
-
-                        Divider()
-
-                        SettingsActionRow(
-                            title: localized("settings.general.reset_all"),
-                            icon: "arrow.counterclockwise"
-                        ) {
-                            resetToDefaults()
-                        }
-                    }
+                } else {
+                    rightClickGuideVisible = false
+                    rightClickHighlightPulse = false
                 }
             }
-            .padding(22)
-        }
-        .onAppear {
-            loadSettings()
         }
         .alert(localized("settings.general.update_confirm_title"), isPresented: $showUpdateAlert) {
             Button(localized("settings.general.update_now")) {
@@ -215,6 +275,7 @@ struct GeneralSettingsView: View {
         let settings = StorageService.shared.loadConfig().settings
         hotkeyEnabled = !(settings.hotkey?.isEmpty ?? true)
         launchAtLogin = settings.launchAtLogin
+        showMenuBarIcon = settings.showMenuBarIcon
         showNotifications = settings.showNotifications
         interceptRightClick = settings.interceptRightClick
         rightClickDefaultAction = settings.rightClickDefaultAction
@@ -224,6 +285,7 @@ struct GeneralSettingsView: View {
         var config = StorageService.shared.loadConfig()
         config.settings.hotkey = hotkeyEnabled ? HotkeyConfiguration.defaultHotkey : nil
         config.settings.launchAtLogin = launchAtLogin
+        config.settings.showMenuBarIcon = showMenuBarIcon
         config.settings.showNotifications = showNotifications
         config.settings.interceptRightClick = interceptRightClick
         config.settings.rightClickDefaultAction = rightClickDefaultAction
@@ -231,6 +293,7 @@ struct GeneralSettingsView: View {
 
         // 更新开机自动启动状态
         updateLaunchAtLogin()
+        AppDelegate.shared?.updateStatusItemVisibility()
 
         // 通知 AppDelegate 重新注册快捷键
         NotificationCenter.default.post(name: .hotkeySettingsChanged, object: nil)
@@ -513,6 +576,7 @@ struct GeneralSettingsView: View {
         loadSettings()
         NotificationCenter.default.post(name: .hotkeySettingsChanged, object: nil)
         updateLaunchAtLogin()
+        AppDelegate.shared?.updateStatusItemVisibility()
     }
 }
 
@@ -544,6 +608,8 @@ private struct SettingsToggleRow: View {
     let icon: String
     @Binding var isOn: Bool
     let onChange: () -> Void
+    var isHighlighted: Bool = false
+    var highlightPulse: Bool = false
 
     var body: some View {
         SettingsValueRow(title: title, icon: icon) {
@@ -553,6 +619,17 @@ private struct SettingsToggleRow: View {
                     onChange()
                 }
         }
+        .padding(.horizontal, isHighlighted ? 8 : 0)
+        .padding(.vertical, isHighlighted ? 6 : 0)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(isHighlighted ? Color.accentColor.opacity(highlightPulse ? 0.12 : 0.06) : Color.clear)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(isHighlighted ? Color.accentColor.opacity(highlightPulse ? 0.95 : 0.35) : Color.clear, lineWidth: 1.5)
+        )
+        .shadow(color: isHighlighted ? Color.accentColor.opacity(highlightPulse ? 0.3 : 0.12) : .clear, radius: 8, x: 0, y: 0)
     }
 }
 

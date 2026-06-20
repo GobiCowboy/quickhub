@@ -15,6 +15,7 @@
 		1367E9A7F7CC2830E656C812 /* OpenAppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865B7CDAA1F1F3E818463B1C /* OpenAppSettingsView.swift */; };
 		16E7FEF71E606CB4F6BD3407 /* ClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A49F71CEC121CFECF621F041 /* ClipboardService.swift */; };
 		1B24385D7AF9167856C58CDE /* PopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC13C34B9725268ECCD5DC0D /* PopoverView.swift */; };
+		2129F414626BA0CADC567260 /* IconImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B6753325A92B577B9F4052 /* IconImageLoader.swift */; };
 		2A2E395497ADC138658BF325 /* shortcut.png in Resources */ = {isa = PBXBuildFile; fileRef = 09DF498F1A8961084923BA75 /* shortcut.png */; };
 		2CFF92060D84E2017AD906ED /* CommandItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540FCF3FADA218AA38BAA3CB /* CommandItemRow.swift */; };
 		2DB450B32D6F524EFB12801E /* git_status.png in Resources */ = {isa = PBXBuildFile; fileRef = C9E739F70A7BD5A9349C0252 /* git_status.png */; };
@@ -77,6 +78,7 @@
 		5688DBA434F72AFBAE9F1DD2 /* view_column.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = view_column.png; sourceTree = "<group>"; };
 		56F680A69EFA1548BD00B1D1 /* NewFileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFileSettingsView.swift; sourceTree = "<group>"; };
 		57928AB4F02DE345B0D8E616 /* compress.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = compress.png; sourceTree = "<group>"; };
+		57B6753325A92B577B9F4052 /* IconImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconImageLoader.swift; sourceTree = "<group>"; };
 		5B2CF0E8BCEC0D87CE115F7A /* BitwardenService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitwardenService.swift; sourceTree = "<group>"; };
 		6A8D86811EA5E1580715F591 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		6C31D3FC40B8D8A3AA6A2504 /* paste.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = paste.png; sourceTree = "<group>"; };
@@ -268,6 +270,7 @@
 			children = (
 				368C6D096A58F4C9E20486DD /* GlobalHotkeyManager.swift */,
 				9E2AAE41F1B4E4AA4255B3AE /* HotkeyUtil.swift */,
+				57B6753325A92B577B9F4052 /* IconImageLoader.swift */,
 				0CA5E08B15554530DA1DB254 /* LocaleManager.swift */,
 				E6677DE9F743276986260D16 /* Localizable.swift */,
 				E7BA1D5430556502508834E5 /* PinyinMatcher.swift */,
@@ -410,6 +413,7 @@
 				89E365FE96B2D8404E126E1A /* GroupSectionView.swift in Sources */,
 				BA9BB7F141BD13B8E0EDC531 /* HotkeyRecorderView.swift in Sources */,
 				99FBC52DC35E21EF90796E72 /* HotkeyUtil.swift in Sources */,
+				2129F414626BA0CADC567260 /* IconImageLoader.swift in Sources */,
 				D827D562AAC998563248994A /* IconPickerSheet.swift in Sources */,
 				0A7D75B79DA85383C21E83F5 /* ItemEditorSheet.swift in Sources */,
 				F8C3882BAD408099E0889AB9 /* LocaleManager.swift in Sources */,

@@ -64,6 +64,7 @@
 "settings.general.language" = "Language";
 "settings.general.section.startup" = "Startup";
 "settings.general.launch_at_login" = "Launch at login";
+"settings.general.show_menu_bar_icon" = "Show menu bar icon";
 "settings.general.section.notifications" = "Notifications";
 "settings.general.show_notifications" = "Show notification after command execution";
 "settings.general.section.shortcut" = "Shortcut";

@@ -107,44 +107,23 @@ struct CommandIconChip: View {
     }
 
     private var isLocalImage: Bool {
-        item.icon.hasPrefix("/") || item.icon.hasPrefix("openmoji/")
+        IconImageLoader.isImageReference(item.icon)
     }
 
     @ViewBuilder
     private var icon: some View {
-        if item.icon.hasPrefix("/"), let image = NSImage(contentsOfFile: item.icon) {
-            // 本地文件路径
+        if let image = IconImageLoader.loadImage(named: item.icon) {
             Image(nsImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: size * 0.66, height: size * 0.66)
-        } else if item.icon.hasPrefix("openmoji/") {
-            // OpenMoji 彩色图标 (Bundle 资源)
-            if let image = loadOpenMoji(name: item.icon) {
-                Image(nsImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: size * 0.66, height: size * 0.66)
-            } else {
-                Image(systemName: "photo")
-                    .font(.system(size: size * 0.4))
-                    .foregroundColor(.white)
-            }
+        } else if IconImageLoader.isImageReference(item.icon) {
+            Image(systemName: "photo")
+                .font(.system(size: size * 0.4))
+                .foregroundColor(.white)
         } else {
-            // SF Symbol
             Image(systemName: item.icon.isEmpty ? "command" : item.icon)
         }
-    }
-
-    private func loadOpenMoji(name: String) -> NSImage? {
-        // name = "openmoji/terminal.png" → fileName = "terminal", ext = "png"
-        let pathComponent = name.hasPrefix("openmoji/") ? String(name.dropFirst(9)) : name
-        let fileName = (pathComponent as NSString).deletingPathExtension
-        let ext = (pathComponent as NSString).pathExtension.isEmpty ? "png" : (pathComponent as NSString).pathExtension
-        if let path = Bundle.main.path(forResource: fileName, ofType: ext) {
-            return NSImage(contentsOfFile: path)
-        }
-        return nil
     }
 }
 

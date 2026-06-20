@@ -64,6 +64,7 @@
 "settings.general.language" = "语言";
 "settings.general.section.startup" = "启动";
 "settings.general.launch_at_login" = "开机自动启动";
+"settings.general.show_menu_bar_icon" = "显示菜单栏图标";
 "settings.general.section.notifications" = "通知";
 "settings.general.show_notifications" = "执行命令后显示通知";
 "settings.general.section.shortcut" = "快捷键";

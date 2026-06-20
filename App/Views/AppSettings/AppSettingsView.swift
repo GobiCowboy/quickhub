@@ -3,10 +3,16 @@ import SwiftUI
 // MARK: - 设置视图
 
 struct AppSettingsView: View {
-    @State private var selectedCategory: SettingsCategory = .newFile
+    @State private var selectedCategory: SettingsCategory
     @State private var config = StorageService.shared.loadConfig()
     @State private var editingItem: EditableItem?
     @State private var refreshTrigger = false  // 用于触发视图刷新
+    private let focusTarget: AppSettingsFocusTarget?
+
+    init(initialCategory: SettingsCategory = .general, focusTarget: AppSettingsFocusTarget? = nil) {
+        _selectedCategory = State(initialValue: initialCategory)
+        self.focusTarget = focusTarget
+    }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -81,7 +87,7 @@ struct AppSettingsView: View {
             case .menuSort:
                 MenuSortSettingsView(config: $config)
             case .general:
-                GeneralSettingsView()
+                GeneralSettingsView(highlightRightClickToggle: focusTarget == .generalRightClick)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -273,32 +279,32 @@ enum EditableItem: Identifiable, Equatable {
 // MARK: - 设置分类
 
 enum SettingsCategory: String, CaseIterable {
+    case general = "general"
     case newFile = "new_file"
     case openFolder = "open_folder"
     case openApp = "open_app"
     case shell = "shell"
     case menuSort = "menu_sort"
-    case general = "general"
 
     var title: String {
         switch self {
+        case .general: return localized("settings.category.general")
         case .newFile: return localized("settings.category.new_file")
         case .openFolder: return localized("settings.category.open_folder")
         case .openApp: return localized("settings.category.open_app")
         case .shell: return localized("settings.category.shell")
         case .menuSort: return localized("settings.category.menu_sort")
-        case .general: return localized("settings.category.general")
         }
     }
 
     var icon: String {
         switch self {
+        case .general: return "gear"
         case .newFile: return "doc.badge.plus"
         case .openFolder: return "folder"
         case .openApp: return "app"
         case .shell: return "terminal"
         case .menuSort: return "list.bullet"
-        case .general: return "gear"
         }
     }
 }

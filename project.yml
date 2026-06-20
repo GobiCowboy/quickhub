@@ -28,7 +28,7 @@ targets:
           - "**/.DS_Store"
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.rightclickx.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.quickhub.app
         INFOPLIST_FILE: App/Info.plist
         PRODUCT_NAME: QuickHub
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

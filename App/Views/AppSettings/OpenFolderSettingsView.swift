@@ -70,17 +70,12 @@ struct OpenFolderSettingsView: View {
                         // 图标选择
                         Button(action: { showIconPicker = true }) {
                             HStack(spacing: 8) {
-                                if customIcon.hasPrefix("openmoji/"), let image = loadBundleImage(customIcon) {
+                                if let image = IconImageLoader.loadImage(named: customIcon) {
                                     Image(nsImage: image)
                                         .resizable()
                                         .aspectRatio(contentMode: .fit)
                                         .frame(width: 20, height: 20)
-                                } else if customIcon.hasPrefix("/"), let image = NSImage(contentsOfFile: customIcon) {
-                                    Image(nsImage: image)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 20, height: 20)
-                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                        .clipShape(RoundedRectangle(cornerRadius: customIcon.hasPrefix("/") ? 4 : 0))
                                 } else {
                                     Image(systemName: customIcon)
                                         .font(.system(size: 15, weight: .medium))
@@ -203,16 +198,6 @@ struct OpenFolderSettingsView: View {
                 customFolderName = url.lastPathComponent
             }
         }
-    }
-
-    private func loadBundleImage(_ name: String) -> NSImage? {
-        let pathComponent = name.hasPrefix("openmoji/") ? String(name.dropFirst(9)) : name
-        let fileName = (pathComponent as NSString).deletingPathExtension
-        let ext = (pathComponent as NSString).pathExtension.isEmpty ? "png" : (name as NSString).pathExtension
-        if let path = Bundle.main.path(forResource: fileName, ofType: ext) {
-            return NSImage(contentsOfFile: path)
-        }
-        return nil
     }
 
     private func ensureGroup(name: String, icon: String) {

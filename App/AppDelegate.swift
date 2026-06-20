@@ -128,6 +128,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 创建菜单栏按钮
         setupStatusItem()
+        updateStatusItemVisibility()
 
         // 创建浮动面板
         setupPanel()
@@ -160,9 +161,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // 调试：监听 Ctrl+Option+Command+D 打印 Finder 选择
         setupDebugHotkey()
+    }
 
-        // 检查是否是首次运行
-        checkFirstRun()
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            openSettings()
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        return true
     }
 
     private func observeAccessibilityPermissionChanges() {
@@ -210,13 +217,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openSettingsFromMenu() {
         openSettings()
-    }
-
-    private func checkFirstRun() {
-        let hasSeenWelcome = UserDefaults.standard.bool(forKey: "hasSeenWelcomeV1")
-        if !hasSeenWelcome {
-            showWelcome()
-        }
     }
 
     private func showWelcome() {
@@ -314,13 +314,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem.length = NSStatusItem.squareLength
 
         if let button = statusItem.button {
-            if let image = NSImage(named: "MenuBarIcon") {
+            button.imageScaling = .scaleProportionallyDown
+
+            if let image = NSImage(named: "MenuBarIcon")?.copy() as? NSImage {
                 image.isTemplate = true
+                image.size = NSSize(width: 18, height: 18)
                 button.image = image
             } else {
-                button.image = NSImage(systemSymbolName: "command.circle.fill", accessibilityDescription: "QuickHub")
+                let fallback = NSImage(systemSymbolName: "command.circle.fill", accessibilityDescription: "QuickHub")
+                fallback?.isTemplate = true
+                fallback?.size = NSSize(width: 18, height: 18)
+                button.image = fallback
             }
 
             let menu = NSMenu()
@@ -341,6 +348,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             statusItem.menu = menu
         }
+    }
+
+    func updateStatusItemVisibility() {
+        guard let statusItem else { return }
+        let settings = StorageService.shared.loadConfig().settings
+        statusItem.isVisible = settings.showMenuBarIcon
     }
 
     private func setupPanel() {
@@ -819,13 +832,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    func openSettings() {
+    func openSettings(initialCategory: SettingsCategory = .general, focusTarget: AppSettingsFocusTarget? = nil) {
         CommandExecutor.shared.dismissFileInfoPanel()
         closePanel()
 
         var needsDeferredCentering = false
         if settingsWindow == nil {
-            let settingsView = AppSettingsView()
+            let settingsView = AppSettingsView(initialCategory: initialCategory, focusTarget: focusTarget)
             let hostingController = NSHostingController(rootView: settingsView)
             settingsHostingController = hostingController
 
@@ -857,7 +870,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         } else {
-            settingsHostingController?.rootView = AppSettingsView()
+            settingsHostingController?.rootView = AppSettingsView(initialCategory: initialCategory, focusTarget: focusTarget)
         }
 
         guard let settingsWindow else { return }

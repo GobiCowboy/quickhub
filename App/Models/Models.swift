@@ -25,6 +25,10 @@ enum RightClickDefaultAction: String, Codable, CaseIterable {
     case systemNative = "system_native"
 }
 
+enum AppSettingsFocusTarget: Equatable {
+    case generalRightClick
+}
+
 // MARK: - 命令项
 struct CommandItem: Identifiable, Codable, Hashable {
     var id: UUID
@@ -125,6 +129,7 @@ struct AppConfig: Codable {
 struct AppSettings: Codable {
     var hotkey: HotkeyConfiguration? = HotkeyConfiguration.defaultHotkey
     var launchAtLogin: Bool = true
+    var showMenuBarIcon: Bool = true
     var showNotifications: Bool = false
     var interceptRightClick: Bool = false
     var rightClickDefaultAction: RightClickDefaultAction = .quickHub
@@ -135,6 +140,7 @@ struct AppSettings: Codable {
     enum CodingKeys: String, CodingKey {
         case hotkey
         case launchAtLogin
+        case showMenuBarIcon
         case showNotifications
         case interceptRightClick
         case rightClickDefaultAction
@@ -145,6 +151,7 @@ struct AppSettings: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         hotkey = try container.decodeIfPresent(HotkeyConfiguration.self, forKey: .hotkey) ?? HotkeyConfiguration.defaultHotkey
         launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? true
+        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
         showNotifications = try container.decodeIfPresent(Bool.self, forKey: .showNotifications) ?? false
         interceptRightClick = try container.decodeIfPresent(Bool.self, forKey: .interceptRightClick) ?? false
         rightClickDefaultAction = try container.decodeIfPresent(RightClickDefaultAction.self, forKey: .rightClickDefaultAction) ?? .quickHub

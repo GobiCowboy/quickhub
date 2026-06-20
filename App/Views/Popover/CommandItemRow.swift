@@ -95,8 +95,11 @@ struct CommandItemRow: View {
                 let result = try await CommandExecutor.shared.execute(item, context: context)
                 if result.success {
                     showNotification(title: item.name, message: result.output)
+                } else {
+                    print("[CommandItemRow] 执行失败: \(result.output)")
                 }
             } catch {
+                print("[CommandItemRow] 执行异常: \(error)")
                 showNotification(title: localized("notification.execution_failed"), message: error.localizedDescription)
             }
             isExecuting = false

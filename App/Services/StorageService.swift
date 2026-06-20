@@ -103,6 +103,14 @@ class StorageService: StorageServiceProtocol {
             changed = true
         }
 
+        if config.settings.legacyDefaultsPrunedRevision < 8 {
+            if migrateRemoveLegacyStarterItemsFromAllGroups() {
+                changed = true
+            }
+            config.settings.legacyDefaultsPrunedRevision = 8
+            changed = true
+        }
+
         // 每次启动清理旧版命令名称（不限 revision）
         if migrateCleanStaleCommands() {
             changed = true
@@ -191,21 +199,10 @@ class StorageService: StorageServiceProtocol {
 
     static func defaultGroups() -> [CommandGroup] {
         [
-            CommandGroup(name: "新建文件/文件夹", icon: "folder.badge.plus", items: [
-                CommandItem(name: "新建文件夹", icon: "folder.fill", type: .createFolder),
-                CommandItem(name: "Markdown", icon: "doc.richtext", type: .createFile, fileExtension: "md"),
-                CommandItem(name: "Pages", icon: "doc.richtext.fill", type: .createFile, fileExtension: "pages"),
-            ]),
+            CommandGroup(name: "新建文件/文件夹", icon: "folder.badge.plus"),
             CommandGroup(name: "命令", icon: "terminal"),
-            CommandGroup(name: "打开文件夹", icon: "folder", items: [
-                CommandItem(name: "open_folder.downloads", icon: "arrow.down.circle.fill", type: .openFinder, targetPath: "~/Downloads"),
-                CommandItem(name: "open_folder.applications", icon: "app.fill", type: .openFinder, targetPath: "~/Applications"),
-                CommandItem(name: "open_folder.documents", icon: "doc.fill", type: .openFinder, targetPath: "~/Documents"),
-            ]),
-            CommandGroup(name: "打开应用", icon: "app", items: [
-                CommandItem(name: "Pages", icon: "doc.richtext.fill", type: .openApp, targetPath: "/Applications/Pages.app"),
-                CommandItem(name: "Keynote", icon: "play.rectangle.fill", type: .openApp, targetPath: "/Applications/Keynote.app"),
-            ]),
+            CommandGroup(name: "打开文件夹", icon: "folder"),
+            CommandGroup(name: "打开应用", icon: "app"),
         ]
     }
 
@@ -341,7 +338,6 @@ class StorageService: StorageServiceProtocol {
     /// 为已有用户补入新的默认命令项（不覆盖用户已有配置）
     private func migrateAddDefaultGroups() -> Bool {
         let defaults = Self.defaultCommandItems()
-        let defaultNames = Set(defaults.map { $0.name })
 
         // 找到 "命令" 分组，没有则创建
         let groupIndex: Int
@@ -467,5 +463,58 @@ class StorageService: StorageServiceProtocol {
         let beforeCount = config.groups[groupIndex].items.count
         config.groups[groupIndex].items.removeAll { legacyStarterNames.contains($0.name) }
         return config.groups[groupIndex].items.count != beforeCount
+    }
+
+    /// v8: 彻底移除历史默认项，保留空分组供用户自行配置
+    private func migrateRemoveLegacyStarterItemsFromAllGroups() -> Bool {
+        var changed = false
+
+        func pruneItems(in groupName: String, shouldRemove: (CommandItem) -> Bool) {
+            guard let groupIndex = config.groups.firstIndex(where: { $0.name == groupName }) else { return }
+            let beforeCount = config.groups[groupIndex].items.count
+            config.groups[groupIndex].items.removeAll(where: shouldRemove)
+            if config.groups[groupIndex].items.count != beforeCount {
+                changed = true
+            }
+        }
+
+        pruneItems(in: "新建文件/文件夹") { item in
+            switch item.type {
+            case .createFolder:
+                return item.name == "新建文件夹"
+            case .createFile:
+                return ["Markdown", "Pages"].contains(item.name)
+                    || ["md", "pages"].contains(item.fileExtension ?? "")
+            default:
+                return false
+            }
+        }
+
+        pruneItems(in: "打开文件夹") { item in
+            guard item.type == .openFinder else { return false }
+
+            let normalizedPath = ((item.targetPath ?? "") as NSString).expandingTildeInPath
+            let legacyPaths: Set<String> = [
+                ("~/Downloads" as NSString).expandingTildeInPath,
+                ("~/Applications" as NSString).expandingTildeInPath,
+                ("~/Documents" as NSString).expandingTildeInPath
+            ]
+
+            return ["open_folder.downloads", "open_folder.applications", "open_folder.documents"].contains(item.name)
+                || legacyPaths.contains(normalizedPath)
+        }
+
+        pruneItems(in: "打开应用") { item in
+            guard item.type == .openApp else { return false }
+
+            let legacyPaths: Set<String> = [
+                "/Applications/Pages.app",
+                "/Applications/Keynote.app"
+            ]
+
+            return ["Pages", "Keynote"].contains(item.name) || legacyPaths.contains(item.targetPath ?? "")
+        }
+
+        return changed
     }
 }
